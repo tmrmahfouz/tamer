@@ -82,6 +82,15 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
+    // التحقق من صحة الـ ID
+    const mongoose = await import('mongoose')
+    if (!mongoose.Types.ObjectId.isValid(params.id)) {
+      return NextResponse.json(
+        { success: false, message: 'معرف الاختبار غير صالح' },
+        { status: 400 }
+      )
+    }
+
     await connectDB()
 
     const token = request.cookies.get('token')?.value
