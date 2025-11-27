@@ -61,7 +61,7 @@ export async function POST(
     const token = request.cookies.get('token')?.value
     if (!token) {
       return NextResponse.json(
-        { success: false, message: 'غير مصرح' },
+        { success: false, message: 'غير مصرح - لم يتم العثور على رمز الدخول، يرجى تسجيل الدخول مرة أخرى' },
         { status: 401 }
       )
     }
@@ -69,14 +69,14 @@ export async function POST(
     const decoded = verifyToken(token)
     if (!decoded) {
       return NextResponse.json(
-        { success: false, message: 'غير مصرح' },
+        { success: false, message: 'غير مصرح - انتهت صلاحية الجلسة، يرجى تسجيل الخروج وتسجيل الدخول مرة أخرى' },
         { status: 401 }
       )
     }
 
     if (decoded.role !== 'admin' && decoded.role !== 'instructor') {
       return NextResponse.json(
-        { success: false, message: 'غير مصرح' },
+        { success: false, message: 'غير مصرح - ليس لديك صلاحية لإضافة وحدات' },
         { status: 403 }
       )
     }
