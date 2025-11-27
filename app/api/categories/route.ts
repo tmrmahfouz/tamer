@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import connectDB from '@/lib/mongodb'
 import Category from '@/models/Category'
-import jwt from 'jsonwebtoken'
-
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key'
+import { verifyToken } from '@/lib/jwt'
 
 // GET all categories
 export async function GET(req: NextRequest) {
@@ -68,17 +66,15 @@ export async function POST(req: NextRequest) {
     }
 
     // Verify token
-    let decoded: any
-    try {
-      decoded = jwt.verify(token, JWT_SECRET)
-    } catch (error) {
+    const decoded = verifyToken(token)
+    if (!decoded) {
       return NextResponse.json(
         { success: false, message: 'غير مصرح' },
         { status: 401 }
       )
     }
 
-    if (!decoded || (decoded.role !== 'admin' && decoded.role !== 'instructor')) {
+    if (decoded.role !== 'admin' && decoded.role !== 'instructor') {
       return NextResponse.json(
         { success: false, message: 'غير مصرح' },
         { status: 403 }
