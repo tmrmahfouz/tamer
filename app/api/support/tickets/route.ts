@@ -103,7 +103,7 @@ export async function POST(request: NextRequest) {
 
     const userObjectId = new mongoose.Types.ObjectId(decoded.userId)
 
-    const ticket = await SupportTicket.create({
+    const ticketDoc = await SupportTicket.create({
       user: userObjectId,
       subject,
       category,
@@ -119,7 +119,7 @@ export async function POST(request: NextRequest) {
       ],
     } as any)
 
-    await ticket.populate('user', 'name email')
+    const ticket = await SupportTicket.findById((ticketDoc as any)._id).populate('user', 'name email')
 
     return NextResponse.json(
       {
