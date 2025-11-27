@@ -111,15 +111,17 @@ export async function PUT(
     
     console.log('Update quiz body:', body)
     
-    // تنظيف البيانات قبل التحديث
-    const updateData: any = {
-      title: body.title,
-      description: body.description || '',
-      passingScore: body.passingScore || 70,
-      timeLimit: body.timeLimit || 30,
-      maxAttempts: body.maxAttempts || 3,
-      isPublished: body.isPublished || false,
-    }
+    // بناء كائن التحديث فقط بالحقول الموجودة
+    const updateData: any = {}
+    
+    // إضافة الحقول فقط إذا كانت موجودة في الطلب
+    if (body.title !== undefined) updateData.title = body.title
+    if (body.description !== undefined) updateData.description = body.description
+    if (body.passingScore !== undefined) updateData.passingScore = body.passingScore
+    if (body.timeLimit !== undefined) updateData.timeLimit = body.timeLimit
+    if (body.maxAttempts !== undefined) updateData.maxAttempts = body.maxAttempts
+    if (body.isPublished !== undefined) updateData.isPublished = body.isPublished
+    if (body.isActive !== undefined) updateData.isActive = body.isActive
     
     // إضافة الدورة (دعم course أو courseId)
     const courseId = body.course || body.courseId
@@ -129,30 +131,17 @@ export async function PUT(
     const lessonId = body.lesson || body.lessonId
     if (lessonId) {
       updateData.lesson = lessonId
-    } else {
-      updateData.$unset = { lesson: 1 }
     }
     
     // إضافة الأسئلة إذا وجدت
-    if (body.questions) updateData.questions = body.questions
+    if (body.questions !== undefined) updateData.questions = body.questions
 
-    // إذا كان هناك $unset، نستخدمه بشكل منفصل
-    let quiz
-    if (updateData.$unset) {
-      const unsetData = updateData.$unset
-      delete updateData.$unset
-      quiz = await Quiz.findByIdAndUpdate(
-        params.id,
-        { $set: updateData, $unset: unsetData },
-        { new: true, runValidators: true }
-      )
-    } else {
-      quiz = await Quiz.findByIdAndUpdate(
-        params.id,
-        { $set: updateData },
-        { new: true, runValidators: true }
-      )
-    }
+    // تحديث الاختبار
+    const quiz = await Quiz.findByIdAndUpdate(
+      params.id,
+      { $set: updateData },
+      { new: true, runValidators: true }
+    )
 
     if (!quiz) {
       return NextResponse.json(
