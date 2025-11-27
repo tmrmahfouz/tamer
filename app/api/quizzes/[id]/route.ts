@@ -109,29 +109,50 @@ export async function PUT(
 
     const body = await request.json()
     
+    console.log('Update quiz body:', body)
+    
     // تنظيف البيانات قبل التحديث
     const updateData: any = {
       title: body.title,
-      description: body.description,
-      passingScore: body.passingScore,
-      timeLimit: body.timeLimit,
-      maxAttempts: body.maxAttempts,
-      isPublished: body.isPublished,
+      description: body.description || '',
+      passingScore: body.passingScore || 70,
+      timeLimit: body.timeLimit || 30,
+      maxAttempts: body.maxAttempts || 3,
+      isPublished: body.isPublished || false,
     }
     
-    // إضافة الدورة والدرس إذا وجدا
-    if (body.course) updateData.course = body.course
-    if (body.lesson) updateData.lesson = body.lesson
-    else updateData.lesson = null
+    // إضافة الدورة (دعم course أو courseId)
+    const courseId = body.course || body.courseId
+    if (courseId) updateData.course = courseId
+    
+    // إضافة الدرس (دعم lesson أو lessonId)
+    const lessonId = body.lesson || body.lessonId
+    if (lessonId) {
+      updateData.lesson = lessonId
+    } else {
+      updateData.$unset = { lesson: 1 }
+    }
     
     // إضافة الأسئلة إذا وجدت
     if (body.questions) updateData.questions = body.questions
 
-    const quiz = await Quiz.findByIdAndUpdate(
-      params.id,
-      { $set: updateData },
-      { new: true, runValidators: true }
-    )
+    // إذا كان هناك $unset، نستخدمه بشكل منفصل
+    let quiz
+    if (updateData.$unset) {
+      const unsetData = updateData.$unset
+      delete updateData.$unset
+      quiz = await Quiz.findByIdAndUpdate(
+        params.id,
+        { $set: updateData, $unset: unsetData },
+        { new: true, runValidators: true }
+      )
+    } else {
+      quiz = await Quiz.findByIdAndUpdate(
+        params.id,
+        { $set: updateData },
+        { new: true, runValidators: true }
+      )
+    }
 
     if (!quiz) {
       return NextResponse.json(
