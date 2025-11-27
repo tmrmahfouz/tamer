@@ -1,24 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { verifyToken } from '@/lib/jwt'
+import { verifyToken, TokenPayload } from '@/lib/jwt'
 import connectDB from '@/lib/mongodb'
 import Project from '@/models/Project'
-import jwt from 'jsonwebtoken'
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key'
-
-async function verifyAdmin(request: NextRequest) {
+function verifyAdmin(request: NextRequest): TokenPayload | null {
   const token = request.cookies.get('token')?.value
   if (!token) return null
   
   try {
     const decoded = verifyToken(token)
-    if (!decoded) {
-      return NextResponse.json(
-        { success: false, message: 'غير مصرح' },
-        { status: 401 }
-      )
-    }
-    if (decoded.role !== 'admin') return null
+    if (!decoded || decoded.role !== 'admin') return null
     return decoded
   } catch {
     return null
