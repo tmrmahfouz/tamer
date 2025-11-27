@@ -2,9 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { verifyToken } from '@/lib/jwt'
 import connectDB from '@/lib/mongodb'
 import StudyGroup from '@/models/StudyGroup'
-import jwt from 'jsonwebtoken'
-
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key'
+import mongoose from 'mongoose'
 
 // GET - جلب مجموعة واحدة
 export async function GET(
@@ -62,6 +60,8 @@ export async function PUT(
       return NextResponse.json({ success: false, message: 'المجموعة غير موجودة' }, { status: 404 })
     }
 
+    const userObjectId = new mongoose.Types.ObjectId(decoded.userId)
+
     switch (action) {
       case 'join':
         // التحقق من كود الدعوة للمجموعات الخاصة
@@ -75,15 +75,16 @@ export async function PUT(
         }
         
         // التحقق من عدم الانضمام مسبقاً
-        if (group.members.includes(decoded.userId)) {
+        const isMember = group.members.some((id: any) => id.toString() === decoded.userId)
+        if (isMember) {
           return NextResponse.json({ success: false, message: 'أنت عضو بالفعل' }, { status: 400 })
         }
         
-        group.members.push(decoded.userId)
+        group.members.push(userObjectId as any)
         break
 
       case 'leave':
-        const memberIndex = group.members.indexOf(decoded.userId)
+        const memberIndex = group.members.findIndex((id: any) => id.toString() === decoded.userId)
         if (memberIndex > -1) {
           group.members.splice(memberIndex, 1)
         }
@@ -114,7 +115,7 @@ export async function PUT(
         }
         
         const { memberId } = body
-        const idx = group.members.indexOf(memberId)
+        const idx = group.members.findIndex((id: any) => id.toString() === memberId)
         if (idx > -1) {
           group.members.splice(idx, 1)
         }
