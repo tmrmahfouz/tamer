@@ -9,6 +9,7 @@ export interface ICertificate extends Document {
   completionDate: Date
   grade: number
   verificationCode: string
+  status: 'active' | 'revoked'
   createdAt: Date
   updatedAt: Date
 }
@@ -53,6 +54,11 @@ const CertificateSchema = new Schema<ICertificate>(
       type: String,
       required: true,
       unique: true,
+    },
+    status: {
+      type: String,
+      enum: ['active', 'revoked'],
+      default: 'active',
     },
   },
   {

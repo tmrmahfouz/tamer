@@ -198,6 +198,7 @@ export async function POST(request: NextRequest) {
       certificateNumber,
       verificationCode,
       issuedAt: new Date(),
+      status: 'active',
     })
 
     // Update enrollment
