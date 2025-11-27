@@ -270,6 +270,35 @@ export default function PaymentGatewaysPage() {
         })}
       </div>
 
+      {/* Empty State - Show when no gateways */}
+      {gateways.length === 0 && (
+        <div className="bg-white rounded-xl shadow-lg p-12 text-center">
+          <CreditCard className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+          <h3 className="text-xl font-bold text-gray-900 mb-2">لا توجد بوابات دفع</h3>
+          <p className="text-gray-600 mb-6">لم يتم إعداد بوابات الدفع بعد. يمكنك إنشاء البوابات الافتراضية.</p>
+          <button
+            onClick={async () => {
+              try {
+                const res = await fetch('/api/payment-gateways/seed', { method: 'POST' })
+                const data = await res.json()
+                if (data.success) {
+                  alert('تم إنشاء بوابات الدفع بنجاح!')
+                  loadGateways()
+                } else {
+                  alert(data.message || 'حدث خطأ')
+                }
+              } catch (error) {
+                alert('حدث خطأ أثناء إنشاء البوابات')
+              }
+            }}
+            className="px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-semibold inline-flex items-center gap-2"
+          >
+            <Plus className="w-5 h-5" />
+            إنشاء بوابات الدفع الافتراضية
+          </button>
+        </div>
+      )}
+
       {/* Info Box */}
       <div className="mt-8 bg-blue-50 border-r-4 border-blue-400 p-6 rounded-lg">
         <h3 className="font-bold text-blue-900 mb-2">💡 ملاحظة هامة</h3>
