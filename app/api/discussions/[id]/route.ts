@@ -2,9 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { verifyToken } from '@/lib/jwt'
 import connectDB from '@/lib/mongodb'
 import Discussion from '@/models/Discussion'
-import jwt from 'jsonwebtoken'
-
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key'
+import mongoose from 'mongoose'
 
 // GET - جلب مناقشة واحدة
 export async function GET(
@@ -126,13 +124,15 @@ export async function PUT(
       return NextResponse.json({ success: false, message: 'المناقشة غير موجودة' }, { status: 404 })
     }
 
+    const userObjectId = new mongoose.Types.ObjectId(decoded.userId)
+
     switch (action) {
       case 'like':
-        const likeIndex = discussion.likes.indexOf(decoded.userId)
+        const likeIndex = discussion.likes.findIndex((id: any) => id.toString() === decoded.userId)
         if (likeIndex > -1) {
           discussion.likes.splice(likeIndex, 1)
         } else {
-          discussion.likes.push(decoded.userId)
+          discussion.likes.push(userObjectId as any)
         }
         break
 
@@ -140,11 +140,11 @@ export async function PUT(
         if (replyId) {
           const reply = (discussion.replies as any).id(replyId)
           if (reply) {
-            const replyLikeIndex = reply.likes.indexOf(decoded.userId)
+            const replyLikeIndex = reply.likes.findIndex((id: any) => id.toString() === decoded.userId)
             if (replyLikeIndex > -1) {
               reply.likes.splice(replyLikeIndex, 1)
             } else {
-              reply.likes.push(decoded.userId)
+              reply.likes.push(userObjectId)
             }
           }
         }
@@ -153,7 +153,7 @@ export async function PUT(
       case 'resolve':
         discussion.isResolved = !discussion.isResolved
         if (discussion.isResolved) {
-          discussion.resolvedBy = decoded.userId
+          discussion.resolvedBy = userObjectId as any
           discussion.resolvedAt = new Date()
         } else {
           discussion.resolvedBy = undefined
