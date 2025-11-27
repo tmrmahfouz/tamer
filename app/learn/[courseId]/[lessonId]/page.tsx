@@ -44,120 +44,47 @@ export default function LessonPage() {
     setIsCompleted(false)
     setProgressLoaded(false)
     
-    checkAuth()
-    loadLesson()
-    loadCourse()
-    loadLessons()
-    loadQuizzes()
-  }, [params.lessonId])
+    // تحميل كل البيانات دفعة واحدة
+    loadAllData()
+  }, [params.lessonId, params.courseId])
 
-  // Load progress after user is authenticated
-  useEffect(() => {
-    if (user) {
-      loadProgress()
-    }
-  }, [user, params.lessonId])
-
-  const checkAuth = async () => {
+  // تحميل كل البيانات من API موحد
+  const loadAllData = async () => {
     try {
-      const response = await fetch('/api/auth/me')
-      const data = await response.json()
-      if (data.success) {
-        setUser(data.user)
-        checkEnrollment(data.user.id)
-      }
-    } catch (error) {
-      console.error('Auth check error:', error)
-    }
-  }
+      const response = await fetch(`/api/learn/${params.courseId}/${params.lessonId}`)
+      const result = await response.json()
 
-  const checkEnrollment = async (userId: string) => {
-    try {
-      const response = await fetch(`/api/enrollments/check?courseId=${params.courseId}&userId=${userId}`)
-      const data = await response.json()
-      setIsEnrolled(data.isEnrolled)
-      if (data.enrollment) {
-        setEnrollment(data.enrollment)
-      }
-    } catch (error) {
-      console.error('Enrollment check error:', error)
-    }
-  }
-
-  const loadLesson = async () => {
-    try {
-      const response = await fetch(`/api/lessons/${params.lessonId}`)
-      const data = await response.json()
-
-      if (data.success) {
+      if (result.success) {
+        const { data } = result
+        
         setLesson(data.lesson)
+        setCourse(data.course)
+        setLessons(data.lessons)
+        setLessonQuiz(data.lessonQuiz)
+        setEnrollment(data.enrollment)
+        setIsEnrolled(data.isEnrolled)
+        setIsCompleted(data.isCurrentLessonCompleted)
+        setCompletedLessons(new Set(data.completedLessons))
+        setUser(data.user)
+        setProgressLoaded(true)
+
+        // التحقق من اجتياز الاختبار إذا وجد
+        if (data.lessonQuiz) {
+          checkQuizAttempt(data.lessonQuiz._id)
+        }
       }
     } catch (error) {
-      console.error('Error loading lesson:', error)
+      console.error('Error loading data:', error)
     } finally {
       setLoading(false)
     }
   }
 
-  const loadCourse = async () => {
-    try {
-      const response = await fetch(`/api/courses/${params.courseId}`)
-      const data = await response.json()
-
-      if (data.success) {
-        setCourse(data.course)
-        console.log('Course loaded:', {
-          title: data.course.title,
-          enforceSequentialLessons: data.course.enforceSequentialLessons
-        })
-      }
-    } catch (error) {
-      console.error('Error loading course:', error)
-    }
-  }
-
-  const loadLessons = async () => {
-    try {
-      const response = await fetch(`/api/courses/${params.courseId}/lessons`)
-      const data = await response.json()
-      if (data.success) {
-        setLessons(data.lessons)
-      }
-    } catch (error) {
-      console.error('Error loading lessons:', error)
-    }
-  }
-
-  const loadQuizzes = async () => {
-    try {
-      const response = await fetch(`/api/quizzes?courseId=${params.courseId}`)
-      const data = await response.json()
-      if (data.success) {
-        setQuizzes(data.quizzes || [])
-        
-        // البحث عن اختبار مرتبط بالدرس الحالي
-        const currentLessonQuiz = (data.quizzes || []).find(
-          (q: any) => q.lesson === params.lessonId || q.lesson?._id === params.lessonId
-        )
-        setLessonQuiz(currentLessonQuiz || null)
-        
-        // تحقق إذا كان الطالب قد اجتاز الاختبار مسبقاً
-        if (currentLessonQuiz) {
-          checkQuizAttempt(currentLessonQuiz._id)
-        }
-      }
-    } catch (error) {
-      console.error('Error loading quizzes:', error)
-    }
-  }
-
   const checkQuizAttempt = async (quizId: string) => {
     try {
-      // استخدام API الموجود لجلب محاولات الاختبار
       const response = await fetch(`/api/quizzes/${quizId}/attempt`)
       const data = await response.json()
       if (data.success && data.attempts && data.attempts.length > 0) {
-        // التحقق إذا كان هناك محاولة ناجحة
         const passedAttempt = data.attempts.find((a: any) => a.passed)
         if (passedAttempt) {
           setQuizPassed(true)
@@ -193,55 +120,6 @@ export default function LessonPage() {
     if (currentIndex > 0) {
       // Use window.location for full page reload to fix video player issues
       window.location.href = `/learn/${params.courseId}/${lessons[currentIndex - 1]._id}`
-    }
-  }
-
-  const loadProgress = async () => {
-    if (!user) {
-      setProgressLoaded(true)
-      return
-    }
-    
-    try {
-      const response = await fetch(`/api/progress?courseId=${params.courseId}`)
-      const data = await response.json()
-      
-      console.log('Progress data loaded:', data)
-      
-      if (data.success && data.progress?.lessons) {
-        // Set completed lessons
-        const completed = new Set<string>(
-          data.progress.lessons
-            .filter((p: any) => p.completed)
-            .map((p: any) => {
-              const lessonId = p.lesson?._id || p.lesson
-              return String(lessonId)
-            })
-        )
-        setCompletedLessons(completed)
-        
-        console.log('Completed lessons:', Array.from(completed))
-        
-        // Check current lesson
-        const currentLessonId = params.lessonId as string
-        const lessonProgress = data.progress.lessons.find(
-          (p: any) => {
-            const lessonId = p.lesson?._id || p.lesson
-            return String(lessonId) === currentLessonId
-          }
-        )
-        
-        if (lessonProgress) {
-          setIsCompleted(lessonProgress.completed)
-          console.log('Current lesson completed:', lessonProgress.completed)
-        } else {
-          setIsCompleted(false)
-        }
-      }
-    } catch (error) {
-      console.error('Error loading progress:', error)
-    } finally {
-      setProgressLoaded(true)
     }
   }
 
