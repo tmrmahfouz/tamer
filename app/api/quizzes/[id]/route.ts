@@ -2,9 +2,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import { verifyToken } from '@/lib/jwt'
 import connectDB from '@/lib/mongodb'
 import Quiz from '@/models/Quiz'
-import jwt from 'jsonwebtoken'
-
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key'
 
 // GET single quiz
 export async function GET(
@@ -90,7 +87,7 @@ export async function PUT(
     const token = request.cookies.get('token')?.value
     if (!token) {
       return NextResponse.json(
-        { success: false, message: 'غير مصرح' },
+        { success: false, message: 'غير مصرح - لم يتم العثور على رمز الدخول' },
         { status: 401 }
       )
     }
@@ -98,7 +95,7 @@ export async function PUT(
     const decoded = verifyToken(token)
     if (!decoded) {
       return NextResponse.json(
-        { success: false, message: 'غير مصرح' },
+        { success: false, message: 'غير مصرح - انتهت صلاحية الجلسة، يرجى تسجيل الدخول مرة أخرى' },
         { status: 401 }
       )
     }
@@ -111,10 +108,28 @@ export async function PUT(
     }
 
     const body = await request.json()
+    
+    // تنظيف البيانات قبل التحديث
+    const updateData: any = {
+      title: body.title,
+      description: body.description,
+      passingScore: body.passingScore,
+      timeLimit: body.timeLimit,
+      maxAttempts: body.maxAttempts,
+      isPublished: body.isPublished,
+    }
+    
+    // إضافة الدورة والدرس إذا وجدا
+    if (body.course) updateData.course = body.course
+    if (body.lesson) updateData.lesson = body.lesson
+    else updateData.lesson = null
+    
+    // إضافة الأسئلة إذا وجدت
+    if (body.questions) updateData.questions = body.questions
 
     const quiz = await Quiz.findByIdAndUpdate(
       params.id,
-      body,
+      { $set: updateData },
       { new: true, runValidators: true }
     )
 
@@ -136,7 +151,7 @@ export async function PUT(
   } catch (error: any) {
     console.error('Update quiz error:', error)
     return NextResponse.json(
-      { success: false, message: 'حدث خطأ أثناء تحديث الاختبار' },
+      { success: false, message: 'حدث خطأ أثناء تحديث الاختبار: ' + error.message },
       { status: 500 }
     )
   }
