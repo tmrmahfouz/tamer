@@ -2,9 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { verifyToken } from '@/lib/jwt'
 import connectDB from '@/lib/mongodb'
 import StudyGroup from '@/models/StudyGroup'
-import jwt from 'jsonwebtoken'
-
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key'
+import mongoose from 'mongoose'
 
 // توليد كود دعوة فريد
 function generateInviteCode(): string {
@@ -82,21 +80,24 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, message: 'الاسم والدورة مطلوبان' }, { status: 400 })
     }
 
+    const userObjectId = new mongoose.Types.ObjectId(decoded.userId)
+    const courseObjectId = new mongoose.Types.ObjectId(courseId)
+
     const group = await StudyGroup.create({
       name,
       description: description || '',
-      course: courseId,
-      creator: decoded.userId,
-      members: [decoded.userId],
+      course: courseObjectId,
+      creator: userObjectId,
+      members: [userObjectId],
       maxMembers: maxMembers || 10,
       isPrivate: isPrivate || false,
       inviteCode: isPrivate ? generateInviteCode() : undefined,
       meetingSchedule,
       meetingLink,
       tags: tags || [],
-    })
+    } as any)
 
-    const populated = await StudyGroup.findById(group._id)
+    const populated = await StudyGroup.findById((group as any)._id)
       .populate('creator', 'name avatar')
       .populate('members', 'name avatar')
       .populate('course', 'title')
