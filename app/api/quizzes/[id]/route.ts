@@ -160,8 +160,17 @@ export async function PUT(
     )
   } catch (error: any) {
     console.error('Update quiz error:', error)
+    console.error('Error stack:', error.stack)
     return NextResponse.json(
-      { success: false, message: 'حدث خطأ أثناء تحديث الاختبار: ' + error.message },
+      { 
+        success: false, 
+        message: 'حدث خطأ أثناء تحديث الاختبار',
+        error: error.message,
+        details: error.errors ? Object.keys(error.errors).map(key => ({
+          field: key,
+          message: error.errors[key].message
+        })) : undefined
+      },
       { status: 500 }
     )
   }
