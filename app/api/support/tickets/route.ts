@@ -2,9 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { verifyToken } from '@/lib/jwt'
 import connectDB from '@/lib/mongodb'
 import SupportTicket from '@/models/SupportTicket'
-import jwt from 'jsonwebtoken'
-
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key'
+import mongoose from 'mongoose'
 
 // GET user tickets or all tickets (admin)
 export async function GET(request: NextRequest) {
@@ -103,21 +101,23 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    const userObjectId = new mongoose.Types.ObjectId(decoded.userId)
+
     const ticket = await SupportTicket.create({
-      user: decoded.userId,
+      user: userObjectId,
       subject,
       category,
       priority: priority || 'medium',
       status: 'open',
       messages: [
         {
-          sender: decoded.userId,
+          sender: userObjectId,
           senderRole: decoded.role,
           message,
           createdAt: new Date(),
         },
       ],
-    })
+    } as any)
 
     await ticket.populate('user', 'name email')
 
