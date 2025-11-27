@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { verifyToken } from '@/lib/jwt'
 import connectDB from '@/lib/mongodb'
 import TwoFactorAuth from '@/models/TwoFactorAuth'
 import User from '@/models/User'
@@ -20,7 +21,13 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const decoded = jwt.verify(token, JWT_SECRET) as any
+    const decoded = verifyToken(token)
+    if (!decoded) {
+      return NextResponse.json(
+        { success: false, message: 'غير مصرح' },
+        { status: 401 }
+      )
+    }
 
     // توليد Secret و Backup Codes
     const secret = Math.random().toString(36).substring(2, 15)
@@ -76,7 +83,13 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    const decoded = jwt.verify(token, JWT_SECRET) as any
+    const decoded = verifyToken(token)
+    if (!decoded) {
+      return NextResponse.json(
+        { success: false, message: 'غير مصرح' },
+        { status: 401 }
+      )
+    }
 
     const twoFA = await TwoFactorAuth.findOne({ user: decoded.userId })
 

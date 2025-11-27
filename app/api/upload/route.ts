@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { verifyToken } from '@/lib/jwt'
 import { writeFile, mkdir } from 'fs/promises'
 import { join } from 'path'
 import { existsSync } from 'fs'
@@ -17,7 +18,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    jwt.verify(token, JWT_SECRET)
+    verifyToken(token)
 
     const formData = await request.formData()
     const file = formData.get('file') as File

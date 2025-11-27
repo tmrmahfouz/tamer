@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { verifyToken } from '@/lib/jwt'
 import connectDB from '@/lib/mongodb'
 import Quiz from '@/models/Quiz'
 import jwt from 'jsonwebtoken'
@@ -30,7 +31,13 @@ export async function GET(
 
     if (token) {
       try {
-        const decoded = jwt.verify(token, JWT_SECRET) as any
+        const decoded = verifyToken(token)
+    if (!decoded) {
+      return NextResponse.json(
+        { success: false, message: 'غير مصرح' },
+        { status: 401 }
+      )
+    }
         isInstructor = decoded.role === 'admin' || decoded.role === 'instructor'
       } catch (error) {
         // Invalid token, treat as student
@@ -92,7 +99,13 @@ export async function PUT(
       )
     }
 
-    const decoded = jwt.verify(token, JWT_SECRET) as any
+    const decoded = verifyToken(token)
+    if (!decoded) {
+      return NextResponse.json(
+        { success: false, message: 'غير مصرح' },
+        { status: 401 }
+      )
+    }
 
     if (decoded.role !== 'admin' && decoded.role !== 'instructor') {
       return NextResponse.json(
@@ -149,7 +162,13 @@ export async function DELETE(
       )
     }
 
-    const decoded = jwt.verify(token, JWT_SECRET) as any
+    const decoded = verifyToken(token)
+    if (!decoded) {
+      return NextResponse.json(
+        { success: false, message: 'غير مصرح' },
+        { status: 401 }
+      )
+    }
 
     if (decoded.role !== 'admin' && decoded.role !== 'instructor') {
       return NextResponse.json(

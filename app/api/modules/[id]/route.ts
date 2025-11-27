@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { verifyToken } from '@/lib/jwt'
 import connectDB from '@/lib/mongodb'
 import Module from '@/models/Module'
 import Lesson from '@/models/Lesson'
@@ -62,7 +63,7 @@ export async function PUT(
     // Verify token
     let decoded: any
     try {
-      decoded = jwt.verify(token, JWT_SECRET)
+      decoded = verifyToken(token)
     } catch (error) {
       return NextResponse.json(
         { success: false, message: 'غير مصرح' },
@@ -133,7 +134,7 @@ export async function DELETE(
     // Verify token
     let decoded: any
     try {
-      decoded = jwt.verify(token, JWT_SECRET)
+      decoded = verifyToken(token)
     } catch (error) {
       return NextResponse.json(
         { success: false, message: 'غير مصرح' },

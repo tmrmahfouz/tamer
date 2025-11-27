@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { verifyToken } from '@/lib/jwt'
 import connectDB from '@/lib/mongodb'
 import Course from '@/models/Course'
 import User from '@/models/User'
@@ -67,7 +68,13 @@ export async function GET(request: NextRequest) {
     const token = request.cookies.get('token')?.value
     if (token) {
       try {
-        const decoded = jwt.verify(token, JWT_SECRET) as any
+        const decoded = verifyToken(token)
+    if (!decoded) {
+      return NextResponse.json(
+        { success: false, message: 'غير مصرح' },
+        { status: 401 }
+      )
+    }
         
         if (decoded.role === 'admin' && (type === 'all' || type === 'instructors')) {
           results.instructors = await User.find({

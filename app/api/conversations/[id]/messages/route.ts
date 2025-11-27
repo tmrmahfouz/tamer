@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { verifyToken } from '@/lib/jwt'
 import connectDB from '@/lib/mongodb'
 import Conversation from '@/models/Conversation'
 import Message from '@/models/Message'
@@ -22,7 +23,13 @@ export async function GET(
       )
     }
 
-    const decoded = jwt.verify(token, JWT_SECRET) as any
+    const decoded = verifyToken(token)
+    if (!decoded) {
+      return NextResponse.json(
+        { success: false, message: 'غير مصرح' },
+        { status: 401 }
+      )
+    }
     const userId = decoded.userId
 
     // Check if user is participant
@@ -118,7 +125,13 @@ export async function POST(
       )
     }
 
-    const decoded = jwt.verify(token, JWT_SECRET) as any
+    const decoded = verifyToken(token)
+    if (!decoded) {
+      return NextResponse.json(
+        { success: false, message: 'غير مصرح' },
+        { status: 401 }
+      )
+    }
     const userId = decoded.userId
 
     // Check if user is participant

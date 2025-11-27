@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { verifyToken } from '@/lib/jwt'
 import connectDB from '@/lib/mongodb'
 import Module from '@/models/Module'
 import jwt from 'jsonwebtoken'
@@ -52,7 +53,7 @@ export async function POST(req: NextRequest) {
     // Verify token
     let decoded: any
     try {
-      decoded = jwt.verify(token, JWT_SECRET)
+      decoded = verifyToken(token)
     } catch (error) {
       return NextResponse.json(
         { success: false, message: 'غير مصرح' },

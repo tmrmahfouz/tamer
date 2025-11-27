@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { verifyToken } from '@/lib/jwt'
 import connectDB from '@/lib/mongodb'
 import Notification from '@/models/Notification'
 import jwt from 'jsonwebtoken'
@@ -21,7 +22,13 @@ export async function PATCH(
       )
     }
 
-    const decoded = jwt.verify(token, JWT_SECRET) as any
+    const decoded = verifyToken(token)
+    if (!decoded) {
+      return NextResponse.json(
+        { success: false, message: 'غير مصرح' },
+        { status: 401 }
+      )
+    }
 
     const notification = await Notification.findOneAndUpdate(
       { _id: params.id, user: decoded.userId },
@@ -68,7 +75,13 @@ export async function DELETE(
       )
     }
 
-    const decoded = jwt.verify(token, JWT_SECRET) as any
+    const decoded = verifyToken(token)
+    if (!decoded) {
+      return NextResponse.json(
+        { success: false, message: 'غير مصرح' },
+        { status: 401 }
+      )
+    }
 
     const notification = await Notification.findOneAndDelete({
       _id: params.id,

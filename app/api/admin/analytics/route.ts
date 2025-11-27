@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { verifyToken } from '@/lib/jwt'
 import connectDB from '@/lib/mongodb'
 import User from '@/models/User'
 import Course from '@/models/Course'
@@ -21,7 +22,13 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    const decoded = jwt.verify(token, JWT_SECRET) as any
+    const decoded = verifyToken(token)
+    if (!decoded) {
+      return NextResponse.json(
+        { success: false, message: 'غير مصرح' },
+        { status: 401 }
+      )
+    }
 
     if (decoded.role !== 'admin') {
       return NextResponse.json(

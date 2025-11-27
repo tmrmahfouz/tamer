@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { verifyToken } from '@/lib/jwt'
 import connectDB from '@/lib/mongodb'
 import Discussion from '@/models/Discussion'
 import jwt from 'jsonwebtoken'
@@ -46,7 +47,13 @@ export async function POST(
       return NextResponse.json({ success: false, message: 'غير مصرح' }, { status: 401 })
     }
 
-    const decoded = jwt.verify(token, JWT_SECRET) as any
+    const decoded = verifyToken(token)
+    if (!decoded) {
+      return NextResponse.json(
+        { success: false, message: 'غير مصرح' },
+        { status: 401 }
+      )
+    }
     if (!decoded) {
       return NextResponse.json({ success: false, message: 'توكن غير صالح' }, { status: 401 })
     }
@@ -100,7 +107,13 @@ export async function PUT(
       return NextResponse.json({ success: false, message: 'غير مصرح' }, { status: 401 })
     }
 
-    const decoded = jwt.verify(token, JWT_SECRET) as any
+    const decoded = verifyToken(token)
+    if (!decoded) {
+      return NextResponse.json(
+        { success: false, message: 'غير مصرح' },
+        { status: 401 }
+      )
+    }
     if (!decoded) {
       return NextResponse.json({ success: false, message: 'توكن غير صالح' }, { status: 401 })
     }
@@ -181,7 +194,13 @@ export async function DELETE(
       return NextResponse.json({ success: false, message: 'غير مصرح' }, { status: 401 })
     }
 
-    const decoded = jwt.verify(token, JWT_SECRET) as any
+    const decoded = verifyToken(token)
+    if (!decoded) {
+      return NextResponse.json(
+        { success: false, message: 'غير مصرح' },
+        { status: 401 }
+      )
+    }
     if (!decoded) {
       return NextResponse.json({ success: false, message: 'توكن غير صالح' }, { status: 401 })
     }

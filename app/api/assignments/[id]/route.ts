@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { verifyToken } from '@/lib/jwt'
 import connectDB from '@/lib/mongodb'
 import Assignment from '@/models/Assignment'
 import Submission from '@/models/Submission'
@@ -15,7 +16,7 @@ export async function GET(
     await connectDB()
 
     const token = request.cookies.get('token')?.value
-    const decoded = token ? jwt.verify(token, JWT_SECRET) as any : null
+    const decoded = token ? verifyToken(token) as any : null
 
     const assignment = await Assignment.findById(params.id)
       .populate('lesson', 'title')
@@ -70,7 +71,13 @@ export async function PUT(
       )
     }
 
-    const decoded = jwt.verify(token, JWT_SECRET) as any
+    const decoded = verifyToken(token)
+    if (!decoded) {
+      return NextResponse.json(
+        { success: false, message: 'غير مصرح' },
+        { status: 401 }
+      )
+    }
 
     if (decoded.role !== 'instructor' && decoded.role !== 'admin') {
       return NextResponse.json(
@@ -127,7 +134,13 @@ export async function DELETE(
       )
     }
 
-    const decoded = jwt.verify(token, JWT_SECRET) as any
+    const decoded = verifyToken(token)
+    if (!decoded) {
+      return NextResponse.json(
+        { success: false, message: 'غير مصرح' },
+        { status: 401 }
+      )
+    }
 
     if (decoded.role !== 'instructor' && decoded.role !== 'admin') {
       return NextResponse.json(

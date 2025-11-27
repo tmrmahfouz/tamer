@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { verifyToken } from '@/lib/jwt'
 import connectDB from '@/lib/mongodb'
-import jwt from 'jsonwebtoken'
 import mongoose from 'mongoose'
-
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key'
 
 // Notification Schema
 const NotificationSchema = new mongoose.Schema({
@@ -23,13 +21,9 @@ async function verifyAdmin(request: NextRequest) {
   const token = request.cookies.get('token')?.value
   if (!token) return null
   
-  try {
-    const decoded = jwt.verify(token, JWT_SECRET) as any
-    if (decoded.role !== 'admin') return null
-    return decoded
-  } catch {
-    return null
-  }
+  const decoded = verifyToken(token)
+  if (!decoded || decoded.role !== 'admin') return null
+  return decoded
 }
 
 // GET all notifications

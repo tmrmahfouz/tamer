@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { verifyToken } from '@/lib/jwt'
 import connectDB from '@/lib/mongodb'
 import Progress from '@/models/Progress'
 import Enrollment from '@/models/Enrollment'
@@ -20,7 +21,13 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    const decoded = jwt.verify(token, JWT_SECRET) as any
+    const decoded = verifyToken(token)
+    if (!decoded) {
+      return NextResponse.json(
+        { success: false, message: 'غير مصرح' },
+        { status: 401 }
+      )
+    }
     const { searchParams } = new URL(request.url)
     const courseId = searchParams.get('courseId')
 
@@ -119,7 +126,13 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const decoded = jwt.verify(token, JWT_SECRET) as any
+    const decoded = verifyToken(token)
+    if (!decoded) {
+      return NextResponse.json(
+        { success: false, message: 'غير مصرح' },
+        { status: 401 }
+      )
+    }
     const body = await request.json()
     const { courseId, lessonId, watchTime, completed } = body
 

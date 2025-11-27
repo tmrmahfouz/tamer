@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { verifyToken } from '@/lib/jwt'
 import connectDB from '@/lib/mongodb'
 import jwt from 'jsonwebtoken'
 
@@ -32,7 +33,7 @@ export async function GET(request: NextRequest) {
 
     let decoded: any
     try {
-      decoded = jwt.verify(token, JWT_SECRET) as any
+      decoded = verifyToken(token) as any
       console.log('✅ Token verified for user:', decoded.userId)
     } catch (jwtError: any) {
       console.error('❌ JWT verification error:', jwtError.message)
@@ -94,7 +95,7 @@ export async function POST(request: NextRequest) {
 
     let decoded: any
     try {
-      decoded = jwt.verify(token, JWT_SECRET) as any
+      decoded = verifyToken(token) as any
     } catch (jwtError: any) {
       console.error('❌ JWT error:', jwtError.message)
       return NextResponse.json(

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { verifyToken } from '@/lib/jwt'
 import connectDB from '@/lib/mongodb'
 import SupportTicket from '@/models/SupportTicket'
 import jwt from 'jsonwebtoken'
@@ -21,7 +22,13 @@ export async function GET(
       )
     }
 
-    const decoded = jwt.verify(token, JWT_SECRET) as any
+    const decoded = verifyToken(token)
+    if (!decoded) {
+      return NextResponse.json(
+        { success: false, message: 'غير مصرح' },
+        { status: 401 }
+      )
+    }
 
     const ticket = await SupportTicket.findById(params.id)
       .populate('user', 'name email')
@@ -76,7 +83,13 @@ export async function PUT(
       )
     }
 
-    const decoded = jwt.verify(token, JWT_SECRET) as any
+    const decoded = verifyToken(token)
+    if (!decoded) {
+      return NextResponse.json(
+        { success: false, message: 'غير مصرح' },
+        { status: 401 }
+      )
+    }
     if (decoded.role !== 'admin') {
       return NextResponse.json(
         { success: false, message: 'غير مصرح - Admin فقط' },
@@ -144,7 +157,13 @@ export async function DELETE(
       )
     }
 
-    const decoded = jwt.verify(token, JWT_SECRET) as any
+    const decoded = verifyToken(token)
+    if (!decoded) {
+      return NextResponse.json(
+        { success: false, message: 'غير مصرح' },
+        { status: 401 }
+      )
+    }
     if (decoded.role !== 'admin') {
       return NextResponse.json(
         { success: false, message: 'غير مصرح - Admin فقط' },

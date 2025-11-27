@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { verifyToken } from '@/lib/jwt'
 import connectDB from '@/lib/mongodb'
 import Quiz from '@/models/Quiz'
 import Lesson from '@/models/Lesson'
@@ -28,7 +29,13 @@ export async function GET(request: NextRequest) {
         )
       }
 
-      const decoded = jwt.verify(token, JWT_SECRET) as any
+      const decoded = verifyToken(token)
+    if (!decoded) {
+      return NextResponse.json(
+        { success: false, message: 'غير مصرح' },
+        { status: 401 }
+      )
+    }
       
       // جلب دورات المعلم
       const instructorCourses = await Course.find({ instructor: decoded.userId }).select('_id')
@@ -88,7 +95,13 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const decoded = jwt.verify(token, JWT_SECRET) as any
+    const decoded = verifyToken(token)
+    if (!decoded) {
+      return NextResponse.json(
+        { success: false, message: 'غير مصرح' },
+        { status: 401 }
+      )
+    }
 
     if (decoded.role !== 'admin' && decoded.role !== 'instructor') {
       return NextResponse.json(

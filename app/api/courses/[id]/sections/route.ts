@@ -2,9 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import connectDB from '@/lib/mongodb'
 import Section from '@/models/Section'
 import Lesson from '@/models/Lesson'
-import jwt from 'jsonwebtoken'
-
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key'
+import { verifyToken } from '@/lib/jwt'
 
 // GET - Get all sections for a course
 export async function GET(
@@ -18,7 +16,6 @@ export async function GET(
       .sort({ order: 1 })
       .lean()
 
-    // Get lessons for each section
     const sectionsWithLessons = await Promise.all(
       sections.map(async (section) => {
         const lessons = await Lesson.find({ section: section._id })
@@ -32,7 +29,6 @@ export async function GET(
       })
     )
 
-    // Get lessons without section
     const lessonsWithoutSection = await Lesson.find({
       course: params.id,
       $or: [{ section: null }, { section: { $exists: false } }],
@@ -70,7 +66,14 @@ export async function POST(
       )
     }
 
-    const decoded = jwt.verify(token, JWT_SECRET) as any
+    const decoded = verifyToken(token)
+    if (!decoded) {
+      return NextResponse.json(
+        { success: false, message: 'غير مصرح' },
+        { status: 401 }
+      )
+    }
+
     if (decoded.role !== 'admin' && decoded.role !== 'instructor') {
       return NextResponse.json(
         { success: false, message: 'غير مصرح' },
@@ -80,7 +83,6 @@ export async function POST(
 
     const body = await request.json()
 
-    // Get the highest order number
     const lastSection = await Section.findOne({ course: params.id })
       .sort({ order: -1 })
       .select('order')

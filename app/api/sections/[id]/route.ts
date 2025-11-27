@@ -2,9 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import connectDB from '@/lib/mongodb'
 import Section from '@/models/Section'
 import Lesson from '@/models/Lesson'
-import jwt from 'jsonwebtoken'
-
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key'
+import { verifyToken } from '@/lib/jwt'
 
 // PUT - Update a section
 export async function PUT(
@@ -22,7 +20,14 @@ export async function PUT(
       )
     }
 
-    const decoded = jwt.verify(token, JWT_SECRET) as any
+    const decoded = verifyToken(token)
+    if (!decoded) {
+      return NextResponse.json(
+        { success: false, message: 'غير مصرح' },
+        { status: 401 }
+      )
+    }
+
     if (decoded.role !== 'admin' && decoded.role !== 'instructor') {
       return NextResponse.json(
         { success: false, message: 'غير مصرح' },
@@ -80,7 +85,14 @@ export async function DELETE(
       )
     }
 
-    const decoded = jwt.verify(token, JWT_SECRET) as any
+    const decoded = verifyToken(token)
+    if (!decoded) {
+      return NextResponse.json(
+        { success: false, message: 'غير مصرح' },
+        { status: 401 }
+      )
+    }
+
     if (decoded.role !== 'admin' && decoded.role !== 'instructor') {
       return NextResponse.json(
         { success: false, message: 'غير مصرح' },
@@ -96,7 +108,6 @@ export async function DELETE(
       )
     }
 
-    // Remove section reference from all lessons in this section
     await Lesson.updateMany(
       { section: params.id },
       { $unset: { section: 1 } }

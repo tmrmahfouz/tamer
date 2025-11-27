@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { verifyToken } from '@/lib/jwt'
 import connectDB from '@/lib/mongodb'
 import Project from '@/models/Project'
 import jwt from 'jsonwebtoken'
@@ -10,7 +11,13 @@ async function verifyAdmin(request: NextRequest) {
   if (!token) return null
   
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as any
+    const decoded = verifyToken(token)
+    if (!decoded) {
+      return NextResponse.json(
+        { success: false, message: 'غير مصرح' },
+        { status: 401 }
+      )
+    }
     if (decoded.role !== 'admin') return null
     return decoded
   } catch {

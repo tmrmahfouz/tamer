@@ -2,9 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import connectDB from '@/lib/mongodb'
 import Lesson from '@/models/Lesson'
 import Course from '@/models/Course'
-import jwt from 'jsonwebtoken'
-
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key'
+import { verifyToken } from '@/lib/jwt'
 
 // GET single lesson
 export async function GET(
@@ -47,9 +45,7 @@ export async function PUT(
   try {
     await connectDB()
 
-    // Get token from cookie
     const token = request.cookies.get('token')?.value
-
     if (!token) {
       return NextResponse.json(
         { success: false, message: 'غير مصرح' },
@@ -57,8 +53,13 @@ export async function PUT(
       )
     }
 
-    // Verify token
-    const decoded = jwt.verify(token, JWT_SECRET) as any
+    const decoded = verifyToken(token)
+    if (!decoded) {
+      return NextResponse.json(
+        { success: false, message: 'غير مصرح' },
+        { status: 401 }
+      )
+    }
 
     const lesson = await Lesson.findById(params.id).populate('course')
 
@@ -69,7 +70,6 @@ export async function PUT(
       )
     }
 
-    // Check if user owns the course
     const course = lesson.course as any
     if (
       decoded.role !== 'admin' &&
@@ -114,9 +114,7 @@ export async function DELETE(
   try {
     await connectDB()
 
-    // Get token from cookie
     const token = request.cookies.get('token')?.value
-
     if (!token) {
       return NextResponse.json(
         { success: false, message: 'غير مصرح' },
@@ -124,8 +122,13 @@ export async function DELETE(
       )
     }
 
-    // Verify token
-    const decoded = jwt.verify(token, JWT_SECRET) as any
+    const decoded = verifyToken(token)
+    if (!decoded) {
+      return NextResponse.json(
+        { success: false, message: 'غير مصرح' },
+        { status: 401 }
+      )
+    }
 
     const lesson = await Lesson.findById(params.id).populate('course')
 
@@ -136,7 +139,6 @@ export async function DELETE(
       )
     }
 
-    // Check if user owns the course
     const course = lesson.course as any
     if (
       decoded.role !== 'admin' &&
@@ -150,7 +152,6 @@ export async function DELETE(
 
     await Lesson.findByIdAndDelete(params.id)
 
-    // Update course lessons count
     await Course.findByIdAndUpdate(course._id, {
       $inc: { lessons: -1 },
     })
