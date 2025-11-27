@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
       }
       
       const result = await generateSummary(
-        lesson.content?.text || lesson.description || '',
+        (lesson.content as any)?.text || lesson.description || '',
         lesson.title
       );
       

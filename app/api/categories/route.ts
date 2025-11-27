@@ -27,7 +27,7 @@ export async function GET(req: NextRequest) {
     const categoriesWithCount = await Promise.all(
       categories.map(async (category) => {
         const coursesCount = await Course.countDocuments({ 
-          category: category._id,
+          category: category._id as any,
           published: true 
         })
         return {

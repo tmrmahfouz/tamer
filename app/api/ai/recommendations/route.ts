@@ -42,14 +42,15 @@ async function generateRecommendations(userId: string): Promise<Recommendation[]
     );
     
     const completedLessons = courseProgress.filter(p => p.completed).length;
-    const totalProgress = enrollment.progress || 0;
+    const totalProgress = typeof enrollment.progress === 'number' ? enrollment.progress : 0;
     
     if (totalProgress > 0 && totalProgress < 100) {
+      const course = enrollment.course as any;
       recommendations.push({
         type: 'course',
-        title: `أكمل دورة "${enrollment.course?.title}"`,
+        title: `أكمل دورة "${course?.title || 'الدورة'}"`,
         description: `لقد أنجزت ${totalProgress}% من الدورة. استمر في التعلم!`,
-        link: `/courses/${enrollment.course?._id}`,
+        link: `/courses/${course?._id}`,
         priority: totalProgress > 50 ? 'high' : 'medium',
         reason: 'بناءً على تقدمك الحالي',
         icon: '📚'
@@ -59,7 +60,7 @@ async function generateRecommendations(userId: string): Promise<Recommendation[]
   
   // 2. New course recommendations based on interests
   const userCategories = enrollments
-    .map(e => e.course?.category)
+    .map(e => (e.course as any)?.category)
     .filter(Boolean);
   
   const uniqueCategories = [...new Set(userCategories)];

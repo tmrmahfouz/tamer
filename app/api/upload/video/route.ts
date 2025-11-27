@@ -99,11 +99,6 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// Configure for large file uploads
-export const config = {
-  api: {
-    bodyParser: {
-      sizeLimit: '500mb',
-    },
-  },
-}
+// Configure for large file uploads (Next.js 14 App Router)
+export const maxDuration = 60
+export const dynamic = 'force-dynamic'

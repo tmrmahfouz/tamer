@@ -637,15 +637,11 @@ export default function HomeEditorPage() {
                                     value={item.icon || item.value || ''}
                                     onChange={(e) => {
                                       const newItems = [...(section.settings.items || [])]
-                                      if (section.type === 'stats') {
-                                        newItems[itemIndex] = { ...item, value: e.target.value }
-                                      } else {
-                                        newItems[itemIndex] = { ...item, icon: e.target.value }
-                                      }
+                                      newItems[itemIndex] = { ...item, icon: e.target.value }
                                       updateSection(index, 'settings.items', newItems)
                                     }}
                                     className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg"
-                                    placeholder={section.type === 'stats' ? '500+' : '🎥'}
+                                    placeholder="🎥"
                                   />
                                 )}
                               </div>

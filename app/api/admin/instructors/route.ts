@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
       instructors.map(async (instructor) => {
         const courses = await Course.find({ instructor: instructor._id }).lean()
         const coursesCount = courses.length
-        const studentsCount = courses.reduce((acc, course) => acc + (course.studentsCount || 0), 0)
+        const studentsCount = courses.reduce((acc, course: any) => acc + (course.studentsCount || 0), 0)
 
         return {
           ...instructor,

@@ -2,7 +2,7 @@
 
 import { useHomeSections } from '@/contexts/HomeSectionsContext'
 import DynamicSection from '@/components/DynamicSection'
-import Navbar from '@/components/Navbar'
+import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import Link from 'next/link'
 import { Eye, Edit } from 'lucide-react'
@@ -20,7 +20,7 @@ export default function DynamicHomePage() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Navbar />
+      <Header />
       
       {/* Admin Control Bar (visible only in this demo) */}
       <div className="bg-gradient-to-r from-purple-600 to-blue-600 text-white py-3">
