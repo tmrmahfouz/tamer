@@ -32,13 +32,9 @@ export async function GET(
     if (token) {
       try {
         const decoded = verifyToken(token)
-    if (!decoded) {
-      return NextResponse.json(
-        { success: false, message: 'غير مصرح' },
-        { status: 401 }
-      )
-    }
-        isInstructor = decoded.role === 'admin' || decoded.role === 'instructor'
+        if (decoded) {
+          isInstructor = decoded.role === 'admin' || decoded.role === 'instructor'
+        }
       } catch (error) {
         // Invalid token, treat as student
       }
