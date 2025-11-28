@@ -653,51 +653,14 @@ export default function PrestoPlayer({ videoUrl, title, studentName }: PrestoPla
       style={{ userSelect: 'none' }}
     >
 
-      {/* Video Player with integrated overlays */}
-      <div className="relative aspect-video" style={{ overflow: 'hidden', clipPath: 'inset(0)' }}>
+      {/* Video Player */}
+      <div className="relative aspect-video">
         {/* YouTube iframe */}
         <div
           id={playerId}
           key={playerId}
-          className="absolute inset-0 w-full h-full"
+          className="w-full h-full"
         />
-
-        {/* Invisible overlay to block YouTube links - CRITICAL PROTECTION LAYER */}
-        <div 
-          className="absolute inset-0"
-          style={{ 
-            zIndex: 10,
-            pointerEvents: 'auto',
-            background: 'transparent',
-            cursor: 'pointer',
-            userSelect: 'none',
-            WebkitUserSelect: 'none',
-          }}
-          onClick={(e) => {
-            e.preventDefault()
-            e.stopPropagation()
-            e.nativeEvent.stopImmediatePropagation()
-            togglePlay()
-          }}
-          onDoubleClick={(e) => {
-            e.preventDefault()
-            e.stopPropagation()
-            e.nativeEvent.stopImmediatePropagation()
-            toggleFullscreen()
-          }}
-          onContextMenu={(e) => {
-            e.preventDefault()
-            e.stopPropagation()
-            return false
-          }}
-        />
-
-        {/* Watermark - شفاف في الوسط */}
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none" style={{ zIndex: 8 }}>
-          <div className="text-white/5 text-7xl font-bold transform -rotate-12">
-            {studentName || settings.siteName}
-          </div>
-        </div>
 
         {/* Custom Controls */}
         <div
