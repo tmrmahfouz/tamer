@@ -664,16 +664,48 @@ export default function PrestoPlayer({ videoUrl, title, studentName }: PrestoPla
         
         {/* Protection Overlay - Prevents clicking on YouTube links */}
         <div
-          className="absolute inset-0 z-10"
+          className="absolute inset-0"
           style={{
             background: 'transparent',
             cursor: 'pointer',
+            zIndex: 15,
+            touchAction: 'manipulation',
           }}
           onClick={togglePlay}
+          onTouchStart={(e) => {
+            // Allow touch but prevent default YouTube behavior
+            e.stopPropagation()
+          }}
+          onTouchEnd={(e) => {
+            e.stopPropagation()
+            togglePlay()
+          }}
           onContextMenu={(e) => {
             e.preventDefault()
             e.stopPropagation()
             return false
+          }}
+        />
+        
+        {/* Top Protection Overlay - Specifically for mobile title bar */}
+        <div
+          className="absolute top-0 left-0 right-0 h-16"
+          style={{
+            background: 'linear-gradient(to bottom, rgba(0,0,0,0.7), transparent)',
+            zIndex: 16,
+            touchAction: 'none',
+          }}
+          onClick={(e) => {
+            e.preventDefault()
+            e.stopPropagation()
+          }}
+          onTouchStart={(e) => {
+            e.preventDefault()
+            e.stopPropagation()
+          }}
+          onTouchEnd={(e) => {
+            e.preventDefault()
+            e.stopPropagation()
           }}
         />
 
@@ -875,6 +907,8 @@ export default function PrestoPlayer({ videoUrl, title, studentName }: PrestoPla
         .ytp-title,
         .ytp-title-text,
         .ytp-title-link,
+        .ytp-title-channel,
+        .ytp-title-channel-logo,
         .ytp-chrome-top,
         .ytp-chrome-top-buttons,
         .ytp-show-cards-title,
@@ -895,7 +929,12 @@ export default function PrestoPlayer({ videoUrl, title, studentName }: PrestoPla
         .branding-img,
         .ytp-chrome-controls .ytp-button[aria-label*="Watch"],
         .annotation,
-        .video-annotations {
+        .video-annotations,
+        .ytp-mobile-a11y-hidden-seek-button,
+        .ytp-title-expanded-title,
+        .ytp-title-expanded-subtitle,
+        .html5-video-info-panel,
+        .ytp-info-panel-preview {
           display: none !important;
           opacity: 0 !important;
           visibility: hidden !important;
