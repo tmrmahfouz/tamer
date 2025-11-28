@@ -769,7 +769,7 @@ export default function LessonPage() {
 
                   // البحث عن اختبار مرتبط بهذا الدرس
                   const relatedQuiz = quizzes.find(
-                    (q: any) => q.lesson === l._id || q.lesson?._id === l._id
+                    (q: any) => String(q.lesson) === String(l._id) || String(q.lesson?._id) === String(l._id)
                   )
 
                   return (
