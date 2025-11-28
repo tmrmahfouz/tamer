@@ -66,7 +66,7 @@ function MyCoursesContent() {
                 <div className="flex-1 min-w-[200px]">
                   <div className="relative">
                     <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                    <input type="text" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="ابحث عن دورة..." className="w-full pr-10 pl-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-primary-600" />
+                    <input type="text" id="course-search" name="course-search" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="ابحث عن دورة..." className="w-full pr-10 pl-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-primary-600" autoComplete="off" />
                   </div>
                 </div>
                 <div className="flex gap-2">

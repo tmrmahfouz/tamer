@@ -45,10 +45,22 @@ const QuestionSchema = new Schema({
     enum: ['multiple-choice', 'true-false', 'short-answer', 'matching', 'ordering'],
     required: true,
   },
-  options: [String],
-  correctAnswer: Schema.Types.Mixed, // string | number | number[]
-  matchingPairs: [MatchingPairSchema], // للتوصيل
-  orderItems: [String], // للترتيب
+  options: {
+    type: [String],
+    default: undefined,
+  },
+  correctAnswer: {
+    type: Schema.Types.Mixed, // string | number | number[]
+    default: undefined,
+  },
+  matchingPairs: {
+    type: [MatchingPairSchema], // للتوصيل
+    default: undefined,
+  },
+  orderItems: {
+    type: [String], // للترتيب
+    default: undefined,
+  },
   points: {
     type: Number,
     default: 1,
