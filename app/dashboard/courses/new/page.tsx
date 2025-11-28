@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Plus, X, Save, Clock, CalendarDays, Layers, Lock } from 'lucide-react'
+import { Plus, X, Save, Clock, CalendarDays, Layers, Lock, Eye } from 'lucide-react'
 import AdminLayout from '@/components/AdminLayout'
 
 export default function NewCoursePage() {
@@ -144,12 +144,12 @@ export default function NewCoursePage() {
   }
 
   return (
-    <AdminLayout title="إنشاء دورة جديدة">
+    <AdminLayout title="Create New Course">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-6 md:mb-8">
-          <h1 className="text-xl md:text-3xl font-bold text-gray-900 mb-2">إنشاء دورة جديدة</h1>
-          <p className="text-gray-600 text-sm md:text-base">أضف معلومات الدورة الأساسية</p>
+          <h1 className="text-xl md:text-3xl font-bold text-gray-900 mb-2">Create New Course</h1>
+          <p className="text-gray-600 text-sm md:text-base">Add basic course information</p>
         </div>
 
           {/* Error Message */}
@@ -626,7 +626,6 @@ export default function NewCoursePage() {
             </div>
           </div>
         </div>
-      </main>
-    </div>
+    </AdminLayout>
   )
 }
