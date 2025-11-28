@@ -3,9 +3,10 @@
 import { useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { BookOpen, Save, Youtube, FileText, Type, Eye, Presentation, Code, Upload, Paperclip } from 'lucide-react'
+import { Save, Youtube, FileText, Type, Presentation, Code, Upload } from 'lucide-react'
 import FileUploader from '@/components/FileUploader'
 import AttachmentsManager from '@/components/AttachmentsManager'
+import AdminLayout from '@/components/AdminLayout'
 
 export default function NewLessonPage() {
   const params = useParams()
@@ -107,48 +108,19 @@ export default function NewLessonPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Sidebar */}
-      <aside className="fixed right-0 top-0 h-full w-64 bg-white shadow-lg z-50">
-        <div className="p-6">
-          <Link href="/dashboard" className="flex items-center gap-2 mb-8">
-            <div className="w-10 h-10 bg-gradient-to-r from-primary-600 to-secondary-600 rounded-lg flex items-center justify-center">
-              <BookOpen className="w-6 h-6 text-white" />
-            </div>
-            <span className="font-bold text-lg">لوحة التحكم</span>
+    <AdminLayout title="إضافة درس جديد">
+      <div className="max-w-4xl mx-auto">
+        {/* Header */}
+        <div className="mb-6 md:mb-8">
+          <Link
+            href={`/dashboard/courses/${params.id}/modules`}
+            className="text-primary-600 hover:text-primary-700 mb-2 inline-block text-sm md:text-base"
+          >
+            ← العودة للمحتوى
           </Link>
-
-          <nav className="space-y-2">
-            <Link
-              href="/dashboard"
-              className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg font-semibold transition-colors"
-            >
-              الرئيسية
-            </Link>
-            <Link
-              href="/dashboard/courses"
-              className="flex items-center gap-3 px-4 py-3 bg-primary-50 text-primary-600 rounded-lg font-semibold"
-            >
-              الدورات
-            </Link>
-          </nav>
+          <h1 className="text-xl md:text-3xl font-bold text-gray-900 mb-2">إضافة درس جديد</h1>
+          <p className="text-gray-600 text-sm md:text-base">أضف محتوى تعليمي للدورة</p>
         </div>
-      </aside>
-
-      {/* Main Content */}
-      <main className="mr-64 p-8">
-        <div className="max-w-4xl mx-auto">
-          {/* Header */}
-          <div className="mb-8">
-            <Link
-              href={`/dashboard/courses/${params.id}/lessons`}
-              className="text-primary-600 hover:text-primary-700 mb-2 inline-block"
-            >
-              ← العودة للدروس
-            </Link>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">إضافة درس جديد</h1>
-            <p className="text-gray-600">أضف محتوى تعليمي للدورة</p>
-          </div>
 
           {/* Error Message */}
           {error && (
@@ -506,18 +478,18 @@ export default function NewLessonPage() {
             </div>
 
             {/* Actions */}
-            <div className="flex gap-4 pt-6 border-t">
+            <div className="flex gap-3 md:gap-4 pt-6 border-t">
               <button
                 type="button"
                 onClick={() => router.back()}
-                className="flex-1 px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-semibold"
+                className="flex-1 px-4 md:px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-semibold text-sm md:text-base"
               >
                 إلغاء
               </button>
               <button
                 type="submit"
                 disabled={loading}
-                className="flex-1 btn-primary flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 btn-primary flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-sm md:text-base"
               >
                 {loading ? (
                   <>
@@ -534,7 +506,6 @@ export default function NewLessonPage() {
             </div>
           </form>
         </div>
-      </main>
-    </div>
+    </AdminLayout>
   )
 }
