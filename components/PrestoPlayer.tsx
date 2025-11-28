@@ -246,32 +246,45 @@ export default function PrestoPlayer({ videoUrl, title, studentName }: PrestoPla
     setShowSettings(false)
   }
 
-  const toggleFullscreen = () => {
+  const toggleFullscreen = async () => {
     if (!containerRef.current) return
     
     if (!isFullscreen) {
       // Enter fullscreen
-      if (containerRef.current.requestFullscreen) {
-        containerRef.current.requestFullscreen()
-      } else if ((containerRef.current as any).webkitRequestFullscreen) {
-        (containerRef.current as any).webkitRequestFullscreen()
-      } else if ((containerRef.current as any).mozRequestFullScreen) {
-        (containerRef.current as any).mozRequestFullScreen()
-      } else if ((containerRef.current as any).msRequestFullscreen) {
-        (containerRef.current as any).msRequestFullscreen()
+      try {
+        // Add fullscreen class first for immediate visual feedback
+        containerRef.current.classList.add('is-fullscreen')
+        
+        if (containerRef.current.requestFullscreen) {
+          await containerRef.current.requestFullscreen()
+        } else if ((containerRef.current as any).webkitRequestFullscreen) {
+          await (containerRef.current as any).webkitRequestFullscreen()
+        } else if ((containerRef.current as any).mozRequestFullScreen) {
+          await (containerRef.current as any).mozRequestFullScreen()
+        } else if ((containerRef.current as any).msRequestFullscreen) {
+          await (containerRef.current as any).msRequestFullscreen()
+        }
+        setIsFullscreen(true)
+      } catch (err) {
+        containerRef.current.classList.remove('is-fullscreen')
+        console.log('Fullscreen failed:', err)
       }
-      setIsFullscreen(true)
     } else {
       // Exit fullscreen
-      if (document.exitFullscreen) {
-        document.exitFullscreen()
-      } else if ((document as any).webkitExitFullscreen) {
-        (document as any).webkitExitFullscreen()
-      } else if ((document as any).mozCancelFullScreen) {
-        (document as any).mozCancelFullScreen()
-      } else if ((document as any).msExitFullscreen) {
-        (document as any).msExitFullscreen()
+      try {
+        if (document.exitFullscreen) {
+          await document.exitFullscreen()
+        } else if ((document as any).webkitExitFullscreen) {
+          await (document as any).webkitExitFullscreen()
+        } else if ((document as any).mozCancelFullScreen) {
+          await (document as any).mozCancelFullScreen()
+        } else if ((document as any).msExitFullscreen) {
+          await (document as any).msExitFullscreen()
+        }
+      } catch (err) {
+        console.log('Exit fullscreen failed:', err)
       }
+      containerRef.current.classList.remove('is-fullscreen')
       setIsFullscreen(false)
     }
   }
@@ -994,53 +1007,64 @@ export default function PrestoPlayer({ videoUrl, title, studentName }: PrestoPla
           }
         }
         
-        /* Video container fullscreen styles */
+        /* Video container fullscreen styles - using both :fullscreen and .is-fullscreen class */
         .group:fullscreen,
         .group:-webkit-full-screen,
-        .group:-moz-full-screen {
+        .group:-moz-full-screen,
+        .group.is-fullscreen {
+          position: fixed !important;
+          top: 0 !important;
+          left: 0 !important;
+          right: 0 !important;
+          bottom: 0 !important;
           width: 100vw !important;
           height: 100vh !important;
           max-width: 100vw !important;
           max-height: 100vh !important;
           background: black !important;
-          display: flex !important;
-          align-items: center !important;
-          justify-content: center !important;
+          z-index: 999999 !important;
+          margin: 0 !important;
+          padding: 0 !important;
+          border-radius: 0 !important;
         }
         
-        .group:fullscreen > div,
-        .group:-webkit-full-screen > div,
-        .group:-moz-full-screen > div {
-          width: 100% !important;
-          height: 100% !important;
-          max-width: 100vw !important;
-          max-height: 100vh !important;
+        .group:fullscreen .video-player-container,
+        .group:-webkit-full-screen .video-player-container,
+        .group:-moz-full-screen .video-player-container,
+        .group.is-fullscreen .video-player-container {
+          width: 100vw !important;
+          height: calc(100vh - 60px) !important;
+          aspect-ratio: unset !important;
         }
         
         .group:fullscreen .aspect-video,
         .group:-webkit-full-screen .aspect-video,
-        .group:-moz-full-screen .aspect-video {
+        .group:-moz-full-screen .aspect-video,
+        .group.is-fullscreen .aspect-video {
           aspect-ratio: unset !important;
-          width: 100vw !important;
-          height: 100vh !important;
-          max-width: 100vw !important;
-          max-height: 100vh !important;
+          width: 100% !important;
+          height: 100% !important;
+          position: relative !important;
         }
         
         .group:fullscreen iframe,
         .group:-webkit-full-screen iframe,
-        .group:-moz-full-screen iframe {
+        .group:-moz-full-screen iframe,
+        .group.is-fullscreen iframe {
           width: 100% !important;
           height: 100% !important;
-          max-width: 100vw !important;
-          max-height: 100vh !important;
-          object-fit: contain !important;
           position: absolute !important;
           top: 0 !important;
           left: 0 !important;
+          object-fit: contain !important;
         }
         
         /* YouTube embed specific styles */
+        .youtube-embed {
+          width: 100% !important;
+          height: 100% !important;
+        }
+        
         .youtube-embed iframe {
           width: 100% !important;
           height: 100% !important;
@@ -1049,20 +1073,12 @@ export default function PrestoPlayer({ videoUrl, title, studentName }: PrestoPla
           left: 0 !important;
         }
         
-        /* Video player container in fullscreen */
+        /* Video player container */
         .video-player-container {
           position: relative !important;
           overflow: hidden !important;
-        }
-        
-        .group:fullscreen .video-player-container,
-        .group:-webkit-full-screen .video-player-container,
-        .group:-moz-full-screen .video-player-container {
-          width: 100vw !important;
-          height: 100vh !important;
-          display: flex !important;
-          align-items: center !important;
-          justify-content: center !important;
+          width: 100% !important;
+          height: 100% !important;
         }
         
         /* Ensure iframe doesn't overflow */
