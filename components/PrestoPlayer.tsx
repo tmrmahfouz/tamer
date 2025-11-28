@@ -709,9 +709,9 @@ export default function PrestoPlayer({ videoUrl, title, studentName }: PrestoPla
         
         {/* Top Protection Overlay - Specifically for mobile title bar */}
         <div
-          className="absolute top-0 left-0 right-0 h-16"
+          className="absolute top-0 left-0 right-0 h-12"
           style={{
-            background: 'linear-gradient(to bottom, rgba(0,0,0,0.7), transparent)',
+            background: 'linear-gradient(to bottom, rgba(0,0,0,0.15), transparent)',
             zIndex: 16,
             touchAction: 'none',
           }}
@@ -741,10 +741,10 @@ export default function PrestoPlayer({ videoUrl, title, studentName }: PrestoPla
               style={{
                 top: '10%',
                 right: '5%',
-                color: 'rgba(255, 255, 255, 0.3)',
-                fontSize: '16px',
+                color: 'rgba(255, 255, 255, 0.15)',
+                fontSize: '14px',
                 fontWeight: 'bold',
-                textShadow: '2px 2px 4px rgba(0,0,0,0.7)',
+                textShadow: '1px 1px 2px rgba(0,0,0,0.3)',
                 transform: 'rotate(-10deg)',
                 userSelect: 'none',
                 pointerEvents: 'none',
@@ -760,10 +760,10 @@ export default function PrestoPlayer({ videoUrl, title, studentName }: PrestoPla
                 top: '50%',
                 left: '50%',
                 transform: 'translate(-50%, -50%) rotate(-20deg)',
-                color: 'rgba(255, 255, 255, 0.15)',
-                fontSize: '36px',
+                color: 'rgba(255, 255, 255, 0.08)',
+                fontSize: '32px',
                 fontWeight: 'bold',
-                textShadow: '3px 3px 6px rgba(0,0,0,0.5)',
+                textShadow: '2px 2px 4px rgba(0,0,0,0.2)',
                 whiteSpace: 'nowrap',
                 userSelect: 'none',
                 pointerEvents: 'none',
@@ -778,10 +778,10 @@ export default function PrestoPlayer({ videoUrl, title, studentName }: PrestoPla
               style={{
                 bottom: '15%',
                 left: '8%',
-                color: 'rgba(255, 255, 255, 0.25)',
-                fontSize: '14px',
+                color: 'rgba(255, 255, 255, 0.12)',
+                fontSize: '12px',
                 fontWeight: 'bold',
-                textShadow: '2px 2px 4px rgba(0,0,0,0.7)',
+                textShadow: '1px 1px 2px rgba(0,0,0,0.3)',
                 transform: 'rotate(8deg)',
                 userSelect: 'none',
                 pointerEvents: 'none',
@@ -796,10 +796,10 @@ export default function PrestoPlayer({ videoUrl, title, studentName }: PrestoPla
               style={{
                 top: '8%',
                 left: '5%',
-                color: 'rgba(255, 255, 255, 0.22)',
-                fontSize: '12px',
+                color: 'rgba(255, 255, 255, 0.1)',
+                fontSize: '11px',
                 fontWeight: 'bold',
-                textShadow: '1px 1px 3px rgba(0,0,0,0.7)',
+                textShadow: '1px 1px 2px rgba(0,0,0,0.3)',
                 userSelect: 'none',
                 pointerEvents: 'none',
               }}
