@@ -35,6 +35,15 @@ export default function LessonPage() {
   const [enrollment, setEnrollment] = useState<any>(null)
   const [issuingCertificate, setIssuingCertificate] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
+
+  // التحقق من حجم الشاشة
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 1024)
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
 
   useEffect(() => {
     // Reset lesson state when changing lessons
@@ -407,7 +416,10 @@ export default function LessonPage() {
       <div className="container mx-auto px-3 md:px-4 py-4 md:py-8">
         <div className="grid lg:grid-cols-3 gap-4 md:gap-8">
           {/* Main Content */}
-          <div className="lg:col-span-2">
+          <div 
+            className="lg:col-span-2 relative z-0"
+            style={{ pointerEvents: isMobile && sidebarOpen ? 'none' : 'auto' }}
+          >
             {/* Lesson Header - Compact */}
             <div className="bg-white rounded-xl shadow-md p-3 md:p-4 mb-3 md:mb-4">
               <div className="flex items-center gap-2 md:gap-3">
@@ -444,13 +456,25 @@ export default function LessonPage() {
                 {/* Video Content */}
                 {lesson.type === 'video' && lesson.content?.videoUrl && (
                   <div className="mb-6">
-                    <UniversalVideoPlayer 
-                      key={`video-${params.lessonId}`}
-                      videoUrl={lesson.content.videoUrl}
-                      videoProvider={lesson.content.videoProvider || 'youtube'}
-                      title={lesson.title}
-                      studentName={user?.name}
-                    />
+                    {/* الفيديو - يختفي على الموبايل عند فتح السايدبار */}
+                    {!sidebarOpen && (
+                      <UniversalVideoPlayer 
+                        key={`video-${params.lessonId}`}
+                        videoUrl={lesson.content.videoUrl}
+                        videoProvider={lesson.content.videoProvider || 'youtube'}
+                        title={lesson.title}
+                        studentName={user?.name}
+                      />
+                    )}
+                    {/* رسالة بديلة عند فتح السايدبار */}
+                    {sidebarOpen && (
+                      <div className="bg-gray-800 rounded-xl p-8 text-center aspect-video flex items-center justify-center">
+                        <div>
+                          <p className="text-white text-lg mb-2">📺</p>
+                          <p className="text-white">أغلق قائمة الدروس لمشاهدة الفيديو</p>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
 
@@ -643,22 +667,26 @@ export default function LessonPage() {
           {/* Mobile Sidebar Overlay */}
           {sidebarOpen && (
             <div 
-              className="lg:hidden fixed inset-0 bg-black/50 z-40"
+              className="lg:hidden fixed inset-0 bg-black/50"
+              style={{ zIndex: 99998 }}
               onClick={() => setSidebarOpen(false)}
             />
           )}
 
           {/* Sidebar - Lessons List */}
-          <div className={`
-            lg:col-span-1
-            fixed lg:relative inset-y-0 left-0 z-50 lg:z-auto
-            w-80 lg:w-auto
-            transform transition-transform duration-300 ease-in-out
-            ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
-            bg-gray-50 lg:bg-transparent
-            pt-16 lg:pt-0
-            overflow-y-auto lg:overflow-visible
-          `}>
+          <div 
+            className={`
+              lg:col-span-1
+              fixed lg:relative inset-y-0 left-0 lg:z-auto
+              w-80 lg:w-auto
+              transform transition-transform duration-300 ease-in-out
+              ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+              bg-gray-50 lg:bg-transparent
+              pt-16 lg:pt-0
+              overflow-y-auto lg:overflow-visible
+            `}
+            style={{ zIndex: sidebarOpen ? 99999 : 'auto' }}
+          >
             {/* زر إغلاق السايدبار على الهاتف */}
             <button
               onClick={() => setSidebarOpen(false)}

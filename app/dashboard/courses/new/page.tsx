@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { BookOpen, Plus, X, Save, Eye, Clock, CalendarDays, Layers, Lock } from 'lucide-react'
+import { Plus, X, Save, Clock, CalendarDays, Layers, Lock } from 'lucide-react'
+import AdminLayout from '@/components/AdminLayout'
 
 export default function NewCoursePage() {
   const router = useRouter()
@@ -143,42 +144,13 @@ export default function NewCoursePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Sidebar */}
-      <aside className="fixed right-0 top-0 h-full w-64 bg-white shadow-lg z-50">
-        <div className="p-6">
-          <Link href="/dashboard" className="flex items-center gap-2 mb-8">
-            <div className="w-10 h-10 bg-gradient-to-r from-primary-600 to-secondary-600 rounded-lg flex items-center justify-center">
-              <BookOpen className="w-6 h-6 text-white" />
-            </div>
-            <span className="font-bold text-lg">لوحة التحكم</span>
-          </Link>
-
-          <nav className="space-y-2">
-            <Link
-              href="/dashboard"
-              className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg font-semibold transition-colors"
-            >
-              الرئيسية
-            </Link>
-            <Link
-              href="/dashboard/courses"
-              className="flex items-center gap-3 px-4 py-3 bg-primary-50 text-primary-600 rounded-lg font-semibold"
-            >
-              الدورات
-            </Link>
-          </nav>
+    <AdminLayout title="إنشاء دورة جديدة">
+      <div className="max-w-4xl mx-auto">
+        {/* Header */}
+        <div className="mb-6 md:mb-8">
+          <h1 className="text-xl md:text-3xl font-bold text-gray-900 mb-2">إنشاء دورة جديدة</h1>
+          <p className="text-gray-600 text-sm md:text-base">أضف معلومات الدورة الأساسية</p>
         </div>
-      </aside>
-
-      {/* Main Content */}
-      <main className="mr-64 p-8">
-        <div className="max-w-4xl mx-auto">
-          {/* Header */}
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">إنشاء دورة جديدة</h1>
-            <p className="text-gray-600">أضف معلومات الدورة الأساسية</p>
-          </div>
 
           {/* Error Message */}
           {error && (

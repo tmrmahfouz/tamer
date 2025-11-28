@@ -378,7 +378,7 @@ export default function PrestoPlayer({ videoUrl, title, studentName }: PrestoPla
             right: 0;
             bottom: 0;
             background: #1a1a1a;
-            z-index: 9999;
+            z-index: 50;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -649,12 +649,12 @@ export default function PrestoPlayer({ videoUrl, title, studentName }: PrestoPla
   return (
     <div
       ref={containerRef}
-      className="relative bg-black rounded-lg overflow-hidden group"
+      className="relative bg-black rounded-lg group overflow-hidden"
       style={{ userSelect: 'none' }}
     >
 
       {/* Video Player */}
-      <div className="relative aspect-video">
+      <div className="relative aspect-video overflow-hidden">
         <div
           id={playerId}
           key={playerId}
@@ -663,9 +663,9 @@ export default function PrestoPlayer({ videoUrl, title, studentName }: PrestoPla
 
         {/* Invisible overlay to block YouTube links - CRITICAL PROTECTION LAYER */}
         <div 
-          className="absolute inset-0"
+          className="absolute top-0 left-0 w-full h-full"
           style={{ 
-            zIndex: 100,
+            zIndex: 10,
             pointerEvents: 'auto',
             background: 'transparent',
             cursor: 'pointer',
@@ -693,20 +693,20 @@ export default function PrestoPlayer({ videoUrl, title, studentName }: PrestoPla
         
         {/* Secondary protection layer */}
         <div 
-          className="absolute inset-0"
+          className="absolute top-0 left-0 w-full h-full"
           style={{ 
-            zIndex: 99,
+            zIndex: 9,
             pointerEvents: 'none',
             background: 'transparent',
           }}
         />
 
         {/* Watermarks */}
-        <div className="absolute top-4 right-4 bg-red-600/90 text-white px-3 py-1.5 rounded-lg text-sm font-bold pointer-events-none select-none" style={{ zIndex: 150 }}>
+        <div className="absolute top-4 right-4 bg-red-600/90 text-white px-3 py-1.5 rounded-lg text-sm font-bold pointer-events-none select-none" style={{ zIndex: 15 }}>
           🔒 {studentName || settings.siteName}
         </div>
 
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none" style={{ zIndex: 98 }}>
+        <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center pointer-events-none select-none" style={{ zIndex: 8 }}>
           <div className="text-white/5 text-7xl font-bold transform -rotate-12">
             {studentName || settings.siteName}
           </div>
@@ -714,7 +714,7 @@ export default function PrestoPlayer({ videoUrl, title, studentName }: PrestoPla
 
         {/* Center Play Button with Warning */}
         {!isPlaying && isReady && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-4" style={{ zIndex: 200 }}>
+          <div className="absolute top-0 left-0 w-full h-full flex flex-col items-center justify-center gap-4" style={{ zIndex: 20 }}>
             <button
               onClick={async (e) => {
                 e.preventDefault()
@@ -746,7 +746,7 @@ export default function PrestoPlayer({ videoUrl, title, studentName }: PrestoPla
           className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent p-4 transition-opacity duration-300 ${
             showControls ? 'opacity-100' : 'opacity-0'
           }`}
-          style={{ zIndex: 200 }}
+          style={{ zIndex: 20 }}
         >
           {/* Progress Bar */}
           <div
@@ -874,7 +874,7 @@ export default function PrestoPlayer({ videoUrl, title, studentName }: PrestoPla
       </div>
 
       {/* Bottom Info with Strong Warning */}
-      <div className="bg-gradient-to-r from-red-900 to-red-800 px-3 py-2 md:px-4 md:py-3 text-white relative" style={{ zIndex: 250 }}>
+      <div className="bg-gradient-to-r from-red-900 to-red-800 px-3 py-2 md:px-4 md:py-3 text-white relative" style={{ zIndex: 5 }}>
         <div className="flex flex-col md:flex-row items-center justify-between gap-1 md:gap-0 mb-1 md:mb-2">
           <span className="font-bold text-xs md:text-sm text-center md:text-right">🔒 محتوى محمي</span>
           <span className="font-semibold text-xs hidden md:inline">© {settings.siteName}</span>
