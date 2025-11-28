@@ -46,7 +46,7 @@ export async function GET(
       Lesson.findById(lessonId).lean(),
       Course.findById(courseId).select('title instructor certificateEnabled enforceSequentialLessons').lean(),
       Lesson.find({ course: courseId }).select('_id title order isFree type').sort({ order: 1 }).lean(),
-      Quiz.find({ course: courseId, isActive: true }).select('_id title lesson passingScore').lean(),
+      Quiz.find({ course: courseId, isPublished: true }).select('_id title lesson passingScore questions timeLimit').lean(),
     ])
 
     if (!lesson) {
