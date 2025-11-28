@@ -783,17 +783,17 @@ export default function PrestoPlayer({ videoUrl, title, studentName }: PrestoPla
               {studentName}
             </div>
             
-            {/* علامة مائية كبيرة في الوسط */}
+            {/* علامة مائية في الوسط */}
             <div 
               className="absolute"
               style={{
                 top: '50%',
                 left: '50%',
-                transform: 'translate(-50%, -50%) rotate(-20deg)',
-                color: 'rgba(255, 255, 255, 0.08)',
-                fontSize: '32px',
+                transform: 'translate(-50%, -50%) rotate(-15deg)',
+                color: 'rgba(255, 255, 255, 0.06)',
+                fontSize: '18px',
                 fontWeight: 'bold',
-                textShadow: '2px 2px 4px rgba(0,0,0,0.2)',
+                textShadow: '1px 1px 2px rgba(0,0,0,0.15)',
                 whiteSpace: 'nowrap',
                 userSelect: 'none',
                 pointerEvents: 'none',
