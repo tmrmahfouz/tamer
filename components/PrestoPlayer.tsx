@@ -971,6 +971,19 @@ export default function PrestoPlayer({ videoUrl, title, studentName }: PrestoPla
           *:-ms-fullscreen {
             width: 100vw !important;
             height: 100vh !important;
+            max-width: 100vw !important;
+            max-height: 100vh !important;
+            object-fit: contain !important;
+          }
+          
+          *:fullscreen iframe,
+          *:-webkit-full-screen iframe,
+          *:-moz-full-screen iframe {
+            width: 100vw !important;
+            height: 100vh !important;
+            max-width: 100vw !important;
+            max-height: 100vh !important;
+            object-fit: contain !important;
           }
         }
         
@@ -978,9 +991,43 @@ export default function PrestoPlayer({ videoUrl, title, studentName }: PrestoPla
         .group:fullscreen,
         .group:-webkit-full-screen,
         .group:-moz-full-screen {
-          width: 100vw;
-          height: 100vh;
-          background: black;
+          width: 100vw !important;
+          height: 100vh !important;
+          max-width: 100vw !important;
+          max-height: 100vh !important;
+          background: black !important;
+          display: flex !important;
+          align-items: center !important;
+          justify-content: center !important;
+        }
+        
+        .group:fullscreen > div,
+        .group:-webkit-full-screen > div,
+        .group:-moz-full-screen > div {
+          width: 100% !important;
+          height: 100% !important;
+          max-width: 100vw !important;
+          max-height: 100vh !important;
+        }
+        
+        .group:fullscreen .aspect-video,
+        .group:-webkit-full-screen .aspect-video,
+        .group:-moz-full-screen .aspect-video {
+          aspect-ratio: unset !important;
+          width: 100vw !important;
+          height: 100vh !important;
+          max-width: 100vw !important;
+          max-height: 100vh !important;
+        }
+        
+        .group:fullscreen iframe,
+        .group:-webkit-full-screen iframe,
+        .group:-moz-full-screen iframe {
+          width: 100vw !important;
+          height: 100vh !important;
+          max-width: 100vw !important;
+          max-height: 100vh !important;
+          object-fit: contain !important;
         }
 
         /* Hide YouTube branding and buttons - COMPREHENSIVE */

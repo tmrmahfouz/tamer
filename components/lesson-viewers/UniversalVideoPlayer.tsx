@@ -56,7 +56,7 @@ export default function UniversalVideoPlayer({
     }
     
     return (
-      <div className="bg-black rounded-lg overflow-hidden shadow-xl" style={{ isolation: 'isolate' }}>
+      <div className="video-container bg-black rounded-lg overflow-hidden shadow-xl" style={{ isolation: 'isolate' }}>
         <div className="relative aspect-video">
           <iframe
             src={embedUrl}
@@ -64,7 +64,7 @@ export default function UniversalVideoPlayer({
             allow="autoplay; fullscreen"
             allowFullScreen
             title={title}
-            style={{ border: 'none' }}
+            style={{ border: 'none', objectFit: 'contain' }}
             sandbox="allow-scripts allow-same-origin allow-presentation"
             onError={() => {
               console.error('Google Drive video failed to load. Check sharing settings.')
@@ -237,4 +237,66 @@ export default function UniversalVideoPlayer({
   }
 
   return null
+}
+
+// Add global styles for fullscreen video
+if (typeof document !== 'undefined') {
+  const styleId = 'universal-video-player-styles'
+  if (!document.getElementById(styleId)) {
+    const style = document.createElement('style')
+    style.id = styleId
+    style.textContent = `
+      /* Fullscreen video styles for mobile */
+      .video-container:fullscreen,
+      .video-container:-webkit-full-screen,
+      .video-container:-moz-full-screen {
+        width: 100vw !important;
+        height: 100vh !important;
+        max-width: 100vw !important;
+        max-height: 100vh !important;
+        background: black !important;
+        display: flex !important;
+        flex-direction: column !important;
+      }
+      
+      .video-container:fullscreen .aspect-video,
+      .video-container:-webkit-full-screen .aspect-video,
+      .video-container:-moz-full-screen .aspect-video {
+        aspect-ratio: unset !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        flex: 1 !important;
+      }
+      
+      .video-container:fullscreen iframe,
+      .video-container:-webkit-full-screen iframe,
+      .video-container:-moz-full-screen iframe,
+      .video-container:fullscreen video,
+      .video-container:-webkit-full-screen video,
+      .video-container:-moz-full-screen video {
+        width: 100% !important;
+        height: 100% !important;
+        max-width: 100vw !important;
+        max-height: 100vh !important;
+        object-fit: contain !important;
+      }
+      
+      /* Hide bottom bar in fullscreen */
+      .video-container:fullscreen > div:last-child,
+      .video-container:-webkit-full-screen > div:last-child,
+      .video-container:-moz-full-screen > div:last-child {
+        display: none !important;
+      }
+      
+      @media (max-width: 768px) {
+        .video-container:fullscreen,
+        .video-container:-webkit-full-screen {
+          padding: 0 !important;
+          margin: 0 !important;
+          border-radius: 0 !important;
+        }
+      }
+    `
+    document.head.appendChild(style)
+  }
 }
