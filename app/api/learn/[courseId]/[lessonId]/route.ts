@@ -103,7 +103,7 @@ export async function GET(
         isCurrentLessonCompleted,
         isEnrolled,
         canAccess,
-        user: user ? { id: user.id, role: user.role } : null,
+        user: user ? { id: user.id, role: user.role, name: user.name } : null,
       },
     })
   } catch (error: any) {

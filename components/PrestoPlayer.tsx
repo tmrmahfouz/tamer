@@ -713,19 +713,19 @@ export default function PrestoPlayer({ videoUrl, title, studentName }: PrestoPla
         {studentName && (
           <div
             className="absolute inset-0 pointer-events-none select-none"
-            style={{ zIndex: 14 }}
+            style={{ zIndex: 17 }}
           >
-            {/* علامة مائية متحركة في الزاوية */}
+            {/* علامة مائية في الزاوية العلوية */}
             <div 
-              className="absolute animate-pulse"
+              className="absolute"
               style={{
-                top: '15%',
+                top: '10%',
                 right: '5%',
-                color: 'rgba(255, 255, 255, 0.15)',
-                fontSize: '14px',
+                color: 'rgba(255, 255, 255, 0.3)',
+                fontSize: '16px',
                 fontWeight: 'bold',
-                textShadow: '1px 1px 2px rgba(0,0,0,0.3)',
-                transform: 'rotate(-15deg)',
+                textShadow: '2px 2px 4px rgba(0,0,0,0.7)',
+                transform: 'rotate(-10deg)',
                 userSelect: 'none',
                 pointerEvents: 'none',
               }}
@@ -733,17 +733,17 @@ export default function PrestoPlayer({ videoUrl, title, studentName }: PrestoPla
               {studentName}
             </div>
             
-            {/* علامة مائية في الوسط */}
+            {/* علامة مائية كبيرة في الوسط */}
             <div 
               className="absolute"
               style={{
                 top: '50%',
                 left: '50%',
-                transform: 'translate(-50%, -50%) rotate(-25deg)',
-                color: 'rgba(255, 255, 255, 0.08)',
-                fontSize: '24px',
+                transform: 'translate(-50%, -50%) rotate(-20deg)',
+                color: 'rgba(255, 255, 255, 0.15)',
+                fontSize: '36px',
                 fontWeight: 'bold',
-                textShadow: '2px 2px 4px rgba(0,0,0,0.2)',
+                textShadow: '3px 3px 6px rgba(0,0,0,0.5)',
                 whiteSpace: 'nowrap',
                 userSelect: 'none',
                 pointerEvents: 'none',
@@ -756,18 +756,35 @@ export default function PrestoPlayer({ videoUrl, title, studentName }: PrestoPla
             <div 
               className="absolute"
               style={{
-                bottom: '20%',
-                left: '10%',
-                color: 'rgba(255, 255, 255, 0.12)',
-                fontSize: '12px',
+                bottom: '15%',
+                left: '8%',
+                color: 'rgba(255, 255, 255, 0.25)',
+                fontSize: '14px',
                 fontWeight: 'bold',
-                textShadow: '1px 1px 2px rgba(0,0,0,0.3)',
-                transform: 'rotate(10deg)',
+                textShadow: '2px 2px 4px rgba(0,0,0,0.7)',
+                transform: 'rotate(8deg)',
                 userSelect: 'none',
                 pointerEvents: 'none',
               }}
             >
               {studentName}
+            </div>
+            
+            {/* علامة مائية إضافية في الزاوية اليسرى العلوية */}
+            <div 
+              className="absolute"
+              style={{
+                top: '8%',
+                left: '5%',
+                color: 'rgba(255, 255, 255, 0.22)',
+                fontSize: '12px',
+                fontWeight: 'bold',
+                textShadow: '1px 1px 3px rgba(0,0,0,0.7)',
+                userSelect: 'none',
+                pointerEvents: 'none',
+              }}
+            >
+              🔒 {studentName}
             </div>
           </div>
         )}
