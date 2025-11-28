@@ -8,17 +8,14 @@ import {
   Plus,
   Edit,
   Trash2,
-  Save,
   CheckCircle,
-  XCircle,
   FileQuestion,
   Clock,
   Award,
-  BookOpen,
-  GripVertical,
   Link2,
   ListOrdered,
 } from 'lucide-react'
+import AdminLayout from '@/components/AdminLayout'
 
 interface MatchingPair {
   left: string
@@ -305,53 +302,58 @@ export default function QuizDetailsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="w-16 h-16 border-4 border-primary-600 border-t-transparent rounded-full animate-spin"></div>
-      </div>
+      <AdminLayout title="تفاصيل الاختبار">
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="w-16 h-16 border-4 border-primary-600 border-t-transparent rounded-full animate-spin"></div>
+        </div>
+      </AdminLayout>
     )
   }
 
   if (!quiz) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">الاختبار غير موجود</h2>
-          <Link href="/dashboard/admin/quizzes">
-            <button className="px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700">
-              العودة للاختبارات
-            </button>
-          </Link>
+      <AdminLayout title="الاختبار غير موجود">
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="text-center">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">الاختبار غير موجود</h2>
+            <Link href="/dashboard/admin/quizzes">
+              <button className="px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700">
+                العودة للاختبارات
+              </button>
+            </Link>
+          </div>
         </div>
-      </div>
+      </AdminLayout>
     )
   }
 
   const totalPoints = quiz.questions.reduce((sum: number, q: Question) => sum + q.points, 0)
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
-      {/* Header */}
-      <div className="mb-8">
-        <Link href="/dashboard/admin/quizzes">
-          <button className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4">
-            <ArrowLeft className="w-5 h-5" />
-            <span>العودة للاختبارات</span>
-          </button>
-        </Link>
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">{quiz.title}</h1>
-            <p className="text-gray-600">{quiz.description}</p>
+    <AdminLayout title={quiz.title}>
+      <div>
+        {/* Header */}
+        <div className="mb-6 md:mb-8">
+          <Link href="/dashboard/admin/quizzes">
+            <button className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4 text-sm md:text-base">
+              <ArrowLeft className="w-4 h-4 md:w-5 md:h-5" />
+              <span>العودة للاختبارات</span>
+            </button>
+          </Link>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h1 className="text-xl md:text-3xl font-bold text-gray-900 mb-2">{quiz.title}</h1>
+              <p className="text-gray-600 text-sm md:text-base">{quiz.description}</p>
+            </div>
+            <button
+              onClick={() => openQuestionModal()}
+              className="flex items-center justify-center gap-2 px-4 md:px-6 py-2 md:py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-semibold text-sm md:text-base"
+            >
+              <Plus className="w-4 h-4 md:w-5 md:h-5" />
+              <span>إضافة سؤال</span>
+            </button>
           </div>
-          <button
-            onClick={() => openQuestionModal()}
-            className="flex items-center gap-2 px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-semibold"
-          >
-            <Plus className="w-5 h-5" />
-            <span>إضافة سؤال</span>
-          </button>
         </div>
-      </div>
 
       {/* Quiz Info */}
       <div className="grid md:grid-cols-4 gap-6 mb-8">
@@ -837,6 +839,7 @@ export default function QuizDetailsPage() {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </AdminLayout>
   )
 }
