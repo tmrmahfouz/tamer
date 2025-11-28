@@ -653,17 +653,15 @@ export default function PrestoPlayer({ videoUrl, title, studentName }: PrestoPla
       style={{ userSelect: 'none' }}
     >
 
-      {/* Video Player */}
-      <div className="aspect-video">
+      {/* Video Player with integrated overlays */}
+      <div className="relative aspect-video overflow-hidden">
+        {/* YouTube iframe */}
         <div
           id={playerId}
           key={playerId}
-          className="w-full h-full"
+          className="absolute inset-0 w-full h-full"
         />
-      </div>
 
-      {/* Overlay container - positioned over the video */}
-      <div className="absolute inset-0 overflow-hidden" style={{ pointerEvents: 'none' }}>
         {/* Invisible overlay to block YouTube links - CRITICAL PROTECTION LAYER */}
         <div 
           className="absolute inset-0"
@@ -693,23 +691,13 @@ export default function PrestoPlayer({ videoUrl, title, studentName }: PrestoPla
             return false
           }}
         />
-        
-        {/* Secondary protection layer */}
-        <div 
-          className="absolute top-0 left-0 w-full h-full"
-          style={{ 
-            zIndex: 9,
-            pointerEvents: 'none',
-            background: 'transparent',
-          }}
-        />
 
         {/* Watermarks */}
         <div className="absolute top-4 right-4 bg-red-600/90 text-white px-3 py-1.5 rounded-lg text-sm font-bold pointer-events-none select-none" style={{ zIndex: 15 }}>
           🔒 {studentName || settings.siteName}
         </div>
 
-        <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center pointer-events-none select-none" style={{ zIndex: 8 }}>
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none" style={{ zIndex: 8 }}>
           <div className="text-white/5 text-7xl font-bold transform -rotate-12">
             {studentName || settings.siteName}
           </div>
@@ -717,15 +705,13 @@ export default function PrestoPlayer({ videoUrl, title, studentName }: PrestoPla
 
         {/* Center Play Button with Warning */}
         {!isPlaying && isReady && (
-          <div className="absolute top-0 left-0 w-full h-full flex flex-col items-center justify-center gap-4" style={{ zIndex: 20 }}>
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-4" style={{ zIndex: 20, pointerEvents: 'auto' }}>
             <button
               onClick={async (e) => {
                 e.preventDefault()
                 e.stopPropagation()
                 togglePlay()
-                // On mobile, try to enter fullscreen for better experience
                 if (window.innerWidth < 768) {
-                  // Small delay to let video start first
                   setTimeout(() => {
                     handleMobileOrientation()
                   }, 100)
