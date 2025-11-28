@@ -649,21 +649,24 @@ export default function PrestoPlayer({ videoUrl, title, studentName }: PrestoPla
   return (
     <div
       ref={containerRef}
-      className="relative bg-black rounded-lg group overflow-hidden"
+      className="relative bg-black rounded-lg group"
       style={{ userSelect: 'none' }}
     >
 
       {/* Video Player */}
-      <div className="relative aspect-video overflow-hidden">
+      <div className="aspect-video">
         <div
           id={playerId}
           key={playerId}
           className="w-full h-full"
         />
+      </div>
 
+      {/* Overlay container - positioned over the video */}
+      <div className="absolute inset-0 overflow-hidden" style={{ pointerEvents: 'none' }}>
         {/* Invisible overlay to block YouTube links - CRITICAL PROTECTION LAYER */}
         <div 
-          className="absolute top-0 left-0 w-full h-full"
+          className="absolute inset-0"
           style={{ 
             zIndex: 10,
             pointerEvents: 'auto',
