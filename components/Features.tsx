@@ -80,9 +80,9 @@ export default function Features({ title, subtitle, items }: FeaturesProps = {})
             return (
               <div
                 key={index}
-                className="card p-8 group hover:scale-105"
+                className="card p-8 group hover:scale-105 text-center"
               >
-                <div className={`w-16 h-16 bg-gradient-to-r ${gradientColor} rounded-xl flex items-center justify-center mb-6 group-hover:rotate-6 transition-transform`}>
+                <div className={`w-16 h-16 bg-gradient-to-r ${gradientColor} rounded-xl flex items-center justify-center mb-6 group-hover:rotate-6 transition-transform mx-auto`}>
                   {IconComponent && <IconComponent className="w-8 h-8 text-white" />}
                 </div>
                 <h3 className="text-xl font-bold text-gray-900 mb-3">
