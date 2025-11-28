@@ -198,8 +198,26 @@ export default function EditLessonPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Sidebar */}
-      <aside className="fixed right-0 top-0 h-full w-64 bg-white shadow-lg z-50">
+      {/* Mobile Header */}
+      <div className="lg:hidden bg-white shadow-sm p-4 sticky top-0 z-40">
+        <div className="flex items-center justify-between">
+          <Link href="/dashboard" className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-gradient-to-r from-primary-600 to-secondary-600 rounded-lg flex items-center justify-center">
+              <BookOpen className="w-5 h-5 text-white" />
+            </div>
+            <span className="font-bold">لوحة التحكم</span>
+          </Link>
+          <Link
+            href="/dashboard/courses"
+            className="px-3 py-1.5 bg-primary-50 text-primary-600 rounded-lg text-sm font-semibold"
+          >
+            الدورات
+          </Link>
+        </div>
+      </div>
+
+      {/* Sidebar - Hidden on mobile */}
+      <aside className="hidden lg:block fixed right-0 top-0 h-full w-64 bg-white shadow-lg z-50">
         <div className="p-6">
           <Link href="/dashboard" className="flex items-center gap-2 mb-8">
             <div className="w-10 h-10 bg-gradient-to-r from-primary-600 to-secondary-600 rounded-lg flex items-center justify-center">
@@ -226,18 +244,18 @@ export default function EditLessonPage() {
       </aside>
 
       {/* Main Content */}
-      <main className="mr-64 p-8">
+      <main className="lg:mr-64 p-4 lg:p-8">
         <div className="max-w-4xl mx-auto">
           {/* Header */}
-          <div className="mb-8">
+          <div className="mb-6 lg:mb-8">
             <Link
               href={`/dashboard/courses/${params.id}/lessons`}
-              className="text-primary-600 hover:text-primary-700 mb-2 inline-block"
+              className="text-primary-600 hover:text-primary-700 mb-2 inline-block text-sm lg:text-base"
             >
               ← العودة للدروس
             </Link>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">تعديل الدرس</h1>
-            <p className="text-gray-600">تحديث محتوى الدرس</p>
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mb-1 lg:mb-2">تعديل الدرس</h1>
+            <p className="text-gray-600 text-sm lg:text-base">تحديث محتوى الدرس</p>
           </div>
 
           {/* Error Message */}
@@ -248,7 +266,7 @@ export default function EditLessonPage() {
           )}
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-lg p-8 space-y-6">
+          <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-lg p-4 sm:p-6 lg:p-8 space-y-4 sm:space-y-6">
             {/* Title */}
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -285,7 +303,7 @@ export default function EditLessonPage() {
               <label className="block text-sm font-semibold text-gray-700 mb-2">
                 نوع الدرس *
               </label>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2 sm:gap-4">
                 {[
                   { value: 'video', label: 'فيديو', icon: Youtube },
                   { value: 'pdf', label: 'PDF', icon: FileText },
@@ -300,16 +318,16 @@ export default function EditLessonPage() {
                       key={type.value}
                       type="button"
                       onClick={() => setFormData({ ...formData, type: type.value as any })}
-                      className={`p-4 border-2 rounded-lg transition-all ${
+                      className={`p-2 sm:p-4 border-2 rounded-lg transition-all ${
                         formData.type === type.value
                           ? 'border-primary-600 bg-primary-50'
                           : 'border-gray-200 hover:border-gray-300'
                       }`}
                     >
-                      <Icon className={`w-6 h-6 mx-auto mb-2 ${
+                      <Icon className={`w-5 h-5 sm:w-6 sm:h-6 mx-auto mb-1 sm:mb-2 ${
                         formData.type === type.value ? 'text-primary-600' : 'text-gray-400'
                       }`} />
-                      <span className={`text-sm font-semibold ${
+                      <span className={`text-xs sm:text-sm font-semibold block ${
                         formData.type === type.value ? 'text-primary-600' : 'text-gray-700'
                       }`}>
                         {type.label}
@@ -322,7 +340,7 @@ export default function EditLessonPage() {
 
             {/* Video Content */}
             {formData.type === 'video' && (
-              <div className="space-y-4 p-6 bg-gray-50 rounded-lg">
+              <div className="space-y-4 p-4 sm:p-6 bg-gray-50 rounded-lg">
                 <h3 className="font-bold text-gray-900">محتوى الفيديو</h3>
                 
                 <div>
@@ -383,7 +401,7 @@ export default function EditLessonPage() {
 
             {/* PDF Content */}
             {formData.type === 'pdf' && (
-              <div className="space-y-4 p-6 bg-gray-50 rounded-lg">
+              <div className="space-y-4 p-4 sm:p-6 bg-gray-50 rounded-lg">
                 <h3 className="font-bold text-gray-900">محتوى PDF</h3>
                 
                 <div className="flex gap-4 mb-4">
@@ -444,7 +462,7 @@ export default function EditLessonPage() {
 
             {/* Presentation Content */}
             {formData.type === 'presentation' && (
-              <div className="space-y-4 p-6 bg-gray-50 rounded-lg">
+              <div className="space-y-4 p-4 sm:p-6 bg-gray-50 rounded-lg">
                 <h3 className="font-bold text-gray-900">العرض التقديمي</h3>
                 
                 <div>
@@ -499,7 +517,7 @@ export default function EditLessonPage() {
 
             {/* HTML5 Content */}
             {formData.type === 'html5' && (
-              <div className="space-y-4 p-6 bg-gray-50 rounded-lg">
+              <div className="space-y-4 p-4 sm:p-6 bg-gray-50 rounded-lg">
                 <h3 className="font-bold text-gray-900">محتوى HTML5</h3>
                 
                 <div>
@@ -522,7 +540,7 @@ export default function EditLessonPage() {
 
             {/* Text Content */}
             {formData.type === 'text' && (
-              <div className="space-y-4 p-6 bg-gray-50 rounded-lg">
+              <div className="space-y-4 p-4 sm:p-6 bg-gray-50 rounded-lg">
                 <h3 className="font-bold text-gray-900">المحتوى النصي</h3>
                 
                 <div>
@@ -542,7 +560,7 @@ export default function EditLessonPage() {
 
             {/* Quiz Questions */}
             {formData.type === 'quiz' && (
-              <div className="space-y-4 p-6 bg-gray-50 rounded-lg">
+              <div className="space-y-4 p-4 sm:p-6 bg-gray-50 rounded-lg">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="font-bold text-gray-900">أسئلة الاختبار</h3>
                   <button
@@ -662,7 +680,7 @@ export default function EditLessonPage() {
             </div>
 
             {/* Attachments */}
-            <div className="p-6 bg-gray-50 rounded-lg">
+            <div className="p-4 sm:p-6 bg-gray-50 rounded-lg">
               <AttachmentsManager
                 attachments={formData.attachments}
                 onChange={(attachments) => setFormData({ ...formData, attachments })}
@@ -670,7 +688,7 @@ export default function EditLessonPage() {
             </div>
 
             {/* Options */}
-            <div className="space-y-3 p-6 bg-gray-50 rounded-lg">
+            <div className="space-y-3 p-4 sm:p-6 bg-gray-50 rounded-lg">
               <h3 className="font-bold text-gray-900 mb-4">خيارات إضافية</h3>
               
               <label className="flex items-center gap-3 cursor-pointer">
@@ -703,18 +721,18 @@ export default function EditLessonPage() {
             </div>
 
             {/* Actions */}
-            <div className="flex gap-4 pt-6 border-t">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-4 sm:pt-6 border-t">
               <button
                 type="button"
                 onClick={() => router.back()}
-                className="flex-1 px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-semibold"
+                className="w-full sm:flex-1 px-4 sm:px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-semibold order-2 sm:order-1"
               >
                 إلغاء
               </button>
               <button
                 type="submit"
                 disabled={loading}
-                className="flex-1 btn-primary flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full sm:flex-1 btn-primary flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed order-1 sm:order-2"
               >
                 {loading ? (
                   <>
