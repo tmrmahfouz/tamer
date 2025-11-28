@@ -692,43 +692,12 @@ export default function PrestoPlayer({ videoUrl, title, studentName }: PrestoPla
           }}
         />
 
-        {/* Watermarks */}
-        <div className="absolute top-4 right-4 bg-red-600/90 text-white px-3 py-1.5 rounded-lg text-sm font-bold pointer-events-none select-none" style={{ zIndex: 15 }}>
-          🔒 {studentName || settings.siteName}
-        </div>
-
+        {/* Watermark - شفاف في الوسط */}
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none" style={{ zIndex: 8 }}>
           <div className="text-white/5 text-7xl font-bold transform -rotate-12">
             {studentName || settings.siteName}
           </div>
         </div>
-
-        {/* Center Play Button with Warning */}
-        {!isPlaying && isReady && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-4" style={{ zIndex: 20, pointerEvents: 'auto' }}>
-            <button
-              onClick={async (e) => {
-                e.preventDefault()
-                e.stopPropagation()
-                togglePlay()
-                if (window.innerWidth < 768) {
-                  setTimeout(() => {
-                    handleMobileOrientation()
-                  }, 100)
-                }
-              }}
-              className="w-20 h-20 bg-red-600 hover:bg-red-700 rounded-full flex items-center justify-center transition-all transform hover:scale-110 shadow-2xl"
-            >
-              <Play className="w-10 h-10 text-white ml-1" fill="white" />
-            </button>
-            <div className="bg-red-600/95 text-white px-3 md:px-6 py-2 md:py-3 rounded-lg shadow-2xl max-w-md text-center">
-              <p className="font-bold text-xs md:text-sm mb-1">⚠️ تحذير مهم</p>
-              <p className="text-xs">
-                محاولة تحميل هذا الفيديو ستؤدي لحذف حسابك نهائياً
-              </p>
-            </div>
-          </div>
-        )}
 
         {/* Custom Controls */}
         <div
