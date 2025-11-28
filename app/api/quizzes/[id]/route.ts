@@ -79,11 +79,10 @@ export async function GET(
 // PUT update quiz
 export async function PUT(
   request: NextRequest,
-  context: { params: { id: string } }
+  { params }: { params: { id: string } }
 ) {
   try {
-    // انتظار params في Next.js 15
-    const { id } = await Promise.resolve(context.params)
+    const id = params.id
     
     // التحقق من صحة الـ ID
     const mongoose = await import('mongoose')
@@ -146,31 +145,32 @@ export async function PUT(
     }
     
     // إضافة الأسئلة إذا وجدت
-    if (body.questions !== undefined) {
+    if (body.questions !== undefined && Array.isArray(body.questions)) {
       // تنظيف الأسئلة قبل الحفظ
       updateData.questions = body.questions.map((q: any) => {
         const cleanQuestion: any = {
-          question: q.question,
-          type: q.type,
+          question: q.question || '',
+          type: q.type || 'multiple-choice',
           points: q.points || 1,
         }
         
         // إضافة الحقول حسب نوع السؤال
         if (q.type === 'multiple-choice') {
-          cleanQuestion.options = q.options?.filter((o: string) => o && o.trim())
-          cleanQuestion.correctAnswer = q.correctAnswer
+          cleanQuestion.options = q.options || []
+          cleanQuestion.correctAnswer = q.correctAnswer || ''
         } else if (q.type === 'true-false') {
-          cleanQuestion.correctAnswer = q.correctAnswer
+          cleanQuestion.correctAnswer = q.correctAnswer || ''
         } else if (q.type === 'short-answer') {
-          cleanQuestion.correctAnswer = q.correctAnswer
+          cleanQuestion.correctAnswer = q.correctAnswer || ''
         } else if (q.type === 'matching') {
-          cleanQuestion.matchingPairs = q.matchingPairs?.filter((p: any) => p.left?.trim() && p.right?.trim())
+          cleanQuestion.matchingPairs = q.matchingPairs || []
         } else if (q.type === 'ordering') {
-          cleanQuestion.orderItems = q.orderItems?.filter((item: string) => item && item.trim())
-          cleanQuestion.correctAnswer = cleanQuestion.orderItems?.map((_: any, i: number) => i)
+          cleanQuestion.orderItems = q.orderItems || []
+          cleanQuestion.correctAnswer = q.correctAnswer || []
         }
         
         if (q.explanation) cleanQuestion.explanation = q.explanation
+        if (q._id) cleanQuestion._id = q._id
         
         return cleanQuestion
       })
