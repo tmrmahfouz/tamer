@@ -624,11 +624,11 @@ export default function PrestoPlayer({ videoUrl, title, studentName }: PrestoPla
     }
   }, [])
 
-  // Auto-hide controls
+  // Auto-hide controls - works with both mouse and touch
   useEffect(() => {
     let timeout: NodeJS.Timeout
     
-    const handleMouseMove = () => {
+    const showControlsTemporarily = () => {
       setShowControls(true)
       clearTimeout(timeout)
       if (isPlaying) {
@@ -636,18 +636,40 @@ export default function PrestoPlayer({ videoUrl, title, studentName }: PrestoPla
       }
     }
 
+    const handleMouseMove = () => {
+      showControlsTemporarily()
+    }
+
+    const handleTouchStart = () => {
+      // Toggle controls on touch
+      if (showControls && isPlaying) {
+        setShowControls(false)
+      } else {
+        showControlsTemporarily()
+      }
+    }
+
     const container = containerRef.current
     if (container) {
       container.addEventListener('mousemove', handleMouseMove)
+      container.addEventListener('touchstart', handleTouchStart, { passive: true })
+    }
+
+    // Hide controls when video starts playing
+    if (isPlaying) {
+      timeout = setTimeout(() => setShowControls(false), 3000)
+    } else {
+      setShowControls(true)
     }
 
     return () => {
       if (container) {
         container.removeEventListener('mousemove', handleMouseMove)
+        container.removeEventListener('touchstart', handleTouchStart)
       }
       clearTimeout(timeout)
     }
-  }, [isPlaying])
+  }, [isPlaying, showControls])
 
   if (!videoId) {
     return (
@@ -691,14 +713,22 @@ export default function PrestoPlayer({ videoUrl, title, studentName }: PrestoPla
             zIndex: 15,
             touchAction: 'manipulation',
           }}
-          onClick={togglePlay}
-          onTouchStart={(e) => {
-            // Allow touch but prevent default YouTube behavior
-            e.stopPropagation()
+          onClick={() => {
+            // Show/hide controls on click, toggle play only if controls are visible
+            if (!showControls) {
+              setShowControls(true)
+            } else {
+              togglePlay()
+            }
           }}
           onTouchEnd={(e) => {
             e.stopPropagation()
-            togglePlay()
+            // On touch, show controls if hidden, otherwise toggle play
+            if (!showControls) {
+              setShowControls(true)
+            } else {
+              togglePlay()
+            }
           }}
           onContextMenu={(e) => {
             e.preventDefault()
