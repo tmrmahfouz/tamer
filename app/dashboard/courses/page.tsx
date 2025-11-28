@@ -12,18 +12,14 @@ import {
   Users,
   Star,
   Clock,
-  Menu,
-  X,
-  Home,
-  LogOut,
 } from 'lucide-react'
+import AdminLayout from '@/components/AdminLayout'
 
 export default function CoursesManagementPage() {
   const router = useRouter()
   const [courses, setCourses] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [user, setUser] = useState<any>(null)
-  const [sidebarOpen, setSidebarOpen] = useState(false)
 
   useEffect(() => {
     checkAuth()
@@ -89,115 +85,21 @@ export default function CoursesManagementPage() {
     }
   }
 
-  const handleLogout = async () => {
-    await fetch('/api/auth/logout', { method: 'POST' })
-    router.push('/')
-  }
-
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="w-16 h-16 border-4 border-primary-600 border-t-transparent rounded-full animate-spin"></div>
-      </div>
+      <AdminLayout title="إدارة الدورات">
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="w-16 h-16 border-4 border-primary-600 border-t-transparent rounded-full animate-spin"></div>
+        </div>
+      </AdminLayout>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50" dir="rtl">
-      {/* Mobile Header */}
-      <header className="md:hidden fixed top-0 left-0 right-0 bg-white border-b z-40 px-4 py-3">
-        <div className="flex items-center justify-between">
-          <button
-            onClick={() => setSidebarOpen(true)}
-            className="p-2 hover:bg-gray-100 rounded-lg"
-          >
-            <Menu className="w-6 h-6" />
-          </button>
-          <h1 className="font-bold text-gray-900">إدارة الدورات</h1>
-          <Link href="/dashboard" className="p-2 hover:bg-gray-100 rounded-lg">
-            <Home className="w-5 h-5" />
-          </Link>
-        </div>
-      </header>
-
-      {/* Mobile Sidebar Overlay */}
-      {sidebarOpen && (
-        <div 
-          className="md:hidden fixed inset-0 bg-black/50 z-40"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
-
-      {/* Sidebar */}
-      <aside className={`
-        fixed top-0 right-0 h-full w-64 bg-white shadow-lg z-50 transform transition-transform duration-300
-        ${sidebarOpen ? 'translate-x-0' : 'translate-x-full md:translate-x-0'}
-      `}>
-        <div className="flex flex-col h-full">
-          <div className="p-6 border-b flex items-center justify-between">
-            <Link href="/" className="flex items-center gap-2">
-              <div className="w-10 h-10 bg-gradient-to-r from-primary-600 to-secondary-600 rounded-lg flex items-center justify-center">
-                <BookOpen className="w-6 h-6 text-white" />
-              </div>
-              <span className="font-bold text-lg">لوحة التحكم</span>
-            </Link>
-            <button
-              onClick={() => setSidebarOpen(false)}
-              className="md:hidden p-2 hover:bg-gray-100 rounded-lg"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
-
-          <nav className="flex-1 p-4 space-y-2">
-            <Link
-              href="/dashboard"
-              onClick={() => setSidebarOpen(false)}
-              className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg font-semibold transition-colors"
-            >
-              <Home className="w-5 h-5" />
-              <span>الرئيسية</span>
-            </Link>
-            <Link
-              href="/dashboard/courses"
-              onClick={() => setSidebarOpen(false)}
-              className="flex items-center gap-3 px-4 py-3 bg-primary-50 text-primary-600 rounded-lg font-semibold"
-            >
-              <BookOpen className="w-5 h-5" />
-              <span>الدورات</span>
-            </Link>
-          </nav>
-
-          {/* User & Logout */}
-          <div className="p-4 border-t">
-            {user && (
-              <div className="flex items-center gap-3 mb-3 px-2">
-                <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
-                  <span className="text-primary-700 font-bold">
-                    {user.name?.charAt(0)}
-                  </span>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium text-gray-900 truncate">{user.name}</p>
-                  <p className="text-xs text-gray-500">{user.role === 'admin' ? 'مدير' : 'معلم'}</p>
-                </div>
-              </div>
-            )}
-            <button
-              onClick={handleLogout}
-              className="w-full flex items-center gap-3 px-3 py-2.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-            >
-              <LogOut className="w-5 h-5" />
-              <span className="text-sm">تسجيل الخروج</span>
-            </button>
-          </div>
-        </div>
-      </aside>
-
-      {/* Main Content */}
-      <main className="md:mr-64 p-4 md:p-8 pt-20 md:pt-8">
+    <AdminLayout title="إدارة الدورات">
+      <div>
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 md:mb-8">
           <div>
             <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
               إدارة الدورات
@@ -233,7 +135,7 @@ export default function CoursesManagementPage() {
         ) : (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             {courses.map((course) => (
-              <div key={course._id} className="card">
+              <div key={course._id} className="card bg-white rounded-xl shadow-lg overflow-hidden">
                 {/* Course Image */}
                 <div className="bg-gradient-to-br from-primary-500 to-secondary-500 h-32 md:h-40 flex items-center justify-center text-5xl md:text-6xl">
                   {course.image}
@@ -293,13 +195,13 @@ export default function CoursesManagementPage() {
                         className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-gradient-to-r from-primary-600 to-secondary-600 text-white rounded-lg hover:from-primary-700 hover:to-secondary-700 transition-colors font-semibold text-xs md:text-sm"
                       >
                         <BookOpen className="w-4 h-4" />
-                        <span>إدارة المحتوى</span>
+                        <span>المحتوى</span>
                       </Link>
                       <Link
                         href={`/courses/${course._id}`}
                         target="_blank"
                         className="flex items-center justify-center gap-2 px-3 py-2 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition-colors font-semibold"
-                        title="معاينة كطالب"
+                        title="معاينة"
                       >
                         <Eye className="w-4 h-4" />
                       </Link>
@@ -325,7 +227,7 @@ export default function CoursesManagementPage() {
             ))}
           </div>
         )}
-      </main>
-    </div>
+      </div>
+    </AdminLayout>
   )
 }
