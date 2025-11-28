@@ -99,6 +99,7 @@ export default function TakeQuizPage() {
       const response = await fetch(`/api/quizzes/${quizId}`)
       const data = await response.json()
 
+      console.log('Quiz API response:', data)
       if (data.success && data.quiz) {
         setQuiz(data.quiz)
         setAnswers(new Array(data.quiz.questions.length).fill(''))
@@ -109,8 +110,9 @@ export default function TakeQuizPage() {
         const cId = typeof data.quiz.course === 'object' ? data.quiz.course._id : data.quiz.course
         setCourseId(cId)
       } else {
-        alert('الاختبار غير موجود')
-        router.push('/dashboard')
+        console.error('Quiz not found:', data.message)
+        alert(data.message || 'الاختبار غير موجود')
+        router.back()
       }
     } catch (error) {
       console.error('Error loading quiz:', error)
