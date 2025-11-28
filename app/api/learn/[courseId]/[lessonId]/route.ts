@@ -25,7 +25,16 @@ export async function GET(
     if (token) {
       const decoded = verifyToken(token)
       if (decoded) {
-        user = { id: decoded.userId, role: decoded.role }
+        // جلب بيانات المستخدم من قاعدة البيانات
+        const User = (await import('@/models/User')).default
+        const userData = await User.findById(decoded.userId).select('name email').lean()
+        
+        user = { 
+          id: decoded.userId, 
+          role: decoded.role,
+          name: (userData as any)?.name || 'مستخدم',
+          email: (userData as any)?.email
+        }
         
         // جلب التسجيل والتقدم
         enrollment = await Enrollment.findOne({
