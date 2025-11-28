@@ -654,12 +654,19 @@ export default function PrestoPlayer({ videoUrl, title, studentName }: PrestoPla
     >
 
       {/* Video Player */}
-      <div className="relative aspect-video">
+      <div className="relative aspect-video video-player-container">
         {/* YouTube iframe */}
         <div
           id={playerId}
           key={playerId}
-          className="w-full h-full"
+          className="w-full h-full youtube-embed"
+          style={{ 
+            width: '100%', 
+            height: '100%',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+          }}
         />
         
         {/* Protection Overlay - Prevents clicking on YouTube links */}
@@ -1023,11 +1030,49 @@ export default function PrestoPlayer({ videoUrl, title, studentName }: PrestoPla
         .group:fullscreen iframe,
         .group:-webkit-full-screen iframe,
         .group:-moz-full-screen iframe {
-          width: 100vw !important;
-          height: 100vh !important;
+          width: 100% !important;
+          height: 100% !important;
           max-width: 100vw !important;
           max-height: 100vh !important;
           object-fit: contain !important;
+          position: absolute !important;
+          top: 0 !important;
+          left: 0 !important;
+        }
+        
+        /* YouTube embed specific styles */
+        .youtube-embed iframe {
+          width: 100% !important;
+          height: 100% !important;
+          position: absolute !important;
+          top: 0 !important;
+          left: 0 !important;
+        }
+        
+        /* Video player container in fullscreen */
+        .video-player-container {
+          position: relative !important;
+          overflow: hidden !important;
+        }
+        
+        .group:fullscreen .video-player-container,
+        .group:-webkit-full-screen .video-player-container,
+        .group:-moz-full-screen .video-player-container {
+          width: 100vw !important;
+          height: 100vh !important;
+          display: flex !important;
+          align-items: center !important;
+          justify-content: center !important;
+        }
+        
+        /* Ensure iframe doesn't overflow */
+        .group:fullscreen .youtube-embed,
+        .group:-webkit-full-screen .youtube-embed,
+        .group:-moz-full-screen .youtube-embed {
+          width: 100% !important;
+          height: 100% !important;
+          max-width: 100vw !important;
+          max-height: 100vh !important;
         }
 
         /* Hide YouTube branding and buttons - COMPREHENSIVE */
