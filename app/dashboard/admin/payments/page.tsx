@@ -126,90 +126,91 @@ export default function AdminPaymentsPage() {
     <AdminLayout title="إدارة المدفوعات">
       <div>
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 md:mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            <h1 className="text-xl md:text-3xl font-bold text-gray-900 mb-1 md:mb-2">
               إدارة المدفوعات
             </h1>
-            <p className="text-gray-600">
+            <p className="text-gray-600 text-sm md:text-base">
               عرض وإدارة جميع المدفوعات والإيرادات
             </p>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 md:gap-3">
             <button
               onClick={() => {
                 setLoading(true)
                 loadPayments()
               }}
-              className="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold hover:shadow-lg transform hover:scale-105 transition-all"
+              className="flex items-center gap-1 md:gap-2 px-3 md:px-6 py-2 md:py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold text-sm md:text-base transition-all"
               disabled={loading}
             >
-              <RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} />
+              <RefreshCw className={`w-4 h-4 md:w-5 md:h-5 ${loading ? 'animate-spin' : ''}`} />
               <span>تحديث</span>
             </button>
             <button
               onClick={() => window.print()}
-              className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary-600 to-secondary-600 text-white rounded-lg font-semibold hover:shadow-lg transform hover:scale-105 transition-all"
+              className="flex items-center gap-1 md:gap-2 px-3 md:px-6 py-2 md:py-3 bg-gradient-to-r from-primary-600 to-secondary-600 text-white rounded-lg font-semibold text-sm md:text-base transition-all"
             >
-              <Download className="w-5 h-5" />
-              <span>تصدير التقرير</span>
+              <Download className="w-4 h-4 md:w-5 md:h-5" />
+              <span className="hidden md:inline">تصدير التقرير</span>
+              <span className="md:hidden">تصدير</span>
             </button>
           </div>
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-green-100 dark:bg-green-900/30 rounded-lg">
-                <DollarSign className="w-6 h-6 text-green-600 dark:text-green-400" />
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6 mb-6 md:mb-8">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-3 md:p-6">
+            <div className="flex items-center gap-2 md:gap-4">
+              <div className="p-2 md:p-3 bg-green-100 dark:bg-green-900/30 rounded-lg">
+                <DollarSign className="w-4 h-4 md:w-6 md:h-6 text-green-600 dark:text-green-400" />
               </div>
               <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">إجمالي الإيرادات</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                  {stats.total.toLocaleString()} جنيه
+                <p className="text-xs md:text-sm text-gray-600 dark:text-gray-400">إجمالي الإيرادات</p>
+                <p className="text-base md:text-2xl font-bold text-gray-900 dark:text-gray-100">
+                  {stats.total.toLocaleString()}
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
-                <CheckCircle className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-3 md:p-6">
+            <div className="flex items-center gap-2 md:gap-4">
+              <div className="p-2 md:p-3 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+                <CheckCircle className="w-4 h-4 md:w-6 md:h-6 text-blue-600 dark:text-blue-400" />
               </div>
               <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">مدفوعات مؤكدة</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                  {stats.verified.toLocaleString()} جنيه
+                <p className="text-xs md:text-sm text-gray-600 dark:text-gray-400">مؤكدة</p>
+                <p className="text-base md:text-2xl font-bold text-gray-900 dark:text-gray-100">
+                  {stats.verified.toLocaleString()}
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg">
-                <Clock className="w-6 h-6 text-yellow-600 dark:text-yellow-400" />
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-3 md:p-6">
+            <div className="flex items-center gap-2 md:gap-4">
+              <div className="p-2 md:p-3 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg">
+                <Clock className="w-4 h-4 md:w-6 md:h-6 text-yellow-600 dark:text-yellow-400" />
               </div>
               <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">قيد المراجعة</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                <p className="text-xs md:text-sm text-gray-600 dark:text-gray-400">قيد المراجعة</p>
+                <p className="text-base md:text-2xl font-bold text-gray-900 dark:text-gray-100">
                   {stats.pending}
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
-                <TrendingUp className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-3 md:p-6">
+            <div className="flex items-center gap-2 md:gap-4">
+              <div className="p-2 md:p-3 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
+                <TrendingUp className="w-4 h-4 md:w-6 md:h-6 text-purple-600 dark:text-purple-400" />
               </div>
               <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">هذا الشهر</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                  {stats.thisMonth.toLocaleString()} جنيه
+                <p className="text-xs md:text-sm text-gray-600 dark:text-gray-400">هذا الشهر</p>
+                <p className="text-base md:text-2xl font-bold text-gray-900 dark:text-gray-100">
+                  {stats.thisMonth.toLocaleString()}
                 </p>
               </div>
             </div>
@@ -243,8 +244,87 @@ export default function AdminPaymentsPage() {
           </div>
         </div>
 
-        {/* Payments Table */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
+        {/* Payments - Mobile Cards */}
+        <div className="md:hidden space-y-3">
+          {filteredPayments.map((payment) => (
+            <div key={payment._id} className="bg-white dark:bg-gray-800 rounded-xl shadow p-4">
+              <div className="flex items-start justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                    {payment.user?.name?.charAt(0) || '؟'}
+                  </div>
+                  <div>
+                    <p className="font-semibold text-gray-900 dark:text-gray-100 text-sm">
+                      {payment.user?.name || 'غير محدد'}
+                    </p>
+                    <p className="text-xs text-gray-500">{payment.course?.title || 'غير محدد'}</p>
+                  </div>
+                </div>
+                {payment.status === 'pending' && (
+                  <span className="px-2 py-0.5 bg-yellow-100 text-yellow-700 rounded-full text-xs font-semibold">
+                    قيد المراجعة
+                  </span>
+                )}
+                {payment.status === 'verified' && (
+                  <span className="px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs font-semibold">
+                    مؤكدة
+                  </span>
+                )}
+                {payment.status === 'rejected' && (
+                  <span className="px-2 py-0.5 bg-red-100 text-red-700 rounded-full text-xs font-semibold">
+                    مرفوضة
+                  </span>
+                )}
+              </div>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-bold text-green-600 text-lg">{payment.amount?.toLocaleString()} جنيه</p>
+                  <p className="text-xs text-gray-500">
+                    {new Date(payment.createdAt).toLocaleDateString('ar-EG', { month: 'short', day: 'numeric' })}
+                  </p>
+                </div>
+                <div className="flex items-center gap-1">
+                  <button
+                    onClick={() => {
+                      setSelectedPayment(payment)
+                      setShowDetailsModal(true)
+                    }}
+                    className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg"
+                  >
+                    <Eye className="w-5 h-5" />
+                  </button>
+                  {payment.status === 'pending' && (
+                    <>
+                      <button
+                        onClick={() => handleVerify(payment._id)}
+                        className="p-2 text-green-600 hover:bg-green-50 rounded-lg"
+                      >
+                        <CheckCircle className="w-5 h-5" />
+                      </button>
+                      <button
+                        onClick={() => handleReject(payment._id)}
+                        className="p-2 text-red-600 hover:bg-red-50 rounded-lg"
+                      >
+                        <XCircle className="w-5 h-5" />
+                      </button>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
+          {filteredPayments.length === 0 && (
+            <div className="text-center py-12 bg-white rounded-xl">
+              <DollarSign className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+              <p className="text-gray-600 text-sm">
+                {searchTerm || statusFilter !== 'all' ? 'لا توجد نتائج' : 'لا توجد مدفوعات'}
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* Payments Table - Desktop */}
+        <div className="hidden md:block bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead className="bg-gray-50 dark:bg-gray-900">
