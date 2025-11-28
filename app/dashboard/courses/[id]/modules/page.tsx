@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
-import Header from '@/components/Header'
+import AdminLayout from '@/components/AdminLayout'
 import { 
-  Plus, Edit2, Trash2, BookOpen, Video, FileText, 
-  ChevronDown, ChevronUp, Save, X, GripVertical, FileQuestion, MoreVertical, Eye 
+  Plus, Edit2, Trash2, Video, FileText, 
+  ChevronDown, ChevronUp, Save, X, FileQuestion, MoreVertical, Eye 
 } from 'lucide-react'
 import Link from 'next/link'
 
@@ -197,51 +197,47 @@ export default function CourseModulesPage() {
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-gray-50">
-        <Header />
-        <div className="pt-32 pb-20 px-4 flex items-center justify-center">
+      <AdminLayout title="محتوى الدورة">
+        <div className="flex items-center justify-center min-h-[60vh]">
           <div className="w-16 h-16 border-4 border-primary-600 border-t-transparent rounded-full animate-spin"></div>
         </div>
-      </main>
+      </AdminLayout>
     )
   }
 
   return (
-    <main className="min-h-screen bg-gray-50">
-      <Header />
-
-      <section className="pt-32 pb-20 px-4">
-        <div className="container mx-auto max-w-6xl">
-          {/* Header */}
-          <div className="mb-8">
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                  محتوى الدورة
-                </h1>
-                <p className="text-gray-600">
-                  {course?.title}
-                </p>
-              </div>
-              <div className="flex items-center gap-3">
-                <Link
-                  href={`/courses/${courseId}`}
-                  target="_blank"
-                  className="flex items-center gap-2 px-6 py-3 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition-colors font-semibold border border-green-200"
-                >
-                  <Eye className="w-5 h-5" />
-                  <span>معاينة كطالب</span>
-                </Link>
-                <button
-                  onClick={() => router.push(`/dashboard/admin/quizzes?courseId=${courseId}`)}
-                  className="flex items-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-semibold"
-                >
-                  <FileQuestion className="w-5 h-5" />
-                  <span>إدارة الاختبارات</span>
-                </button>
-              </div>
+    <AdminLayout title={course?.title || 'محتوى الدورة'}>
+      <div>
+        {/* Header */}
+        <div className="mb-6 md:mb-8">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+            <div>
+              <h1 className="text-xl md:text-2xl font-bold text-gray-900 mb-2">
+                محتوى الدورة
+              </h1>
+              <p className="text-gray-600 text-sm md:text-base">
+                {course?.title}
+              </p>
+            </div>
+            <div className="flex flex-wrap items-center gap-2 md:gap-3">
+              <Link
+                href={`/courses/${courseId}`}
+                target="_blank"
+                className="flex items-center gap-2 px-3 md:px-6 py-2 md:py-3 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition-colors font-semibold border border-green-200 text-sm md:text-base"
+              >
+                <Eye className="w-4 h-4 md:w-5 md:h-5" />
+                <span>معاينة</span>
+              </Link>
+              <button
+                onClick={() => router.push(`/dashboard/admin/quizzes?courseId=${courseId}`)}
+                className="flex items-center gap-2 px-3 md:px-6 py-2 md:py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-semibold text-sm md:text-base"
+              >
+                <FileQuestion className="w-4 h-4 md:w-5 md:h-5" />
+                <span>الاختبارات</span>
+              </button>
             </div>
           </div>
+        </div>
 
           {/* Modules List */}
           <div className="space-y-2">
@@ -436,8 +432,6 @@ export default function CourseModulesPage() {
               <span className="font-medium">إضافة قسم جديد</span>
             </button>
           </div>
-        </div>
-      </section>
 
       {/* Module Modal */}
       {showModuleModal && (
@@ -594,6 +588,7 @@ export default function CourseModulesPage() {
           </div>
         </div>
       )}
-    </main>
+      </div>
+    </AdminLayout>
   )
 }
