@@ -661,6 +661,21 @@ export default function PrestoPlayer({ videoUrl, title, studentName }: PrestoPla
           key={playerId}
           className="w-full h-full"
         />
+        
+        {/* Protection Overlay - Prevents clicking on YouTube links */}
+        <div
+          className="absolute inset-0 z-10"
+          style={{
+            background: 'transparent',
+            cursor: 'pointer',
+          }}
+          onClick={togglePlay}
+          onContextMenu={(e) => {
+            e.preventDefault()
+            e.stopPropagation()
+            return false
+          }}
+        />
 
         {/* Custom Controls */}
         <div
