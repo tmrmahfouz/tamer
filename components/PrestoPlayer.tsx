@@ -709,6 +709,69 @@ export default function PrestoPlayer({ videoUrl, title, studentName }: PrestoPla
           }}
         />
 
+        {/* Watermark - اسم المستخدم كعلامة مائية */}
+        {studentName && (
+          <div
+            className="absolute inset-0 pointer-events-none select-none"
+            style={{ zIndex: 14 }}
+          >
+            {/* علامة مائية متحركة في الزاوية */}
+            <div 
+              className="absolute animate-pulse"
+              style={{
+                top: '15%',
+                right: '5%',
+                color: 'rgba(255, 255, 255, 0.15)',
+                fontSize: '14px',
+                fontWeight: 'bold',
+                textShadow: '1px 1px 2px rgba(0,0,0,0.3)',
+                transform: 'rotate(-15deg)',
+                userSelect: 'none',
+                pointerEvents: 'none',
+              }}
+            >
+              {studentName}
+            </div>
+            
+            {/* علامة مائية في الوسط */}
+            <div 
+              className="absolute"
+              style={{
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%) rotate(-25deg)',
+                color: 'rgba(255, 255, 255, 0.08)',
+                fontSize: '24px',
+                fontWeight: 'bold',
+                textShadow: '2px 2px 4px rgba(0,0,0,0.2)',
+                whiteSpace: 'nowrap',
+                userSelect: 'none',
+                pointerEvents: 'none',
+              }}
+            >
+              {studentName}
+            </div>
+            
+            {/* علامة مائية في الأسفل */}
+            <div 
+              className="absolute"
+              style={{
+                bottom: '20%',
+                left: '10%',
+                color: 'rgba(255, 255, 255, 0.12)',
+                fontSize: '12px',
+                fontWeight: 'bold',
+                textShadow: '1px 1px 2px rgba(0,0,0,0.3)',
+                transform: 'rotate(10deg)',
+                userSelect: 'none',
+                pointerEvents: 'none',
+              }}
+            >
+              {studentName}
+            </div>
+          </div>
+        )}
+
         {/* Custom Controls */}
         <div
           className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent p-4 transition-opacity duration-300 ${
