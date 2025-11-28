@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { BookOpen, Clock, Lock, ArrowRight, ArrowLeft, FileText, Presentation, Code, CheckCircle, Circle, FileQuestion, Award, Bookmark, StickyNote, TrendingUp } from 'lucide-react'
+import { BookOpen, Clock, Lock, ArrowRight, ArrowLeft, CheckCircle, Circle, FileQuestion, Award, Menu, X, List } from 'lucide-react'
 import UniversalVideoPlayer from '@/components/lesson-viewers/UniversalVideoPlayer'
 import PDFViewer from '@/components/lesson-viewers/PDFViewer'
 import PresentationViewer from '@/components/lesson-viewers/PresentationViewer'
@@ -34,6 +34,7 @@ export default function LessonPage() {
   const [quizPassed, setQuizPassed] = useState(false)
   const [enrollment, setEnrollment] = useState<any>(null)
   const [issuingCertificate, setIssuingCertificate] = useState(false)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
 
   useEffect(() => {
     // Reset lesson state when changing lessons
@@ -390,7 +391,15 @@ export default function LessonPage() {
               </p>
             </div>
 
-            <div className="w-8 md:w-32"></div>
+            {/* زر إظهار/إخفاء قائمة الدروس على الهاتف */}
+            <button
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="lg:hidden flex items-center gap-1 px-3 py-2 bg-primary-100 text-primary-700 rounded-lg hover:bg-primary-200 transition-colors"
+            >
+              <List className="w-4 h-4" />
+              <span className="text-xs font-medium">الدروس</span>
+            </button>
+            <div className="hidden lg:block w-32"></div>
           </div>
         </div>
       </header>
@@ -631,17 +640,43 @@ export default function LessonPage() {
 
           </div>
 
+          {/* Mobile Sidebar Overlay */}
+          {sidebarOpen && (
+            <div 
+              className="lg:hidden fixed inset-0 bg-black/50 z-40"
+              onClick={() => setSidebarOpen(false)}
+            />
+          )}
+
           {/* Sidebar - Lessons List */}
-          <div className="lg:col-span-1">
-            {/* Course Progress Ring */}
-            {enrollment && (
-              <div className="bg-white rounded-xl shadow-lg p-4 mb-4 flex items-center justify-center">
-                <CourseProgressRing 
-                  progress={enrollment.completionPercentage || 0}
-                  size={100}
-                />
-              </div>
-            )}
+          <div className={`
+            lg:col-span-1
+            fixed lg:relative inset-y-0 left-0 z-50 lg:z-auto
+            w-80 lg:w-auto
+            transform transition-transform duration-300 ease-in-out
+            ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+            bg-gray-50 lg:bg-transparent
+            pt-16 lg:pt-0
+            overflow-y-auto lg:overflow-visible
+          `}>
+            {/* زر إغلاق السايدبار على الهاتف */}
+            <button
+              onClick={() => setSidebarOpen(false)}
+              className="lg:hidden absolute top-20 right-4 p-2 bg-white rounded-full shadow-lg hover:bg-gray-100 transition-colors"
+            >
+              <X className="w-5 h-5 text-gray-600" />
+            </button>
+
+            <div className="p-4 lg:p-0">
+              {/* Course Progress Ring */}
+              {enrollment && (
+                <div className="bg-white rounded-xl shadow-lg p-4 mb-4 flex items-center justify-center">
+                  <CourseProgressRing 
+                    progress={enrollment.completionPercentage || 0}
+                    size={100}
+                  />
+                </div>
+              )}
 
             {/* Certificate Banner */}
             {canGetCertificate() && (
@@ -849,6 +884,7 @@ export default function LessonPage() {
                   </>
                 )}
               </div>
+            </div>
             </div>
           </div>
         </div>
