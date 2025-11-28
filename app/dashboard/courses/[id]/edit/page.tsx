@@ -3,7 +3,8 @@
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { BookOpen, Plus, X, Save, List, Edit, Trash2, Eye, Video, FileText, CheckCircle, Clock, CalendarDays, Layers, Lock, Award } from 'lucide-react'
+import { Plus, X, Save, List, Edit, Trash2, Eye, Video, FileText, CheckCircle, Clock, CalendarDays, Layers, Lock, Award } from 'lucide-react'
+import AdminLayout from '@/components/AdminLayout'
 
 export default function EditCoursePage() {
   const params = useParams()
@@ -277,34 +278,24 @@ export default function EditCoursePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="w-16 h-16 border-4 border-primary-600 border-t-transparent rounded-full animate-spin"></div>
-      </div>
+      <AdminLayout title="تعديل الدورة">
+        <div className="flex items-center justify-center py-20">
+          <div className="w-16 h-16 border-4 border-primary-600 border-t-transparent rounded-full animate-spin"></div>
+        </div>
+      </AdminLayout>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <aside className="fixed right-0 top-0 h-full w-64 bg-white shadow-lg z-50">
-        <div className="p-6">
-          <Link href="/dashboard" className="flex items-center gap-2 mb-8">
-            <div className="w-10 h-10 bg-gradient-to-r from-primary-600 to-secondary-600 rounded-lg flex items-center justify-center">
-              <BookOpen className="w-6 h-6 text-white" />
-            </div>
-            <span className="font-bold text-lg">لوحة التحكم</span>
+    <AdminLayout title="تعديل الدورة">
+      <div className="max-w-4xl mx-auto px-4 md:px-0">
+        <div className="mb-6 md:mb-8">
+          <Link href="/dashboard/courses" className="text-primary-600 hover:text-primary-700 mb-2 inline-block text-sm md:text-base">
+            ← العودة للدورات
           </Link>
+          <h1 className="text-xl md:text-3xl font-bold text-gray-900 mb-2">تعديل الدورة</h1>
+          <p className="text-gray-600 text-sm md:text-base">عدّل معلومات الدورة</p>
         </div>
-      </aside>
-
-      <main className="mr-64 p-8">
-        <div className="max-w-4xl mx-auto">
-          <div className="mb-8">
-            <Link href="/dashboard/courses" className="text-primary-600 hover:text-primary-700 mb-2 inline-block">
-              ← العودة للدورات
-            </Link>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">تعديل الدورة</h1>
-            <p className="text-gray-600">عدّل معلومات الدورة</p>
-          </div>
 
           {error && (
             <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
@@ -313,18 +304,18 @@ export default function EditCoursePage() {
           )}
 
           {/* Lessons Section */}
-          <div className="bg-white rounded-xl shadow-lg p-8 mb-8">
-            <div className="flex items-center justify-between mb-6">
+          <div className="bg-white rounded-xl shadow-lg p-4 md:p-8 mb-6 md:mb-8">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
               <div className="flex items-center gap-3">
-                <List className="w-6 h-6 text-primary-600" />
-                <h2 className="text-2xl font-bold text-gray-900">الدروس ({lessons.length})</h2>
+                <List className="w-5 md:w-6 h-5 md:h-6 text-primary-600" />
+                <h2 className="text-lg md:text-2xl font-bold text-gray-900">الدروس ({lessons.length})</h2>
               </div>
               <button
                 type="button"
                 onClick={() => openLessonModal()}
-                className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-semibold"
+                className="flex items-center justify-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-semibold text-sm md:text-base"
               >
-                <Plus className="w-5 h-5" />
+                <Plus className="w-4 md:w-5 h-4 md:h-5" />
                 <span>إضافة درس</span>
               </button>
             </div>
@@ -334,65 +325,65 @@ export default function EditCoursePage() {
                 {lessons.map((lesson, index) => (
                   <div
                     key={lesson._id}
-                    className="flex items-center gap-4 p-4 border-2 border-gray-200 rounded-lg hover:border-primary-600 transition-colors"
+                    className="flex items-start md:items-center gap-3 md:gap-4 p-3 md:p-4 border-2 border-gray-200 rounded-lg hover:border-primary-600 transition-colors"
                   >
-                    <div className="flex-shrink-0 w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center font-bold text-primary-600">
+                    <div className="flex-shrink-0 w-8 h-8 md:w-10 md:h-10 bg-primary-100 rounded-lg flex items-center justify-center font-bold text-primary-600 text-sm md:text-base">
                       {lesson.order || index + 1}
                     </div>
-                    <div className="flex-1">
-                      <h3 className="font-semibold text-gray-900 mb-1">{lesson.title}</h3>
-                      <div className="flex items-center gap-4 text-sm text-gray-600">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-gray-900 mb-1 text-sm md:text-base truncate">{lesson.title}</h3>
+                      <div className="flex flex-wrap items-center gap-2 md:gap-4 text-xs md:text-sm text-gray-600">
                         {lesson.videoUrl && (
                           <span className="flex items-center gap-1">
-                            <Video className="w-4 h-4" />
+                            <Video className="w-3 h-3 md:w-4 md:h-4" />
                             فيديو
                           </span>
                         )}
                         {lesson.duration && (
                           <span className="flex items-center gap-1">
-                            <FileText className="w-4 h-4" />
+                            <FileText className="w-3 h-3 md:w-4 md:h-4" />
                             {lesson.duration}
                           </span>
                         )}
                         {lesson.isFree && (
                           <span className="flex items-center gap-1 text-green-600">
-                            <CheckCircle className="w-4 h-4" />
+                            <CheckCircle className="w-3 h-3 md:w-4 md:h-4" />
                             مجاني
                           </span>
                         )}
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1 md:gap-2">
                       <button
                         type="button"
                         onClick={() => openLessonModal(lesson)}
-                        className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                        className="p-1.5 md:p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                         title="تعديل"
                       >
-                        <Edit className="w-5 h-5" />
+                        <Edit className="w-4 h-4 md:w-5 md:h-5" />
                       </button>
                       <button
                         type="button"
                         onClick={() => handleDeleteLesson(lesson._id)}
-                        className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        className="p-1.5 md:p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                         title="حذف"
                       >
-                        <Trash2 className="w-5 h-5" />
+                        <Trash2 className="w-4 h-4 md:w-5 md:h-5" />
                       </button>
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="text-center py-12 text-gray-500">
-                <List className="w-16 h-16 mx-auto mb-4 opacity-50" />
-                <p className="text-lg mb-2">لا توجد دروس بعد</p>
-                <p className="text-sm">ابدأ بإضافة أول درس للدورة</p>
+              <div className="text-center py-8 md:py-12 text-gray-500">
+                <List className="w-12 h-12 md:w-16 md:h-16 mx-auto mb-4 opacity-50" />
+                <p className="text-base md:text-lg mb-2">لا توجد دروس بعد</p>
+                <p className="text-xs md:text-sm">ابدأ بإضافة أول درس للدورة</p>
               </div>
             )}
           </div>
 
-          <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-lg p-8">
+          <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-lg p-4 md:p-8">
             <div className="space-y-6">
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">عنوان الدورة *</label>
@@ -539,17 +530,17 @@ export default function EditCoursePage() {
                       <label className="block text-sm font-semibold text-gray-700 mb-3">
                         نوع التنقيط
                       </label>
-                      <div className="grid grid-cols-3 gap-3">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                         <button
                           type="button"
                           onClick={() => setFormData({ ...formData, dripType: 'days' })}
-                          className={`p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-2 ${
+                          className={`p-3 md:p-4 rounded-xl border-2 transition-all flex flex-row md:flex-col items-center gap-2 md:gap-2 ${
                             formData.dripType === 'days'
                               ? 'border-primary-600 bg-primary-50'
                               : 'border-gray-200 hover:border-primary-300'
                           }`}
                         >
-                          <CalendarDays className={`w-6 h-6 ${formData.dripType === 'days' ? 'text-primary-600' : 'text-gray-500'}`} />
+                          <CalendarDays className={`w-5 h-5 md:w-6 md:h-6 ${formData.dripType === 'days' ? 'text-primary-600' : 'text-gray-500'}`} />
                           <span className={`text-sm font-medium ${formData.dripType === 'days' ? 'text-primary-600' : 'text-gray-700'}`}>
                             بالأيام
                           </span>
@@ -558,13 +549,13 @@ export default function EditCoursePage() {
                         <button
                           type="button"
                           onClick={() => setFormData({ ...formData, dripType: 'lessons' })}
-                          className={`p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-2 ${
+                          className={`p-3 md:p-4 rounded-xl border-2 transition-all flex flex-row md:flex-col items-center gap-2 md:gap-2 ${
                             formData.dripType === 'lessons'
                               ? 'border-primary-600 bg-primary-50'
                               : 'border-gray-200 hover:border-primary-300'
                           }`}
                         >
-                          <Layers className={`w-6 h-6 ${formData.dripType === 'lessons' ? 'text-primary-600' : 'text-gray-500'}`} />
+                          <Layers className={`w-5 h-5 md:w-6 md:h-6 ${formData.dripType === 'lessons' ? 'text-primary-600' : 'text-gray-500'}`} />
                           <span className={`text-sm font-medium ${formData.dripType === 'lessons' ? 'text-primary-600' : 'text-gray-700'}`}>
                             بعد إكمال دروس
                           </span>
@@ -573,13 +564,13 @@ export default function EditCoursePage() {
                         <button
                           type="button"
                           onClick={() => setFormData({ ...formData, dripType: 'date' })}
-                          className={`p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-2 ${
+                          className={`p-3 md:p-4 rounded-xl border-2 transition-all flex flex-row md:flex-col items-center gap-2 md:gap-2 ${
                             formData.dripType === 'date'
                               ? 'border-primary-600 bg-primary-50'
                               : 'border-gray-200 hover:border-primary-300'
                           }`}
                         >
-                          <Clock className={`w-6 h-6 ${formData.dripType === 'date' ? 'text-primary-600' : 'text-gray-500'}`} />
+                          <Clock className={`w-5 h-5 md:w-6 md:h-6 ${formData.dripType === 'date' ? 'text-primary-600' : 'text-gray-500'}`} />
                           <span className={`text-sm font-medium ${formData.dripType === 'date' ? 'text-primary-600' : 'text-gray-700'}`}>
                             من تاريخ محدد
                           </span>
@@ -713,35 +704,35 @@ export default function EditCoursePage() {
               </div>
             </div>
 
-            <div className="flex gap-4 mt-8 pt-6 border-t">
+            <div className="flex flex-col md:flex-row gap-3 md:gap-4 mt-6 md:mt-8 pt-6 border-t">
               <button
                 type="button"
                 onClick={() => router.back()}
-                className="px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-semibold"
+                className="px-4 md:px-6 py-2.5 md:py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-semibold text-sm md:text-base"
               >
                 إلغاء
               </button>
               <Link
                 href={`/courses/${params.id}`}
                 target="_blank"
-                className="px-6 py-3 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition-colors font-semibold flex items-center gap-2"
+                className="px-4 md:px-6 py-2.5 md:py-3 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition-colors font-semibold flex items-center justify-center gap-2 text-sm md:text-base"
               >
-                <Eye className="w-5 h-5" />
+                <Eye className="w-4 h-4 md:w-5 md:h-5" />
                 <span>معاينة كطالب</span>
               </Link>
               <button
                 type="submit"
                 disabled={saving}
-                className="flex-1 btn-primary flex items-center justify-center gap-2 disabled:opacity-50"
+                className="flex-1 btn-primary flex items-center justify-center gap-2 disabled:opacity-50 text-sm md:text-base py-2.5 md:py-3"
               >
                 {saving ? (
                   <>
-                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    <div className="w-4 h-4 md:w-5 md:h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                     <span>جاري الحفظ...</span>
                   </>
                 ) : (
                   <>
-                    <Save className="w-5 h-5" />
+                    <Save className="w-4 h-4 md:w-5 md:h-5" />
                     <span>حفظ التغييرات</span>
                   </>
                 )}
@@ -749,7 +740,6 @@ export default function EditCoursePage() {
             </div>
           </form>
         </div>
-      </main>
 
       {/* Lesson Modal - Disabled, using separate page instead */}
       {false && showLessonModal && (
@@ -875,6 +865,6 @@ export default function EditCoursePage() {
           </div>
         </div>
       )}
-    </div>
+    </AdminLayout>
   )
 }
