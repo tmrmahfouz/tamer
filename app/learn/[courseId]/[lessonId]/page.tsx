@@ -452,13 +452,13 @@ export default function LessonPage() {
             </div>
 
             {/* Lesson Content */}
-            <div className="bg-white rounded-xl md:rounded-2xl shadow-lg p-4 md:p-8 mb-4 md:mb-6">
-              <div className="prose prose-lg max-w-none">
-                {/* Video Content */}
-                {lesson.type === 'video' && lesson.content?.videoUrl && (
-                  <div className="mb-6">
-                    {/* الفيديو - يختفي على الموبايل عند فتح السايدبار */}
-                    {!sidebarOpen && (
+            <div className="bg-white rounded-xl md:rounded-2xl shadow-lg p-2 sm:p-4 md:p-8 mb-4 md:mb-6">
+              {/* Video Content - Outside prose for better fullscreen */}
+              {lesson.type === 'video' && lesson.content?.videoUrl && (
+                <div className="mb-6 -mx-2 sm:mx-0">
+                  {/* الفيديو - يختفي على الموبايل عند فتح السايدبار */}
+                  {!sidebarOpen && (
+                    <div className="video-wrapper w-full">
                       <UniversalVideoPlayer 
                         key={`video-${params.lessonId}`}
                         videoUrl={lesson.content.videoUrl}
@@ -466,18 +466,21 @@ export default function LessonPage() {
                         title={lesson.title}
                         studentName={user?.name}
                       />
-                    )}
-                    {/* رسالة بديلة عند فتح السايدبار */}
-                    {sidebarOpen && (
-                      <div className="bg-gray-800 rounded-xl p-8 text-center aspect-video flex items-center justify-center">
-                        <div>
-                          <p className="text-white text-lg mb-2">📺</p>
-                          <p className="text-white">أغلق قائمة الدروس لمشاهدة الفيديو</p>
-                        </div>
+                    </div>
+                  )}
+                  {/* رسالة بديلة عند فتح السايدبار */}
+                  {sidebarOpen && (
+                    <div className="bg-gray-800 rounded-xl p-8 text-center aspect-video flex items-center justify-center">
+                      <div>
+                        <p className="text-white text-lg mb-2">📺</p>
+                        <p className="text-white">أغلق قائمة الدروس لمشاهدة الفيديو</p>
                       </div>
-                    )}
-                  </div>
-                )}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <div className="prose prose-lg max-w-none">
 
                 {/* PDF Content */}
                 {lesson.type === 'pdf' && lesson.content?.pdfUrl && (
@@ -525,6 +528,54 @@ export default function LessonPage() {
                 )}
               </div>
             </div>
+
+            {/* Global styles for video fullscreen */}
+            <style jsx global>{`
+              .video-wrapper:fullscreen,
+              .video-wrapper:-webkit-full-screen,
+              .video-wrapper:-moz-full-screen {
+                width: 100vw !important;
+                height: 100vh !important;
+                background: black !important;
+              }
+              
+              .video-wrapper:fullscreen > *,
+              .video-wrapper:-webkit-full-screen > *,
+              .video-wrapper:-moz-full-screen > * {
+                width: 100% !important;
+                height: 100% !important;
+              }
+              
+              /* Fix for mobile fullscreen */
+              @media (max-width: 768px) {
+                .video-wrapper {
+                  width: 100%;
+                  max-width: 100vw;
+                }
+                
+                .video-wrapper iframe,
+                .video-wrapper video {
+                  max-width: 100vw !important;
+                }
+              }
+              
+              /* Fullscreen fixes */
+              :fullscreen .aspect-video,
+              :-webkit-full-screen .aspect-video,
+              :-moz-full-screen .aspect-video {
+                aspect-ratio: unset !important;
+                width: 100vw !important;
+                height: 100vh !important;
+              }
+              
+              :fullscreen iframe,
+              :-webkit-full-screen iframe,
+              :-moz-full-screen iframe {
+                width: 100vw !important;
+                height: 100vh !important;
+                object-fit: contain !important;
+              }
+            `}</style>
 
             {/* Lesson Summary - ملخص الدرس */}
             <div className="mb-4 md:mb-6">
