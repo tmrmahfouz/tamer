@@ -654,7 +654,7 @@ export default function PrestoPlayer({ videoUrl, title, studentName }: PrestoPla
     >
 
       {/* Video Player with integrated overlays */}
-      <div className="relative aspect-video overflow-hidden">
+      <div className="relative aspect-video" style={{ overflow: 'hidden', clipPath: 'inset(0)' }}>
         {/* YouTube iframe */}
         <div
           id={playerId}
