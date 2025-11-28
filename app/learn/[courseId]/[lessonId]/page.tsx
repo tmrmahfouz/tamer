@@ -70,6 +70,7 @@ export default function LessonPage() {
         setLesson(data.lesson)
         setCourse(data.course)
         setLessons(data.lessons)
+        setQuizzes(data.quizzes || []) // تحميل الاختبارات
         setLessonQuiz(data.lessonQuiz)
         setEnrollment(data.enrollment)
         setIsEnrolled(data.isEnrolled)

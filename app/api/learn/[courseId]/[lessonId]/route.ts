@@ -83,6 +83,7 @@ export async function GET(
         lesson,
         course,
         lessons: allLessons,
+        quizzes, // إضافة جميع الاختبارات
         lessonQuiz: lessonQuiz || null,
         enrollment: enrollment ? {
           _id: enrollment._id,
