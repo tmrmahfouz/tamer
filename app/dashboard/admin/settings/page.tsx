@@ -503,6 +503,29 @@ export default function AdminSettingsPage() {
                     <input type="text" value={settings.certificateDirectorTitle} onChange={(e) => setSettings({ ...settings, certificateDirectorTitle: e.target.value })} className="w-full px-4 py-2 border rounded-lg" />
                   </div>
                 </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">صورة التوقيع (رابط URL)</label>
+                  <input 
+                    type="url" 
+                    value={settings.certificateSignature} 
+                    onChange={(e) => setSettings({ ...settings, certificateSignature: e.target.value })} 
+                    className="w-full px-4 py-2 border rounded-lg" 
+                    placeholder="https://example.com/signature.png"
+                    dir="ltr"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">أدخل رابط صورة التوقيع (PNG أو JPG بخلفية شفافة)</p>
+                  {settings.certificateSignature && (
+                    <div className="mt-3 p-3 bg-gray-50 rounded-lg">
+                      <p className="text-sm text-gray-600 mb-2">معاينة التوقيع:</p>
+                      <img 
+                        src={settings.certificateSignature} 
+                        alt="معاينة التوقيع" 
+                        className="h-16 object-contain"
+                        onError={(e) => (e.target as HTMLImageElement).style.display = 'none'}
+                      />
+                    </div>
+                  )}
+                </div>
                 <div className="grid md:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">نص الختم</label>
