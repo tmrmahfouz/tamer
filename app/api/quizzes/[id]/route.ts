@@ -79,12 +79,15 @@ export async function GET(
 // PUT update quiz
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
   try {
+    // انتظار params في Next.js 15
+    const { id } = await Promise.resolve(context.params)
+    
     // التحقق من صحة الـ ID
     const mongoose = await import('mongoose')
-    if (!mongoose.Types.ObjectId.isValid(params.id)) {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json(
         { success: false, message: 'معرف الاختبار غير صالح' },
         { status: 400 }
@@ -147,7 +150,7 @@ export async function PUT(
 
     // تحديث الاختبار
     const quiz = await Quiz.findByIdAndUpdate(
-      params.id,
+      id,
       { $set: updateData },
       { new: true, runValidators: true }
     )
