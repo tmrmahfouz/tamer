@@ -36,6 +36,7 @@ const menuItems = [
   { href: '/dashboard/admin/payment-gateways', label: 'بوابات الدفع', icon: CreditCard },
   { divider: true, label: 'التواصل' },
   { href: '/dashboard/admin/community', label: 'المجتمع', icon: MessageCircle },
+  { href: '/dashboard/admin/chat', label: 'الدردشة', icon: MessageCircle },
   { href: '/dashboard/admin/notifications', label: 'الإشعارات', icon: Bell },
   { divider: true, label: 'النظام' },
   { href: '/dashboard/admin/analytics', label: 'التحليلات', icon: BarChart3 },
