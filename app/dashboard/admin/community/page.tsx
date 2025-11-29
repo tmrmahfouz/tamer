@@ -60,8 +60,17 @@ export default function AdminCommunityPage() {
       const discussionsData = await discussionsRes.json()
       const groupsData = await groupsRes.json()
       
-      if (discussionsData.success) setDiscussions(discussionsData.discussions)
-      if (groupsData.success) setStudyGroups(groupsData.groups)
+      console.log('Discussions API response:', discussionsData)
+      console.log('Study Groups API response:', groupsData)
+      
+      if (discussionsData.success) {
+        console.log('Setting discussions:', discussionsData.discussions?.length || 0)
+        setDiscussions(discussionsData.discussions || [])
+      }
+      if (groupsData.success) {
+        console.log('Setting groups:', groupsData.groups?.length || 0)
+        setStudyGroups(groupsData.groups || [])
+      }
     } catch (error) {
       console.error('Error loading data:', error)
     } finally {
