@@ -42,29 +42,28 @@ export default function DashboardPage() {
       const data = await response.json()
 
       if (data.success) {
-        setUser(data.user)
-        
+        // Redirect non-admin users immediately without showing admin dashboard
         if (data.user.role === 'student') {
-          router.push('/student/dashboard')
-          return
+          router.replace('/student/dashboard')
+          return // Don't set loading to false, keep showing loader during redirect
         }
         
         if (data.user.role === 'instructor') {
-          router.push('/instructor/dashboard')
-          return
+          router.replace('/instructor/dashboard')
+          return // Don't set loading to false, keep showing loader during redirect
         }
         
         // Only admin continues here
+        setUser(data.user)
         loadStats()
         loadNotifications()
         loadRecentActivity()
+        setLoading(false)
       } else {
-        router.push('/login')
+        router.replace('/login')
       }
     } catch (error) {
-      router.push('/login')
-    } finally {
-      setLoading(false)
+      router.replace('/login')
     }
   }
 

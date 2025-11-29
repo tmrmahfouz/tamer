@@ -63,11 +63,15 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
       const data = await res.json()
       if (data.success && data.user.role === 'admin') {
         setUser(data.user)
+      } else if (data.success && data.user.role === 'instructor') {
+        router.replace('/instructor/dashboard')
+      } else if (data.success && data.user.role === 'student') {
+        router.replace('/student/dashboard')
       } else {
-        router.push('/dashboard')
+        router.replace('/login')
       }
     } catch {
-      router.push('/login')
+      router.replace('/login')
     }
   }
 
