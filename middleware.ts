@@ -40,7 +40,7 @@ export function middleware(request: NextRequest) {
   // Content Security Policy
   response.headers.set(
     'Content-Security-Policy',
-    "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://www.youtube.com https://player.vimeo.com https://docs.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; media-src 'self' https:; frame-src 'self' https://www.youtube.com https://player.vimeo.com https://docs.google.com https://view.officeapps.live.com https://onedrive.live.com https://drive.google.com; connect-src 'self' https://docs.google.com https://view.officeapps.live.com;"
+    "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' blob: https://www.youtube.com https://player.vimeo.com https://docs.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: https:; frame-src 'self' https://www.youtube.com https://player.vimeo.com https://docs.google.com https://view.officeapps.live.com https://onedrive.live.com https://drive.google.com; connect-src 'self' blob: https://docs.google.com https://view.officeapps.live.com; worker-src 'self' blob:;"
   )
 
   return response
