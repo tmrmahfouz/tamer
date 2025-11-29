@@ -11,7 +11,8 @@ export default function NewCoursePage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [categories, setCategories] = useState<any[]>([])
-  const [subcategories, setSubcategories] = useState<string[]>([])
+  const [allCategories, setAllCategories] = useState<any[]>([])
+  const [subcategories, setSubcategories] = useState<any[]>([])
   const [loadingCategories, setLoadingCategories] = useState(true)
   const [formData, setFormData] = useState({
     title: '',
@@ -44,16 +45,21 @@ export default function NewCoursePage() {
       const response = await fetch('/api/categories?published=true')
       const data = await response.json()
 
-      console.log('Categories loaded:', data.categories) // للتحقق
-
       if (data.success) {
-        setCategories(data.categories)
+        const allCats = data.categories || []
+        setAllCategories(allCats)
+        
+        // Filter root categories (no parentCategory)
+        const rootCategories = allCats.filter((cat: any) => !cat.parentCategory)
+        setCategories(rootCategories)
+        
         // Set first category as default and load its subcategories
-        if (data.categories.length > 0) {
-          const firstCategory = data.categories[0]
-          console.log('First category subcategories:', firstCategory.subcategories) // للتحقق
+        if (rootCategories.length > 0) {
+          const firstCategory = rootCategories[0]
           setFormData(prev => ({ ...prev, category: firstCategory._id }))
-          setSubcategories(firstCategory.subcategories || [])
+          // Get subcategories for this parent
+          const subs = allCats.filter((cat: any) => cat.parentCategory === firstCategory._id)
+          setSubcategories(subs)
         }
       }
     } catch (error) {
@@ -68,8 +74,9 @@ export default function NewCoursePage() {
     
     // If category changed, update subcategories
     if (name === 'category') {
-      const selectedCategory = categories.find(cat => cat._id === value)
-      setSubcategories(selectedCategory?.subcategories || [])
+      // Get subcategories for this parent from allCategories
+      const subs = allCategories.filter(cat => cat.parentCategory === value)
+      setSubcategories(subs)
       setFormData({
         ...formData,
         category: value,
@@ -243,9 +250,9 @@ export default function NewCoursePage() {
                     disabled={subcategories.length === 0}
                   >
                     <option value="">اختر الفئة الفرعية (اختياري)</option>
-                    {subcategories.map((sub, index) => (
-                      <option key={index} value={sub}>
-                        {sub}
+                    {subcategories.map((sub) => (
+                      <option key={sub._id} value={sub._id}>
+                        {sub.icon} {sub.name}
                       </option>
                     ))}
                   </select>
