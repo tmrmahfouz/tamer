@@ -16,7 +16,8 @@ export default function NewCoursePage() {
     category: '',
     level: 'beginner',
     thumbnail: '',
-    status: 'draft'
+    status: 'draft',
+    duration: ''
   })
 
   useEffect(() => {
@@ -61,40 +62,34 @@ export default function NewCoursePage() {
         <div className="bg-white rounded-xl shadow-sm p-6">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">عنوان الدورة</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">عنوان الدورة <span className="text-red-500">*</span></label>
               <input
                 type="text"
                 required
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                 className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                placeholder="أدخل عنوان الدورة"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">الوصف</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">الوصف <span className="text-red-500">*</span></label>
               <textarea
                 rows={4}
+                required
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                placeholder="وصف تفصيلي للدورة..."
               />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">السعر (جنيه)</label>
-                <input
-                  type="number"
-                  required
-                  value={formData.price}
-                  onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">الفئة</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">الفئة <span className="text-red-500">*</span></label>
                 <select
+                  required
                   value={formData.category}
                   onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                   className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
@@ -105,9 +100,32 @@ export default function NewCoursePage() {
                   ))}
                 </select>
               </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">المدة <span className="text-red-500">*</span></label>
+                <input
+                  type="text"
+                  required
+                  value={formData.duration}
+                  onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
+                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                  placeholder="مثال: 10 ساعات"
+                />
+              </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">السعر (جنيه) <span className="text-red-500">*</span></label>
+                <input
+                  type="number"
+                  required
+                  min="0"
+                  value={formData.price}
+                  onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                  placeholder="0"
+                />
+              </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">المستوى</label>
                 <select
@@ -120,6 +138,9 @@ export default function NewCoursePage() {
                   <option value="advanced">متقدم</option>
                 </select>
               </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">الحالة</label>
                 <select
@@ -131,16 +152,22 @@ export default function NewCoursePage() {
                   <option value="published">منشور</option>
                 </select>
               </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">رابط الصورة المصغرة</label>
+                <input
+                  type="url"
+                  value={formData.thumbnail}
+                  onChange={(e) => setFormData({ ...formData, thumbnail: e.target.value })}
+                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                  placeholder="https://example.com/image.jpg"
+                />
+              </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">رابط الصورة المصغرة</label>
-              <input
-                type="url"
-                value={formData.thumbnail}
-                onChange={(e) => setFormData({ ...formData, thumbnail: e.target.value })}
-                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-              />
+            <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+              <p className="text-sm text-yellow-700">
+                <span className="text-red-500">*</span> الحقول المطلوبة يجب ملؤها قبل الحفظ
+              </p>
             </div>
 
             <div className="flex gap-4">
