@@ -44,11 +44,17 @@ export default function DashboardPage() {
       if (data.success) {
         setUser(data.user)
         
-        if (data.user.role !== 'admin' && data.user.role !== 'instructor') {
+        if (data.user.role === 'student') {
           router.push('/student/dashboard')
           return
         }
         
+        if (data.user.role === 'instructor') {
+          router.push('/instructor/dashboard')
+          return
+        }
+        
+        // Only admin continues here
         loadStats()
         loadNotifications()
         loadRecentActivity()
