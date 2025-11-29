@@ -84,7 +84,7 @@ export async function POST(req: NextRequest) {
     await connectDB()
 
     const body = await req.json()
-    const { name, nameEn, description, icon, color, order, published, subcategories } = body
+    const { name, nameEn, description, icon, color, order, published, subcategories, parentCategory } = body
 
     // Check if category already exists
     const existingCategory = await Category.findOne({
@@ -107,6 +107,7 @@ export async function POST(req: NextRequest) {
       order: order || 0,
       published: published !== undefined ? published : true,
       subcategories: subcategories || [],
+      parentCategory: parentCategory || null,
     })
 
     return NextResponse.json({
