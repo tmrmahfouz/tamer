@@ -155,15 +155,17 @@ export default function AdminCommunityPage() {
   }
 
   const filteredDiscussions = discussions.filter(d => {
+    const userName = d.user?.name || ''
     const matchesSearch = d.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         d.user.name.toLowerCase().includes(searchTerm.toLowerCase())
+                         userName.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesFilter = filterType === 'all' || d.type === filterType
     return matchesSearch && matchesFilter
   })
 
   const filteredGroups = studyGroups.filter(g => {
+    const creatorName = g.creator?.name || ''
     const matchesSearch = g.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         g.creator.name.toLowerCase().includes(searchTerm.toLowerCase())
+                         creatorName.toLowerCase().includes(searchTerm.toLowerCase())
     return matchesSearch
   })
 
@@ -403,7 +405,7 @@ export default function AdminCommunityPage() {
                         <div className="flex items-center gap-4 mt-3 text-sm text-gray-500">
                           <span className="flex items-center gap-1">
                             <Users className="w-4 h-4" />
-                            {discussion.user.name}
+                            {discussion.user?.name || 'مستخدم محذوف'}
                           </span>
                           <span className="flex items-center gap-1">
                             <MessageSquare className="w-4 h-4" />
@@ -482,7 +484,7 @@ export default function AdminCommunityPage() {
                             <Users className="w-4 h-4" />
                             {group.members.length}/{group.maxMembers} عضو
                           </span>
-                          <span>أنشأها: {group.creator?.name}</span>
+                          <span>أنشأها: {group.creator?.name || 'مستخدم محذوف'}</span>
                           <span>{group.course?.title}</span>
                           <span>{new Date(group.createdAt).toLocaleDateString('ar-EG')}</span>
                         </div>
