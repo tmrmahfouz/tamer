@@ -7,7 +7,7 @@ import {
   LayoutDashboard, BookOpen, Users, Settings, LogOut,
   CreditCard, FileText, BarChart3, GraduationCap, Award,
   MessageCircle, Bell, FileQuestion, FolderKanban, Clock,
-  Database, HelpCircle, Menu, X, ChevronRight, Home, Package
+  Database, HelpCircle, Menu, X, ChevronRight, Home, Package, Tag
 } from 'lucide-react'
 
 interface AdminLayoutProps {
@@ -20,6 +20,7 @@ const menuItems = [
   { href: '/dashboard/admin/overview', label: 'لوحة التحكم', icon: LayoutDashboard },
   { divider: true, label: 'إدارة المحتوى' },
   { href: '/dashboard/courses', label: 'الدورات', icon: BookOpen },
+  { href: '/dashboard/admin/categories', label: 'الفئات', icon: Tag },
   { href: '/dashboard/admin/quizzes', label: 'الاختبارات', icon: FileQuestion },
   { href: '/dashboard/admin/projects', label: 'المشروعات', icon: FolderKanban },
   { href: '/dashboard/admin/certificates', label: 'الشهادات', icon: Award },
