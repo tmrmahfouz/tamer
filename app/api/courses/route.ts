@@ -73,6 +73,8 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json()
     
+    console.log('Creating course with data:', JSON.stringify(body, null, 2))
+    
     // Create course
     const course = await Course.create({
       ...body,
@@ -88,9 +90,10 @@ export async function POST(request: NextRequest) {
       { status: 201 }
     )
   } catch (error: any) {
-    console.error('Create course error:', error)
+    console.error('Create course error:', error.message)
+    console.error('Error details:', error)
     return NextResponse.json(
-      { success: false, message: 'حدث خطأ أثناء إنشاء الدورة' },
+      { success: false, message: error.message || 'حدث خطأ أثناء إنشاء الدورة' },
       { status: 500 }
     )
   }
