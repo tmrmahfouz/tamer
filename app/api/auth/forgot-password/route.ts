@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import connectDB from '@/lib/mongodb'
 import User from '@/models/User'
+import PasswordReset from '@/models/PasswordReset'
+import { sendPasswordResetEmail } from '@/lib/email'
+import crypto from 'crypto'
 
 export async function POST(req: NextRequest) {
   try {
@@ -19,16 +22,30 @@ export async function POST(req: NextRequest) {
     const user = await User.findOne({ email: email.toLowerCase() })
 
     // Always return success to prevent email enumeration
-    // In production, you would send an actual email here
     if (user) {
-      // TODO: Generate reset token and send email
-      // For now, just log it (in production, implement email sending)
-      console.log(`Password reset requested for: ${email}`)
+      // Delete any existing reset tokens for this user
+      await PasswordReset.deleteMany({ userId: user._id })
+
+      // Generate secure token
+      const token = crypto.randomBytes(32).toString('hex')
       
-      // In a real implementation:
-      // 1. Generate a secure reset token
-      // 2. Save it to the user document with expiry
-      // 3. Send email with reset link
+      // Save token with 1 hour expiry
+      await PasswordReset.create({
+        userId: user._id,
+        token,
+        expiresAt: new Date(Date.now() + 60 * 60 * 1000), // 1 hour
+      })
+
+      // Build reset URL
+      const baseUrl = process.env.NEXTAUTH_URL || req.headers.get('origin') || 'http://localhost:3000'
+      const resetUrl = `${baseUrl}/reset-password?token=${token}`
+
+      // Send email
+      const emailSent = await sendPasswordResetEmail(email, resetUrl)
+      
+      if (!emailSent) {
+        console.log('Email service not configured. Reset URL:', resetUrl)
+      }
     }
 
     return NextResponse.json({
