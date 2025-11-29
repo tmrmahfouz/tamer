@@ -25,6 +25,7 @@ const menuItems = [
   { href: '/dashboard/admin/projects', label: 'المشروعات', icon: FolderKanban },
   { href: '/dashboard/admin/certificates', label: 'الشهادات', icon: Award },
   { divider: true, label: 'إدارة المستخدمين' },
+  { href: '/dashboard/admin/users', label: 'جميع المستخدمين', icon: Users },
   { href: '/dashboard/admin/students', label: 'الطلاب', icon: Users },
   { href: '/dashboard/admin/instructors', label: 'المعلمين', icon: GraduationCap },
   { href: '/dashboard/admin/enrollments', label: 'التسجيلات', icon: FileText },
@@ -41,7 +42,8 @@ const menuItems = [
   { href: '/dashboard/admin/activity-logs', label: 'سجل النشاطات', icon: Clock },
   { href: '/dashboard/admin/backup', label: 'النسخ الاحتياطي', icon: Database },
   { href: '/dashboard/admin/faq', label: 'الأسئلة الشائعة', icon: HelpCircle },
-  { href: '/dashboard/admin/settings', label: 'الإعدادات', icon: Settings },
+  { href: '/dashboard/admin/settings', label: 'إعدادات المنصة', icon: Settings },
+  { href: '/dashboard/admin/account', label: 'إعدادات الحساب', icon: Settings },
 ]
 
 export default function AdminLayout({ children, title }: AdminLayoutProps) {
