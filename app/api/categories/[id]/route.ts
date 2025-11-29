@@ -70,7 +70,7 @@ export async function PUT(
     await connectDB()
 
     const body = await req.json()
-    const { name, nameEn, description, icon, color, order, published, subcategories } = body
+    const { name, nameEn, description, icon, color, order, published, subcategories, parentCategory } = body
 
     const category = await Category.findByIdAndUpdate(
       params.id,
@@ -83,6 +83,7 @@ export async function PUT(
         order,
         published,
         subcategories: subcategories || [],
+        parentCategory: parentCategory || null,
       },
       { new: true, runValidators: true }
     )
@@ -142,6 +143,18 @@ export async function DELETE(
     }
 
     await connectDB()
+
+    // Check if category has subcategories
+    const subcategoriesCount = await Category.countDocuments({ parentCategory: params.id })
+    if (subcategoriesCount > 0) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: `لا يمكن حذف الفئة. يوجد ${subcategoriesCount} فئة فرعية مرتبطة بها`,
+        },
+        { status: 400 }
+      )
+    }
 
     // Check if category has courses
     const coursesCount = await Course.countDocuments({ category: params.id })
