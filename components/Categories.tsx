@@ -17,14 +17,10 @@ export default function Categories() {
       const response = await fetch('/api/categories?published=true')
       const data = await response.json()
 
-      console.log('Categories API Response:', data) // للتحقق
-      console.log('Categories count:', data.categories?.length) // عدد الفئات
-
       if (data.success && data.categories && data.categories.length > 0) {
-        // Show only first 8 categories
-        setCategories(data.categories.slice(0, 8))
-      } else {
-        console.warn('No categories found or API error')
+        // Filter to show only root categories (no parentCategory)
+        const rootCategories = data.categories.filter((cat: any) => !cat.parentCategory)
+        setCategories(rootCategories.slice(0, 8))
       }
     } catch (error) {
       console.error('Error loading categories:', error)
@@ -69,7 +65,7 @@ export default function Categories() {
           {categories.map((category) => (
             <Link
               key={category._id}
-              href={`/courses?category=${category._id}`}
+              href={`/categories/${category._id}`}
               className="group"
             >
               <div
