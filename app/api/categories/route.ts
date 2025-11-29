@@ -74,14 +74,18 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    if (decoded.role !== 'admin' && decoded.role !== 'instructor') {
+    await connectDB()
+
+    // Get user from database to check role
+    const User = (await import('@/models/User')).default
+    const user = await User.findById(decoded.userId)
+    
+    if (!user || (user.role !== 'admin' && user.role !== 'instructor')) {
       return NextResponse.json(
-        { success: false, message: 'غير مصرح' },
+        { success: false, message: 'غير مصرح - للمدراء والمعلمين فقط' },
         { status: 403 }
       )
     }
-
-    await connectDB()
 
     const body = await req.json()
     const { name, nameEn, description, icon, color, order, published, subcategories, parentCategory } = body
