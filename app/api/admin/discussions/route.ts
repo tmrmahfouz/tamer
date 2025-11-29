@@ -26,16 +26,22 @@ export async function GET(request: NextRequest) {
 
     await connectDB()
 
+    // Get count first
+    const count = await Discussion.countDocuments()
+    console.log('Total discussions in DB:', count)
+
     const discussions = await Discussion.find()
       .populate('user', 'name email')
       .populate('course', 'title')
       .sort({ createdAt: -1 })
       .lean()
 
+    console.log('Fetched discussions:', discussions.length)
+
     return NextResponse.json({ success: true, discussions: discussions || [] })
   } catch (error: any) {
     console.error('Discussions API Error:', error)
-    return NextResponse.json({ success: true, discussions: [] })
+    return NextResponse.json({ success: false, message: error.message, discussions: [] }, { status: 500 })
   }
 }
 

@@ -26,6 +26,10 @@ export async function GET(request: NextRequest) {
 
     await connectDB()
 
+    // Get count first
+    const count = await StudyGroup.countDocuments()
+    console.log('Total study groups in DB:', count)
+
     const groups = await StudyGroup.find()
       .populate('creator', 'name email')
       .populate('course', 'title')
@@ -33,10 +37,12 @@ export async function GET(request: NextRequest) {
       .sort({ createdAt: -1 })
       .lean()
 
+    console.log('Fetched study groups:', groups.length)
+
     return NextResponse.json({ success: true, groups: groups || [] })
   } catch (error: any) {
     console.error('Study Groups API Error:', error)
-    return NextResponse.json({ success: true, groups: [] })
+    return NextResponse.json({ success: false, message: error.message, groups: [] }, { status: 500 })
   }
 }
 
