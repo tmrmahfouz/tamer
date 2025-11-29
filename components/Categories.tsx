@@ -89,10 +89,12 @@ export default function Categories() {
                   {category.name}
                 </h3>
 
-                {/* English Name */}
-                <p className="text-sm text-gray-500 text-center mb-3">
-                  {category.nameEn}
-                </p>
+                {/* Description */}
+                {category.description && (
+                  <p className="text-sm text-gray-500 text-center mb-3 line-clamp-2">
+                    {category.description}
+                  </p>
+                )}
 
                 {/* Courses Count */}
                 <div className="flex items-center justify-center gap-2 text-primary-600 font-semibold">
