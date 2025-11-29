@@ -81,14 +81,17 @@ export default function StudentDashboardPage() {
   }
 
   const calculateStats = (enrollments: any[]) => {
-    const totalCourses = enrollments.length
-    const inProgress = enrollments.filter((e) => e.completionPercentage < 100 && e.completionPercentage > 0).length
-    const completed = enrollments.filter((e) => e.completionPercentage === 100).length
-    const certificates = enrollments.filter((e) => e.certificateIssued).length
+    // Filter out enrollments with null courses
+    const validEnrollments = enrollments.filter((e) => e.course)
+    
+    const totalCourses = validEnrollments.length
+    const inProgress = validEnrollments.filter((e) => e.completionPercentage < 100 && e.completionPercentage > 0).length
+    const completed = validEnrollments.filter((e) => e.completionPercentage === 100).length
+    const certificates = validEnrollments.filter((e) => e.certificateIssued).length
     
     // Calculate total hours (rough estimate)
-    const totalHours = enrollments.reduce((sum, e) => {
-      const duration = e.course.duration || '0'
+    const totalHours = validEnrollments.reduce((sum, e) => {
+      const duration = e.course?.duration || '0'
       const hours = parseInt(duration.match(/\d+/)?.[0] || '0')
       return sum + hours
     }, 0)
@@ -110,7 +113,9 @@ export default function StudentDashboardPage() {
     )
   }
 
-  const recentCourses = enrollments.slice(0, 3)
+  // Filter out enrollments with null courses
+  const validEnrollments = enrollments.filter((e) => e.course)
+  const recentCourses = validEnrollments.slice(0, 3)
 
   return (
     <main className="min-h-screen bg-gray-50">
