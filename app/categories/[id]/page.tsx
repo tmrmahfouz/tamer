@@ -156,8 +156,8 @@ export default function CategoryPage() {
                           <h3 className="text-lg font-bold text-gray-900 group-hover:text-primary-600 transition-colors">
                             {sub.name}
                           </h3>
-                          {sub.nameEn && (
-                            <p className="text-sm text-gray-500 mt-1">{sub.nameEn}</p>
+                          {sub.description && (
+                            <p className="text-sm text-gray-500 mt-1 line-clamp-2">{sub.description}</p>
                           )}
                           <div className="flex items-center gap-2 mt-3 text-primary-600">
                             <BookOpen className="w-4 h-4" />
