@@ -1,6 +1,16 @@
 import mongoose, { Schema, Document, Model } from 'mongoose'
 import bcrypt from 'bcryptjs'
 
+export interface IUserDevice {
+  deviceId: string
+  deviceName: string
+  browser: string
+  os: string
+  ip: string
+  lastUsed: Date
+  createdAt: Date
+}
+
 export interface IUser extends Document {
   name: string
   email: string
@@ -10,6 +20,8 @@ export interface IUser extends Document {
   phone?: string
   bio?: string
   enrolledCourses: mongoose.Types.ObjectId[]
+  devices: IUserDevice[]
+  maxDevices?: number // تجاوز الحد الأقصى للمستخدم (اختياري)
   lastLogin?: Date
   createdAt: Date
   updatedAt: Date
@@ -60,6 +72,21 @@ const UserSchema = new Schema<IUser>(
         ref: 'Course',
       },
     ],
+    devices: [
+      {
+        deviceId: { type: String, required: true },
+        deviceName: { type: String, default: 'جهاز غير معروف' },
+        browser: { type: String, default: '' },
+        os: { type: String, default: '' },
+        ip: { type: String, default: '' },
+        lastUsed: { type: Date, default: Date.now },
+        createdAt: { type: Date, default: Date.now },
+      },
+    ],
+    maxDevices: {
+      type: Number,
+      default: null, // null يعني استخدام الإعداد العام
+    },
     lastLogin: {
       type: Date,
       default: null,

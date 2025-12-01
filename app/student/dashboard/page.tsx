@@ -354,6 +354,12 @@ export default function StudentDashboardPage() {
                   >
                     الملف الشخصي
                   </Link>
+                  <Link
+                    href="/student/devices"
+                    className="block p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors text-gray-700 font-semibold"
+                  >
+                    أجهزتي المسجلة
+                  </Link>
                 </div>
               </div>
 

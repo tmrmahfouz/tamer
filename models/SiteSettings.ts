@@ -64,6 +64,11 @@ export interface ISiteSettings extends Document {
   externalQuizPlatformName: string
   externalQuizPlatformUrl: string
   
+  // Device Limit Settings
+  deviceLimitEnabled: boolean
+  maxDevicesPerUser: number
+  deviceLimitMessage: string
+  
   createdAt: Date
   updatedAt: Date
 }
@@ -426,6 +431,20 @@ const SiteSettingsSchema = new Schema<ISiteSettings>(
     externalQuizPlatformUrl: {
       type: String,
       default: '',
+    },
+    
+    // Device Limit Settings
+    deviceLimitEnabled: {
+      type: Boolean,
+      default: true,
+    },
+    maxDevicesPerUser: {
+      type: Number,
+      default: 2,
+    },
+    deviceLimitMessage: {
+      type: String,
+      default: 'لقد وصلت للحد الأقصى من الأجهزة المسموح بها. يرجى إزالة جهاز قديم أو التواصل مع الدعم.',
     },
   },
   {

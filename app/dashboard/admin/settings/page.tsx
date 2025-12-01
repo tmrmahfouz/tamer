@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { 
   Settings, Save, Globe, Palette, Phone, Share2, 
-  FileText, Award, Shield, Bell, Layout, RefreshCw, Loader2
+  FileText, Award, Shield, Layout, RefreshCw, Loader2, Smartphone
 } from 'lucide-react'
 import Link from 'next/link'
 import AdminLayout from '@/components/AdminLayout'
@@ -53,6 +53,10 @@ interface SiteSettings {
   externalQuizPlatformEnabled: boolean
   externalQuizPlatformName: string
   externalQuizPlatformUrl: string
+  // Device Limit
+  deviceLimitEnabled: boolean
+  maxDevicesPerUser: number
+  deviceLimitMessage: string
 }
 
 export default function AdminSettingsPage() {
@@ -102,6 +106,9 @@ export default function AdminSettingsPage() {
     externalQuizPlatformEnabled: false,
     externalQuizPlatformName: 'منصة الاختبارات الخارجية',
     externalQuizPlatformUrl: '',
+    deviceLimitEnabled: true,
+    maxDevicesPerUser: 2,
+    deviceLimitMessage: 'لقد وصلت للحد الأقصى من الأجهزة المسموح بها. يرجى إزالة جهاز قديم أو التواصل مع الدعم.',
   })
 
   useEffect(() => {
@@ -193,6 +200,7 @@ export default function AdminSettingsPage() {
     { id: 'pages', label: 'محتوى الصفحات', icon: FileText },
     { id: 'certificate', label: 'الشهادات', icon: Award },
     { id: 'external', label: 'روابط خارجية', icon: Layout },
+    { id: 'devices', label: 'حماية الأجهزة', icon: Smartphone },
     { id: 'security', label: 'الأمان', icon: Shield },
   ]
 
@@ -601,6 +609,79 @@ export default function AdminSettingsPage() {
                   >
                     {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
                     حفظ إعدادات الرابط الخارجي
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Devices Tab */}
+            {activeTab === 'devices' && (
+              <div className="space-y-6">
+                <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6">
+                  <h4 className="font-medium text-amber-900 mb-2">🔒 حماية الحسابات من المشاركة</h4>
+                  <p className="text-sm text-amber-700">
+                    تحديد عدد الأجهزة المسموح بها لكل طالب يمنع مشاركة الحسابات وتسريب الدورات
+                  </p>
+                </div>
+
+                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                  <div>
+                    <h4 className="font-medium text-gray-900">تفعيل حد الأجهزة</h4>
+                    <p className="text-sm text-gray-600">تحديد عدد الأجهزة المسموح بها لكل طالب</p>
+                  </div>
+                  <button
+                    onClick={() => setSettings({ ...settings, deviceLimitEnabled: !settings.deviceLimitEnabled })}
+                    className={`relative w-14 h-7 rounded-full transition-colors ${settings.deviceLimitEnabled ? 'bg-green-500' : 'bg-gray-300'}`}
+                  >
+                    <span className={`absolute top-1 w-5 h-5 bg-white rounded-full transition-transform ${settings.deviceLimitEnabled ? 'right-1' : 'left-1'}`} />
+                  </button>
+                </div>
+
+                {settings.deviceLimitEnabled && (
+                  <div className="space-y-4 p-4 bg-green-50 rounded-lg border border-green-200">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        الحد الأقصى للأجهزة لكل طالب
+                      </label>
+                      <div className="flex items-center gap-4">
+                        <input
+                          type="number"
+                          min="1"
+                          max="10"
+                          value={settings.maxDevicesPerUser}
+                          onChange={(e) => setSettings({ ...settings, maxDevicesPerUser: parseInt(e.target.value) || 2 })}
+                          className="w-24 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 text-center text-lg font-bold"
+                        />
+                        <span className="text-gray-600">جهاز/أجهزة</span>
+                      </div>
+                      <p className="text-xs text-gray-500 mt-2">
+                        يمكنك تخصيص حد مختلف لكل طالب من صفحة إدارة المستخدمين
+                      </p>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        رسالة تجاوز الحد
+                      </label>
+                      <textarea
+                        value={settings.deviceLimitMessage}
+                        onChange={(e) => setSettings({ ...settings, deviceLimitMessage: e.target.value })}
+                        rows={2}
+                        className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500"
+                        placeholder="الرسالة التي تظهر عند تجاوز الحد المسموح"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                <div className="pt-4 border-t">
+                  <button
+                    onClick={handleSave}
+                    disabled={saving}
+                    className="w-full px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 flex items-center justify-center gap-2 disabled:opacity-50 font-medium"
+                  >
+                    {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
+                    حفظ إعدادات حماية الأجهزة
                   </button>
                 </div>
               </div>

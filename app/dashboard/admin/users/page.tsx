@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Users, Search, Edit, Trash2, Plus, X, Save, Loader2, UserCog, GraduationCap, Shield } from 'lucide-react'
+import { Users, Search, Edit, Trash2, Plus, X, Save, Loader2, UserCog, GraduationCap, Shield, Smartphone } from 'lucide-react'
+import Link from 'next/link'
 import AdminLayout from '@/components/AdminLayout'
 
 interface User {
@@ -233,6 +234,15 @@ export default function UsersManagementPage() {
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center justify-center gap-2">
+                        {user.role === 'student' && (
+                          <Link
+                            href={`/dashboard/admin/users/${user._id}/devices`}
+                            className="p-2 text-green-600 hover:bg-green-50 rounded-lg"
+                            title="الأجهزة"
+                          >
+                            <Smartphone className="w-4 h-4" />
+                          </Link>
+                        )}
                         <button
                           onClick={() => handleEdit(user)}
                           className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg"
