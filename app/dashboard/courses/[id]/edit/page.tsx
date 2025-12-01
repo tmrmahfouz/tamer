@@ -6,6 +6,13 @@ import Link from 'next/link'
 import { Plus, X, Save, List, Edit, Trash2, Eye, Video, FileText, CheckCircle, Clock, CalendarDays, Layers, Lock, Award } from 'lucide-react'
 import AdminLayout from '@/components/AdminLayout'
 
+interface Category {
+  _id: string
+  name: string
+  icon?: string
+  parentCategory?: string | null
+}
+
 export default function EditCoursePage() {
   const params = useParams()
   const router = useRouter()
@@ -13,6 +20,8 @@ export default function EditCoursePage() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [lessons, setLessons] = useState<any[]>([])
+  const [categories, setCategories] = useState<Category[]>([])
+  const [subcategories, setSubcategories] = useState<Category[]>([])
   const [showLessonModal, setShowLessonModal] = useState(false)
   const [editingLesson, setEditingLesson] = useState<any>(null)
   const [lessonFormData, setLessonFormData] = useState({
@@ -27,31 +36,55 @@ export default function EditCoursePage() {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    category: 'البرمجة',
+    category: '',
+    subcategory: '',
     level: 'مبتدئ',
     price: 0,
     duration: '',
     image: '🎓',
     topics: [''],
     published: false,
-    // إعدادات المحتوى بالتنقيط
     dripEnabled: false,
     dripType: 'days' as 'days' | 'lessons' | 'date',
     dripInterval: 7,
     dripStartDate: '',
-    // إجبار ترتيب الدروس
     enforceSequentialLessons: false,
-    // الشهادات
     certificateEnabled: true,
   })
 
-  const categories = ['البرمجة', 'الذكاء الاصطناعي', 'تحليل البيانات', 'تطوير التطبيقات', 'الأمن السيبراني']
   const levels = ['مبتدئ', 'متوسط', 'متقدم']
 
   useEffect(() => {
+    loadCategories()
     loadCourse()
     loadLessons()
   }, [])
+
+  const loadCategories = async () => {
+    try {
+      const response = await fetch('/api/categories?published=true')
+      const data = await response.json()
+      if (data.success) {
+        const mainCats = data.categories.filter((cat: Category) => !cat.parentCategory)
+        setCategories(mainCats)
+      }
+    } catch (error) {
+      console.error('Error loading categories:', error)
+    }
+  }
+
+  const loadSubcategories = async (parentId: string) => {
+    try {
+      const response = await fetch('/api/categories?published=true')
+      const data = await response.json()
+      if (data.success) {
+        const subs = data.categories.filter((cat: Category) => cat.parentCategory === parentId)
+        setSubcategories(subs)
+      }
+    } catch (error) {
+      console.error('Error loading subcategories:', error)
+    }
+  }
 
   const loadCourse = async () => {
     try {
@@ -62,23 +95,24 @@ export default function EditCoursePage() {
         setFormData({
           title: course.title || '',
           description: course.description || '',
-          category: course.category || 'البرمجة',
+          category: course.category || '',
+          subcategory: course.subcategory || '',
           level: course.level || 'مبتدئ',
           price: course.price || 0,
           duration: course.duration || '',
           image: course.image || '🎓',
           topics: course.topics && course.topics.length > 0 ? course.topics : [''],
           published: course.published || false,
-          // إعدادات التنقيط
           dripEnabled: course.dripEnabled || false,
           dripType: course.dripType || 'days',
           dripInterval: course.dripInterval || 7,
           dripStartDate: course.dripStartDate ? new Date(course.dripStartDate).toISOString().split('T')[0] : '',
-          // إجبار ترتيب الدروس
           enforceSequentialLessons: course.enforceSequentialLessons || false,
-          // الشهادات
-          certificateEnabled: course.certificateEnabled !== false, // مفعّل افتراضياً
+          certificateEnabled: course.certificateEnabled !== false,
         })
+        if (course.category) {
+          loadSubcategories(course.category)
+        }
       }
     } catch (error) {
       console.error('Error:', error)
@@ -409,19 +443,48 @@ export default function EditCoursePage() {
 
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">التصنيف *</label>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">الفئة الرئيسية *</label>
                   <select
                     name="category"
                     value={formData.category}
-                    onChange={handleChange}
+                    onChange={(e) => {
+                      setFormData({ ...formData, category: e.target.value, subcategory: '' })
+                      if (e.target.value) {
+                        loadSubcategories(e.target.value)
+                      } else {
+                        setSubcategories([])
+                      }
+                    }}
                     className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-primary-600"
                   >
+                    <option value="">اختر الفئة</option>
                     {categories.map((cat) => (
-                      <option key={cat} value={cat}>{cat}</option>
+                      <option key={cat._id} value={cat._id}>{cat.icon} {cat.name}</option>
                     ))}
                   </select>
                 </div>
 
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">الفئة الفرعية</label>
+                  <select
+                    name="subcategory"
+                    value={formData.subcategory}
+                    onChange={(e) => setFormData({ ...formData, subcategory: e.target.value })}
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-primary-600"
+                    disabled={!formData.category || subcategories.length === 0}
+                  >
+                    <option value="">اختر الفئة الفرعية (اختياري)</option>
+                    {subcategories.map((sub) => (
+                      <option key={sub._id} value={sub._id}>{sub.icon} {sub.name}</option>
+                    ))}
+                  </select>
+                  {formData.category && subcategories.length === 0 && (
+                    <p className="text-xs text-gray-500 mt-1">لا توجد فئات فرعية لهذه الفئة</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">المستوى *</label>
                   <select
@@ -435,9 +498,7 @@ export default function EditCoursePage() {
                     ))}
                   </select>
                 </div>
-              </div>
 
-              <div className="grid md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">السعر (جنيه) *</label>
                   <input
@@ -449,18 +510,18 @@ export default function EditCoursePage() {
                     className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-primary-600"
                   />
                 </div>
+              </div>
 
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">المدة *</label>
-                  <input
-                    type="text"
-                    name="duration"
-                    value={formData.duration}
-                    onChange={handleChange}
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-primary-600"
-                    placeholder="40 ساعة"
-                  />
-                </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">المدة *</label>
+                <input
+                  type="text"
+                  name="duration"
+                  value={formData.duration}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-primary-600"
+                  placeholder="40 ساعة"
+                />
               </div>
 
               <div>
