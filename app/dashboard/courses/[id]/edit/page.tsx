@@ -88,15 +88,32 @@ export default function EditCoursePage() {
 
   const loadCourse = async () => {
     try {
+      // Load all categories first to determine parent/child relationships
+      const categoriesRes = await fetch('/api/categories?published=true')
+      const categoriesData = await categoriesRes.json()
+      const allCategories = categoriesData.success ? categoriesData.categories : []
+      
       const response = await fetch(`/api/courses/${params.id}`)
       const data = await response.json()
       if (data.success) {
         const course = data.course
+        
+        // Check if course.category is a subcategory
+        const categoryObj = allCategories.find((cat: Category) => cat._id === course.category)
+        let mainCategory = course.category
+        let subCategory = ''
+        
+        if (categoryObj && categoryObj.parentCategory) {
+          // course.category is actually a subcategory, so set parent as main category
+          mainCategory = categoryObj.parentCategory
+          subCategory = course.category
+        }
+        
         setFormData({
           title: course.title || '',
           description: course.description || '',
-          category: course.category || '',
-          subcategory: course.subcategory || '',
+          category: mainCategory,
+          subcategory: subCategory,
           level: course.level || 'مبتدئ',
           price: course.price || 0,
           duration: course.duration || '',
@@ -110,8 +127,11 @@ export default function EditCoursePage() {
           enforceSequentialLessons: course.enforceSequentialLessons || false,
           certificateEnabled: course.certificateEnabled !== false,
         })
-        if (course.category) {
-          loadSubcategories(course.category)
+        
+        // Load subcategories for the main category
+        if (mainCategory) {
+          const subs = allCategories.filter((cat: Category) => cat.parentCategory === mainCategory)
+          setSubcategories(subs)
         }
       }
     } catch (error) {
