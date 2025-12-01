@@ -70,13 +70,15 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     const body = await request.json()
     const { instructorReply, instructorReplyLinks } = body
 
+    console.log('Reply data received:', { instructorReply, instructorReplyLinks })
+
     note.instructorReply = instructorReply
-    if (instructorReplyLinks && Array.isArray(instructorReplyLinks)) {
-      note.instructorReplyLinks = instructorReplyLinks
-    }
+    note.instructorReplyLinks = instructorReplyLinks || []
     note.instructorRepliedAt = new Date()
     note.status = 'replied'
-    await note.save()
+    
+    const savedNote = await note.save()
+    console.log('Saved note instructorReplyLinks:', savedNote.instructorReplyLinks)
 
     const updatedNote = await Note.findById(id)
       .populate('user', 'name email avatar')
