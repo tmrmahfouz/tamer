@@ -20,20 +20,38 @@ export async function GET(req: NextRequest) {
     const categories = await Category.find(query).sort({ order: 1, name: 1 }).lean()
     console.log('Found categories:', categories.length)
 
-    // Update courses count for each category
+    // Update courses count for each category (including subcategories for parent categories)
     const Course = (await import('@/models/Course')).default
-    const categoriesWithCount = await Promise.all(
-      categories.map(async (category) => {
-        const coursesCount = await Course.countDocuments({ 
-          category: category._id as any,
-          published: true 
-        })
-        return {
-          ...category,
-          coursesCount,
-        }
+    
+    // First, get direct course counts for all categories
+    const directCounts = new Map<string, number>()
+    for (const category of categories) {
+      const count = await Course.countDocuments({ 
+        category: category._id as any,
+        published: true 
       })
-    )
+      directCounts.set(String(category._id), count)
+    }
+    
+    // Calculate total counts (including subcategories) for parent categories
+    const categoriesWithCount = categories.map((category) => {
+      let totalCount = directCounts.get(String(category._id)) || 0
+      
+      // If this is a parent category, add counts from all subcategories
+      if (!category.parentCategory) {
+        const subcategories = categories.filter(c => 
+          c.parentCategory && String(c.parentCategory) === String(category._id)
+        )
+        for (const sub of subcategories) {
+          totalCount += directCounts.get(String(sub._id)) || 0
+        }
+      }
+      
+      return {
+        ...category,
+        coursesCount: totalCount,
+      }
+    })
 
     console.log('Returning categories:', categoriesWithCount.length)
 
