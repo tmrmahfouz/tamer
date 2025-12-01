@@ -34,9 +34,11 @@ function MyCoursesContent() {
   }
 
   const filteredEnrollments = enrollments.filter((enrollment) => {
+    // تجاهل التسجيلات بدون دورة
+    if (!enrollment.course) return false
     if (filter === 'in-progress' && enrollment.completionPercentage >= 100) return false
     if (filter === 'completed' && enrollment.completionPercentage < 100) return false
-    if (searchTerm) return enrollment.course.title.toLowerCase().includes(searchTerm.toLowerCase())
+    if (searchTerm) return enrollment.course.title?.toLowerCase().includes(searchTerm.toLowerCase())
     return true
   })
 
