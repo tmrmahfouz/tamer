@@ -298,13 +298,20 @@ export default function InstructorQuizzesPage() {
                   </select>
                 </div>
 
-                {lessons.length > 0 && (
+                {formData.courseId && (
                   <div>
                     <label className="block text-sm font-semibold text-gray-900 mb-2">الدرس (اختياري)</label>
                     <select value={formData.lessonId} onChange={(e) => setFormData({ ...formData, lessonId: e.target.value })} className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500">
                       <option value="">اختبار عام للدورة</option>
-                      {lessons.map(lesson => <option key={lesson._id} value={lesson._id}>{lesson.title}</option>)}
+                      {lessons.length > 0 ? (
+                        lessons.map(lesson => <option key={lesson._id} value={lesson._id}>{lesson.title}</option>)
+                      ) : (
+                        <option disabled>لا توجد دروس في هذه الدورة</option>
+                      )}
                     </select>
+                    {lessons.length === 0 && formData.courseId && (
+                      <p className="text-xs text-gray-500 mt-1">لم يتم العثور على دروس. يمكنك إنشاء اختبار عام للدورة.</p>
+                    )}
                   </div>
                 )}
 
