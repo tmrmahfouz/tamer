@@ -4,9 +4,10 @@ import connectDB from '@/lib/mongodb'
 import Note from '@/models/Note'
 
 // GET single note
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     await connectDB()
+    const { id } = await params
 
     const token = request.cookies.get('token')?.value
     if (!token) {
@@ -18,7 +19,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
       return NextResponse.json({ success: false, message: 'غير مصرح' }, { status: 401 })
     }
 
-    const note = await Note.findById(params.id)
+    const note = await Note.findById(id)
       .populate('user', 'name email avatar')
       .populate('course', 'title instructor')
       .populate('lesson', 'title')
@@ -35,9 +36,10 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 }
 
 // PUT - Reply to note (instructor/admin)
-export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     await connectDB()
+    const { id } = await params
 
     const token = request.cookies.get('token')?.value
     if (!token) {
@@ -49,7 +51,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       return NextResponse.json({ success: false, message: 'غير مصرح' }, { status: 403 })
     }
 
-    const note = await Note.findById(params.id).populate('course', 'instructor')
+    const note = await Note.findById(id).populate('course', 'instructor')
     if (!note) {
       return NextResponse.json({ success: false, message: 'الملاحظة غير موجودة' }, { status: 404 })
     }
@@ -73,7 +75,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     note.status = 'replied'
     await note.save()
 
-    const updatedNote = await Note.findById(params.id)
+    const updatedNote = await Note.findById(id)
       .populate('user', 'name email avatar')
       .populate('course', 'title')
       .populate('lesson', 'title')
@@ -86,9 +88,10 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 }
 
 // DELETE - Delete note (admin/instructor)
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     await connectDB()
+    const { id } = await params
 
     const token = request.cookies.get('token')?.value
     if (!token) {
@@ -100,7 +103,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
       return NextResponse.json({ success: false, message: 'غير مصرح' }, { status: 403 })
     }
 
-    const note = await Note.findById(params.id).populate('course', 'instructor')
+    const note = await Note.findById(id).populate('course', 'instructor')
     if (!note) {
       return NextResponse.json({ success: false, message: 'الملاحظة غير موجودة' }, { status: 404 })
     }
@@ -113,7 +116,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
       }
     }
 
-    await Note.findByIdAndDelete(params.id)
+    await Note.findByIdAndDelete(id)
 
     return NextResponse.json({ success: true, message: 'تم حذف الملاحظة بنجاح' }, { status: 200 })
   } catch (error: any) {
