@@ -1,7 +1,7 @@
-﻿'use client'
+'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { StickyNote, Plus, Edit2, Trash2, Clock, Save, X, Link2, FileUp, Share2, MessageCircle, ExternalLink, Paperclip, CheckCircle, RefreshCw, Image } from 'lucide-react'
+import { StickyNote, Plus, Edit2, Trash2, Clock, Save, X, Link2, FileUp, Share2, MessageCircle, ExternalLink, Paperclip, CheckCircle } from 'lucide-react'
 
 interface Attachment {
   type: 'file' | 'link'
@@ -28,14 +28,10 @@ export default function NotesPanel({ courseId, lessonId, currentTime }: NotesPan
   const [linkUrl, setLinkUrl] = useState('')
   const [linkName, setLinkName] = useState('')
   const [shareWithInstructor, setShareWithInstructor] = useState(false)
-  const [previewImage, setPreviewImage] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     loadNotes()
-    // Auto-refresh every 30 seconds to get instructor replies
-    const interval = setInterval(loadNotes, 30000)
-    return () => clearInterval(interval)
   }, [lessonId])
 
   const loadNotes = async () => {
@@ -49,6 +45,7 @@ export default function NotesPanel({ courseId, lessonId, currentTime }: NotesPan
       setLoading(false)
     }
   }
+
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files
@@ -120,6 +117,7 @@ export default function NotesPanel({ courseId, lessonId, currentTime }: NotesPan
     }
   }
 
+
   const updateNote = async (id: string) => {
     if (!editContent.trim()) return
     try {
@@ -140,7 +138,7 @@ export default function NotesPanel({ courseId, lessonId, currentTime }: NotesPan
   }
 
   const deleteNote = async (id: string) => {
-    if (!confirm('Delete this note?')) return
+    if (!confirm('هل تريد حذف هذه الملاحظة؟')) return
     try {
       const response = await fetch(`/api/notes/${id}`, { method: 'DELETE' })
       const data = await response.json()
@@ -170,36 +168,28 @@ export default function NotesPanel({ courseId, lessonId, currentTime }: NotesPan
     return `${mins}:${secs.toString().padStart(2, '0')}`
   }
 
-  const isImageFile = (fileType?: string) => {
-    if (!fileType) return false
-    return ['png', 'jpg', 'jpeg', 'gif', 'webp'].includes(fileType.toLowerCase())
+  const getFileIcon = (fileType?: string) => {
+    if (!fileType) return '📄'
+    if (fileType.includes('pdf')) return '📕'
+    if (['png', 'jpg', 'jpeg', 'gif'].includes(fileType)) return '🖼️'
+    if (['doc', 'docx'].includes(fileType)) return '📘'
+    return '📄'
   }
 
-  const repliedNotesCount = notes.filter(n => n.status === 'replied').length
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-2">
-          <StickyNote className="w-6 h-6 text-primary-600" />
-          <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">My Notes</h3>
-          <span className="px-2 py-1 bg-primary-100 text-primary-700 rounded-full text-sm font-semibold">{notes.length}</span>
-          {repliedNotesCount > 0 && (
-            <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-sm font-semibold flex items-center gap-1">
-              <MessageCircle className="w-3 h-3" />{repliedNotesCount} replied
-            </span>
-          )}
-        </div>
-        <button onClick={loadNotes} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg" title="Refresh">
-          <RefreshCw className="w-4 h-4 text-gray-500" />
-        </button>
+      <div className="flex items-center gap-2 mb-6">
+        <StickyNote className="w-6 h-6 text-primary-600" />
+        <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">ملاحظاتي</h3>
+        <span className="px-2 py-1 bg-primary-100 text-primary-700 rounded-full text-sm font-semibold">{notes.length}</span>
       </div>
 
       <div className="mb-6 space-y-3">
         <textarea
           value={newNote}
           onChange={(e) => setNewNote(e.target.value)}
-          placeholder="Add a new note..."
+          placeholder="أضف ملاحظة جديدة..."
           rows={3}
           className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-primary-600 dark:bg-gray-900 dark:text-gray-100 resize-none"
         />
@@ -208,8 +198,7 @@ export default function NotesPanel({ courseId, lessonId, currentTime }: NotesPan
           <div className="flex flex-wrap gap-2">
             {attachments.map((att, index) => (
               <div key={index} className="flex items-center gap-2 px-3 py-1.5 bg-gray-100 dark:bg-gray-700 rounded-lg text-sm">
-                {att.type === 'link' ? <Link2 className="w-4 h-4 text-blue-500" /> : 
-                  isImageFile(att.fileType) ? <Image className="w-4 h-4 text-green-500" /> : <Paperclip className="w-4 h-4" />}
+                {att.type === 'link' ? <Link2 className="w-4 h-4 text-blue-500" /> : <span>{getFileIcon(att.fileType)}</span>}
                 <span className="max-w-[150px] truncate">{att.name}</span>
                 <button onClick={() => removeAttachment(index)} className="text-red-500 hover:text-red-700">
                   <X className="w-4 h-4" />
@@ -221,12 +210,13 @@ export default function NotesPanel({ courseId, lessonId, currentTime }: NotesPan
 
         {showLinkInput && (
           <div className="flex flex-wrap gap-2 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-            <input type="text" value={linkUrl} onChange={(e) => setLinkUrl(e.target.value)} placeholder="URL" className="flex-1 min-w-[150px] px-3 py-2 border rounded-lg text-sm dark:bg-gray-800 dark:text-white" />
-            <input type="text" value={linkName} onChange={(e) => setLinkName(e.target.value)} placeholder="Name (optional)" className="flex-1 min-w-[150px] px-3 py-2 border rounded-lg text-sm dark:bg-gray-800 dark:text-white" />
-            <button onClick={addLink} className="px-3 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700">Add</button>
-            <button onClick={() => setShowLinkInput(false)} className="px-3 py-2 bg-gray-300 dark:bg-gray-600 rounded-lg text-sm">Cancel</button>
+            <input type="text" value={linkUrl} onChange={(e) => setLinkUrl(e.target.value)} placeholder="رابط URL" className="flex-1 min-w-[150px] px-3 py-2 border rounded-lg text-sm dark:bg-gray-800 dark:text-white" />
+            <input type="text" value={linkName} onChange={(e) => setLinkName(e.target.value)} placeholder="اسم الرابط (اختياري)" className="flex-1 min-w-[150px] px-3 py-2 border rounded-lg text-sm dark:bg-gray-800 dark:text-white" />
+            <button onClick={addLink} className="px-3 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700">إضافة</button>
+            <button onClick={() => setShowLinkInput(false)} className="px-3 py-2 bg-gray-300 dark:bg-gray-600 rounded-lg text-sm">إلغاء</button>
           </div>
         )}
+
 
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div className="flex items-center gap-2">
@@ -235,33 +225,34 @@ export default function NotesPanel({ courseId, lessonId, currentTime }: NotesPan
                 <Clock className="w-4 h-4" />{formatTime(Math.floor(currentTime))}
               </span>
             )}
-            <input type="file" ref={fileInputRef} onChange={handleFileUpload} multiple accept=".pdf,.doc,.docx,.png,.jpg,.jpeg,.gif,.webp" className="hidden" />
-            <button onClick={() => fileInputRef.current?.click()} className="flex items-center gap-1 px-3 py-2 text-gray-600 dark:text-gray-300 hover:text-primary-600 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg" title="Attach file (max 2MB)">
-              <FileUp className="w-5 h-5" /><span className="text-sm hidden sm:inline">File</span>
+            <input type="file" ref={fileInputRef} onChange={handleFileUpload} multiple accept=".pdf,.doc,.docx,.png,.jpg,.jpeg,.gif" className="hidden" />
+            <button onClick={() => fileInputRef.current?.click()} className="flex items-center gap-1 px-3 py-2 text-gray-600 dark:text-gray-300 hover:text-primary-600 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg" title="إرفاق ملف">
+              <FileUp className="w-5 h-5" /><span className="text-sm hidden sm:inline">ملف</span>
             </button>
-            <button onClick={() => setShowLinkInput(!showLinkInput)} className="flex items-center gap-1 px-3 py-2 text-gray-600 dark:text-gray-300 hover:text-primary-600 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg" title="Add link">
-              <Link2 className="w-5 h-5" /><span className="text-sm hidden sm:inline">Link</span>
+            <button onClick={() => setShowLinkInput(!showLinkInput)} className="flex items-center gap-1 px-3 py-2 text-gray-600 dark:text-gray-300 hover:text-primary-600 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg" title="إضافة رابط">
+              <Link2 className="w-5 h-5" /><span className="text-sm hidden sm:inline">رابط</span>
             </button>
           </div>
           <div className="flex items-center gap-3 flex-wrap">
             <label className="flex items-center gap-2 cursor-pointer">
               <input type="checkbox" checked={shareWithInstructor} onChange={(e) => setShareWithInstructor(e.target.checked)} className="w-4 h-4 text-primary-600 rounded" />
-              <span className="text-sm text-gray-600 dark:text-gray-300 flex items-center gap-1"><Share2 className="w-4 h-4" />Share with instructor</span>
+              <span className="text-sm text-gray-600 dark:text-gray-300 flex items-center gap-1"><Share2 className="w-4 h-4" />مشاركة مع المدرب</span>
             </label>
             <button onClick={addNote} disabled={adding || !newNote.trim()} className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50">
-              <Plus className="w-4 h-4" /><span>{adding ? 'Adding...' : 'Add'}</span>
+              <Plus className="w-4 h-4" /><span>{adding ? 'جاري الإضافة...' : 'إضافة'}</span>
             </button>
           </div>
         </div>
       </div>
 
+
       <div className="space-y-3 max-h-[400px] overflow-y-auto">
         {loading ? (
-          <div className="text-center py-8 text-gray-500">Loading...</div>
+          <div className="text-center py-8 text-gray-500">جاري التحميل...</div>
         ) : notes.length === 0 ? (
           <div className="text-center py-8 text-gray-500">
             <StickyNote className="w-12 h-12 mx-auto mb-2 opacity-50" />
-            <p>No notes yet</p>
+            <p>لا توجد ملاحظات بعد</p>
           </div>
         ) : (
           notes.map((note) => (
@@ -270,40 +261,27 @@ export default function NotesPanel({ courseId, lessonId, currentTime }: NotesPan
                 <div>
                   <textarea value={editContent} onChange={(e) => setEditContent(e.target.value)} rows={3} className="w-full px-3 py-2 border-2 border-primary-600 rounded-lg resize-none mb-2 dark:bg-gray-800 dark:text-white" />
                   <div className="flex gap-2">
-                    <button onClick={() => updateNote(note._id)} className="flex items-center gap-1 px-3 py-1 bg-green-600 text-white rounded text-sm"><Save className="w-4 h-4" />Save</button>
-                    <button onClick={() => { setEditingId(null); setEditContent('') }} className="flex items-center gap-1 px-3 py-1 bg-gray-600 text-white rounded text-sm"><X className="w-4 h-4" />Cancel</button>
+                    <button onClick={() => updateNote(note._id)} className="flex items-center gap-1 px-3 py-1 bg-green-600 text-white rounded text-sm"><Save className="w-4 h-4" />حفظ</button>
+                    <button onClick={() => { setEditingId(null); setEditContent('') }} className="flex items-center gap-1 px-3 py-1 bg-gray-600 text-white rounded text-sm"><X className="w-4 h-4" />إلغاء</button>
                   </div>
                 </div>
               ) : (
                 <>
                   {note.status !== 'private' && (
                     <div className="flex items-center gap-2 mb-2">
-                      {note.status === 'shared' && <span className="flex items-center gap-1 px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full text-xs"><Share2 className="w-3 h-3" />Shared</span>}
-                      {note.status === 'replied' && <span className="flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs"><CheckCircle className="w-3 h-3" />Replied</span>}
+                      {note.status === 'shared' && <span className="flex items-center gap-1 px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full text-xs"><Share2 className="w-3 h-3" />تمت المشاركة</span>}
+                      {note.status === 'replied' && <span className="flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs"><CheckCircle className="w-3 h-3" />تم الرد</span>}
                     </div>
                   )}
                   <p className="text-gray-900 dark:text-gray-100 mb-2 whitespace-pre-wrap">{note.content}</p>
+
                   {note.attachments && note.attachments.length > 0 && (
                     <div className="flex flex-wrap gap-2 mb-3">
                       {note.attachments.map((att: Attachment, idx: number) => (
-                        <div key={idx} className="relative">
-                          {att.type === 'file' && isImageFile(att.fileType) ? (
-                            <div className="group">
-                              <img 
-                                src={att.url} 
-                                alt={att.name} 
-                                className="w-20 h-20 object-cover rounded-lg border cursor-pointer hover:opacity-80"
-                                onClick={() => setPreviewImage(att.url)}
-                              />
-                              <span className="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-xs p-1 truncate rounded-b-lg">{att.name}</span>
-                            </div>
-                          ) : (
-                            <a href={att.url} target="_blank" rel="noopener noreferrer" download={att.type === 'file' ? att.name : undefined} className="flex items-center gap-1.5 px-2 py-1 bg-white dark:bg-gray-600 border rounded text-sm hover:bg-gray-50">
-                              {att.type === 'link' ? <ExternalLink className="w-3.5 h-3.5 text-blue-500" /> : <Paperclip className="w-3.5 h-3.5 text-gray-500" />}
-                              <span className="max-w-[120px] truncate">{att.name}</span>
-                            </a>
-                          )}
-                        </div>
+                        <a key={idx} href={att.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 px-2 py-1 bg-white dark:bg-gray-600 border rounded text-sm hover:bg-gray-50">
+                          {att.type === 'link' ? <ExternalLink className="w-3.5 h-3.5 text-blue-500" /> : <Paperclip className="w-3.5 h-3.5 text-gray-500" />}
+                          <span className="max-w-[120px] truncate">{att.name}</span>
+                        </a>
                       ))}
                     </div>
                   )}
@@ -311,22 +289,35 @@ export default function NotesPanel({ courseId, lessonId, currentTime }: NotesPan
                     <div className="mt-3 p-3 bg-green-100 dark:bg-green-900/30 rounded-lg border-r-4 border-green-500">
                       <div className="flex items-center gap-2 mb-1">
                         <MessageCircle className="w-4 h-4 text-green-600" />
-                        <span className="text-sm font-semibold text-green-700">Instructor Reply:</span>
+                        <span className="text-sm font-semibold text-green-700">رد المدرب:</span>
                       </div>
                       <p className="text-gray-800 dark:text-gray-200 text-sm whitespace-pre-wrap">{note.instructorReply}</p>
-                      {note.instructorRepliedAt && (
-                        <p className="text-xs text-gray-500 mt-1">{new Date(note.instructorRepliedAt).toLocaleDateString()}</p>
+                      {note.instructorReplyLinks && note.instructorReplyLinks.length > 0 && (
+                        <div className="flex flex-wrap gap-2 mt-2">
+                          {note.instructorReplyLinks.map((link: Attachment, idx: number) => (
+                            <a
+                              key={idx}
+                              href={link.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-center gap-1.5 px-2 py-1 bg-white dark:bg-green-800 border border-green-300 rounded text-sm hover:bg-green-50 text-green-700 dark:text-green-200"
+                            >
+                              <ExternalLink className="w-3.5 h-3.5" />
+                              <span>{link.name}</span>
+                            </a>
+                          ))}
+                        </div>
                       )}
                     </div>
                   )}
                   <div className="flex items-center justify-between mt-2">
                     <div className="flex items-center gap-3 text-xs text-gray-500">
                       {note.timestamp !== undefined && <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{formatTime(note.timestamp)}</span>}
-                      <span>{new Date(note.createdAt).toLocaleDateString()}</span>
+                      <span>{new Date(note.createdAt).toLocaleDateString('ar-EG')}</span>
                     </div>
                     <div className="flex gap-1">
                       {note.status === 'private' && (
-                        <button onClick={() => shareNote(note._id)} className="p-1.5 hover:bg-blue-100 rounded text-blue-600" title="Share with instructor">
+                        <button onClick={() => shareNote(note._id)} className="p-1.5 hover:bg-blue-100 rounded text-blue-600" title="مشاركة مع المدرب">
                           <Share2 className="w-4 h-4" />
                         </button>
                       )}
@@ -344,21 +335,6 @@ export default function NotesPanel({ courseId, lessonId, currentTime }: NotesPan
           ))
         )}
       </div>
-
-      {/* Image Preview Modal */}
-      {previewImage && (
-        <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4" onClick={() => setPreviewImage(null)}>
-          <div className="relative max-w-4xl max-h-[90vh]">
-            <img src={previewImage} alt="Preview" className="max-w-full max-h-[90vh] object-contain rounded-lg" />
-            <button onClick={() => setPreviewImage(null)} className="absolute top-2 right-2 p-2 bg-black/50 rounded-full text-white hover:bg-black/70">
-              <X className="w-6 h-6" />
-            </button>
-            <a href={previewImage} download className="absolute bottom-2 right-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 text-sm">
-              Download
-            </a>
-          </div>
-        </div>
-      )}
     </div>
   )
 }
