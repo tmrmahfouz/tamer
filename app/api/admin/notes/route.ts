@@ -42,13 +42,21 @@ export async function GET(request: NextRequest) {
       query.status = status
     }
 
+    console.log('Admin notes query:', JSON.stringify(query))
+    
     const notes = await Note.find(query)
       .populate('user', 'name email avatar')
       .populate('course', 'title')
       .populate('lesson', 'title')
       .sort({ createdAt: -1 })
+      .lean()
 
-    return NextResponse.json({ success: true, notes }, { status: 200 })
+    console.log('Found notes count:', notes.length)
+
+    // Filter out notes with missing references
+    const validNotes = notes.filter(note => note.user && note.course && note.lesson)
+
+    return NextResponse.json({ success: true, notes: validNotes }, { status: 200 })
   } catch (error: any) {
     console.error('Get admin notes error:', error)
     return NextResponse.json({ success: false, message: 'حدث خطأ' }, { status: 500 })
