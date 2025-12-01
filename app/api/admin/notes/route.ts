@@ -3,6 +3,8 @@ import { verifyToken } from '@/lib/jwt'
 import connectDB from '@/lib/mongodb'
 import Note from '@/models/Note'
 import Course from '@/models/Course'
+import '@/models/User'
+import '@/models/Lesson'
 
 // GET shared notes for admin/instructor
 export async function GET(request: NextRequest) {
@@ -58,7 +60,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ success: true, notes: validNotes }, { status: 200 })
   } catch (error: any) {
-    console.error('Get admin notes error:', error)
-    return NextResponse.json({ success: false, message: 'حدث خطأ' }, { status: 500 })
+    console.error('Get admin notes error:', error.message, error.stack)
+    return NextResponse.json({ success: false, message: error.message || 'حدث خطأ' }, { status: 500 })
   }
 }
