@@ -24,7 +24,7 @@ export default function NotesPanel({ courseId, lessonId, currentTime }: NotesPan
 
   const loadNotes = async () => {
     try {
-      const res = await fetch(/api/notes?lessonId=+lessonId)
+      const res = await fetch(`/api/notes?lessonId=${lessonId}`)
       const data = await res.json()
       if (data.success) setNotes(data.notes)
     } catch (e) { console.error(e) }
