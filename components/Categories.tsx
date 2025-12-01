@@ -18,8 +18,10 @@ export default function Categories() {
       const data = await response.json()
 
       if (data.success && data.categories && data.categories.length > 0) {
-        // Filter to show only root categories (no parentCategory)
-        const rootCategories = data.categories.filter((cat: any) => !cat.parentCategory)
+        // Filter to show only root categories (no parentCategory) and sort by order
+        const rootCategories = data.categories
+          .filter((cat: any) => !cat.parentCategory)
+          .sort((a: any, b: any) => (a.order || 0) - (b.order || 0))
         setCategories(rootCategories.slice(0, 8))
       }
     } catch (error) {

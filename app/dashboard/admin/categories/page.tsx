@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { Tag, Plus, Edit, Trash2, Save, X, Loader2, ChevronDown, ChevronRight, FolderTree } from 'lucide-react'
+import { useState, useEffect, useCallback } from 'react'
+import { Plus, Edit, Trash2, Save, X, Loader2, ChevronDown, ChevronRight, FolderTree, GripVertical, ArrowUp, ArrowDown } from 'lucide-react'
 import AdminLayout from '@/components/AdminLayout'
 
 interface Category {
@@ -11,6 +11,7 @@ interface Category {
   description?: string
   icon?: string
   color?: string
+  order?: number
   coursesCount?: number
   parentCategory?: string | null
   children?: Category[]
@@ -31,6 +32,9 @@ export default function CategoriesPage() {
     color: '#3B82F6',
     parentCategory: '',
   })
+  const [draggedCategory, setDraggedCategory] = useState<string | null>(null)
+  const [savingOrder, setSavingOrder] = useState(false)
+  const [orderChanged, setOrderChanged] = useState(false)
 
   useEffect(() => {
     fetchCategories()
@@ -80,7 +84,111 @@ export default function CategoriesPage() {
       }
     })
 
+    // Sort by order
+    rootCategories.sort((a, b) => (a.order || 0) - (b.order || 0))
+    rootCategories.forEach(cat => {
+      if (cat.children) {
+        cat.children.sort((a, b) => (a.order || 0) - (b.order || 0))
+      }
+    })
+
     return rootCategories
+  }
+
+  // Move category up or down
+  const moveCategory = useCallback((categoryId: string, direction: 'up' | 'down', parentId?: string | null) => {
+    setCategories(prev => {
+      const newCategories = JSON.parse(JSON.stringify(prev)) as Category[]
+      
+      const findAndMove = (cats: Category[]): boolean => {
+        const index = cats.findIndex(c => c._id === categoryId)
+        if (index === -1) {
+          // Search in children
+          for (const cat of cats) {
+            if (cat.children && findAndMove(cat.children)) {
+              return true
+            }
+          }
+          return false
+        }
+
+        const newIndex = direction === 'up' ? index - 1 : index + 1
+        if (newIndex < 0 || newIndex >= cats.length) return false
+
+        // Swap
+        const temp = cats[index]
+        cats[index] = cats[newIndex]
+        cats[newIndex] = temp
+
+        // Update order values
+        cats.forEach((cat, i) => {
+          cat.order = i
+        })
+
+        return true
+      }
+
+      if (parentId) {
+        // Find parent and move within its children
+        const findParent = (cats: Category[]): Category | null => {
+          for (const cat of cats) {
+            if (cat._id === parentId) return cat
+            if (cat.children) {
+              const found = findParent(cat.children)
+              if (found) return found
+            }
+          }
+          return null
+        }
+        const parent = findParent(newCategories)
+        if (parent && parent.children) {
+          findAndMove(parent.children)
+        }
+      } else {
+        findAndMove(newCategories)
+      }
+
+      return newCategories
+    })
+    setOrderChanged(true)
+  }, [])
+
+  // Save new order to database
+  const saveOrder = async () => {
+    setSavingOrder(true)
+    try {
+      // Flatten categories with their new order
+      const flattenWithOrder = (cats: Category[], parentId: string | null = null): { id: string; order: number; parentCategory: string | null }[] => {
+        const result: { id: string; order: number; parentCategory: string | null }[] = []
+        cats.forEach((cat, index) => {
+          result.push({ id: cat._id, order: index, parentCategory: parentId })
+          if (cat.children && cat.children.length > 0) {
+            result.push(...flattenWithOrder(cat.children, cat._id))
+          }
+        })
+        return result
+      }
+
+      const orderedCategories = flattenWithOrder(categories)
+
+      const res = await fetch('/api/categories/reorder', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ categories: orderedCategories }),
+      })
+
+      const data = await res.json()
+      if (data.success) {
+        setOrderChanged(false)
+        alert('✅ تم حفظ الترتيب بنجاح')
+      } else {
+        alert('❌ ' + (data.message || 'حدث خطأ'))
+      }
+    } catch (error) {
+      alert('❌ حدث خطأ أثناء حفظ الترتيب')
+    } finally {
+      setSavingOrder(false)
+    }
   }
 
   // Get flat list of parent categories for dropdown
@@ -195,10 +303,33 @@ export default function CategoriesPage() {
   }
 
 
+  // Get siblings for checking if can move up/down
+  const getSiblings = (categoryId: string, parentId?: string | null): Category[] => {
+    if (!parentId) {
+      return categories
+    }
+    const findParent = (cats: Category[]): Category | null => {
+      for (const cat of cats) {
+        if (cat._id === parentId) return cat
+        if (cat.children) {
+          const found = findParent(cat.children)
+          if (found) return found
+        }
+      }
+      return null
+    }
+    const parent = findParent(categories)
+    return parent?.children || []
+  }
+
   // Render category row with children
-  const renderCategory = (category: Category, level = 0) => {
+  const renderCategory = (category: Category, level = 0, parentId?: string | null) => {
     const hasChildren = category.children && category.children.length > 0
     const isExpanded = expandedCategories.has(category._id)
+    const siblings = getSiblings(category._id, parentId)
+    const currentIndex = siblings.findIndex(c => c._id === category._id)
+    const canMoveUp = currentIndex > 0
+    const canMoveDown = currentIndex < siblings.length - 1
 
     return (
       <div key={category._id}>
@@ -206,6 +337,26 @@ export default function CategoriesPage() {
           className={`flex items-center gap-3 px-4 py-3 hover:bg-gray-50 border-b ${level > 0 ? 'bg-gray-50/50' : ''}`}
           style={{ paddingRight: `${16 + level * 24}px` }}
         >
+          {/* Order Controls */}
+          <div className="flex flex-col gap-0.5">
+            <button
+              onClick={() => moveCategory(category._id, 'up', parentId)}
+              disabled={!canMoveUp}
+              className={`p-0.5 rounded ${canMoveUp ? 'text-gray-500 hover:bg-gray-200 hover:text-gray-700' : 'text-gray-200 cursor-not-allowed'}`}
+              title="تحريك لأعلى"
+            >
+              <ArrowUp className="w-3.5 h-3.5" />
+            </button>
+            <button
+              onClick={() => moveCategory(category._id, 'down', parentId)}
+              disabled={!canMoveDown}
+              className={`p-0.5 rounded ${canMoveDown ? 'text-gray-500 hover:bg-gray-200 hover:text-gray-700' : 'text-gray-200 cursor-not-allowed'}`}
+              title="تحريك لأسفل"
+            >
+              <ArrowDown className="w-3.5 h-3.5" />
+            </button>
+          </div>
+
           {/* Expand/Collapse Button */}
           <button
             onClick={() => toggleExpand(category._id)}
@@ -233,6 +384,7 @@ export default function CategoriesPage() {
               {level > 0 && (
                 <span className="text-xs px-2 py-0.5 bg-blue-100 text-blue-700 rounded">فرعية</span>
               )}
+              <span className="text-xs text-gray-400">#{(category.order ?? currentIndex) + 1}</span>
             </div>
             {category.description && (
               <p className="text-sm text-gray-500 truncate">{category.description}</p>
@@ -275,7 +427,7 @@ export default function CategoriesPage() {
         {/* Children */}
         {hasChildren && isExpanded && (
           <div>
-            {category.children!.map(child => renderCategory(child, level + 1))}
+            {category.children!.map(child => renderCategory(child, level + 1, category._id))}
           </div>
         )}
       </div>
@@ -307,13 +459,25 @@ export default function CategoriesPage() {
             </h1>
             <p className="text-gray-600 mt-1">إضافة وتعديل الفئات الرئيسية والفرعية</p>
           </div>
-          <button
-            onClick={() => { resetForm(); setShowForm(true) }}
-            className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700"
-          >
-            <Plus className="w-5 h-5" />
-            إضافة فئة رئيسية
-          </button>
+          <div className="flex items-center gap-3">
+            {orderChanged && (
+              <button
+                onClick={saveOrder}
+                disabled={savingOrder}
+                className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
+              >
+                {savingOrder ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
+                حفظ الترتيب
+              </button>
+            )}
+            <button
+              onClick={() => { resetForm(); setShowForm(true) }}
+              className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700"
+            >
+              <Plus className="w-5 h-5" />
+              إضافة فئة رئيسية
+            </button>
+          </div>
         </div>
 
 
@@ -463,13 +627,14 @@ export default function CategoriesPage() {
           ) : (
             <div>
               <div className="bg-gray-50 border-b px-4 py-3 flex items-center gap-3 text-sm font-semibold text-gray-700">
+                <div className="w-10 text-center">الترتيب</div>
                 <div className="w-6"></div>
                 <div className="w-10"></div>
                 <div className="flex-1">الفئة</div>
                 <div className="w-24 text-center">الدورات</div>
                 <div className="w-32 text-center">الإجراءات</div>
               </div>
-              {categories.map(category => renderCategory(category))}
+              {categories.map(category => renderCategory(category, 0, null))}
             </div>
           )}
         </div>

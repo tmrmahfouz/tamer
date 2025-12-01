@@ -66,7 +66,9 @@ export default function CoursesPage() {
   useEffect(() => {
     // Update subcategories when main category changes
     if (selectedCategory !== 'all') {
-      const subs = allCategories.filter(cat => cat.parentCategory === selectedCategory)
+      const subs = allCategories
+        .filter(cat => cat.parentCategory === selectedCategory)
+        .sort((a: Category, b: Category) => ((a as any).order || 0) - ((b as any).order || 0))
       setSubcategories(subs)
     } else {
       setSubcategories([])
@@ -99,8 +101,12 @@ export default function CoursesPage() {
       if (categoriesData.success) {
         const cats = categoriesData.categories || []
         setAllCategories(cats)
-        // Main categories are those without parentCategory
-        setMainCategories(cats.filter((cat: Category) => !cat.parentCategory))
+        // Main categories are those without parentCategory, sorted by order
+        setMainCategories(
+          cats
+            .filter((cat: Category) => !cat.parentCategory)
+            .sort((a: Category, b: Category) => ((a as any).order || 0) - ((b as any).order || 0))
+        )
       }
     } catch (error) {
       console.error('Error loading data:', error)
