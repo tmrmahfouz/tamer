@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { verifyToken } from '@/lib/jwt'
 import connectDB from '@/lib/mongodb'
 import Note from '@/models/Note'
+import '@/models/User'
+import '@/models/Course'
+import '@/models/Lesson'
 
 // GET single note
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
