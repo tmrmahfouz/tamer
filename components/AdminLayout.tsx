@@ -37,6 +37,7 @@ const menuItems = [
   { divider: true, label: 'التواصل' },
   { href: '/dashboard/admin/community', label: 'المجتمع', icon: MessageCircle },
   { href: '/dashboard/admin/chat', label: 'الدردشة', icon: MessageCircle },
+  { href: '/dashboard/admin/notes', label: 'ملاحظات الطلاب', icon: FileText },
   { href: '/dashboard/admin/notifications', label: 'الإشعارات', icon: Bell },
   { divider: true, label: 'النظام' },
   { href: '/dashboard/admin/analytics', label: 'التحليلات', icon: BarChart3 },
