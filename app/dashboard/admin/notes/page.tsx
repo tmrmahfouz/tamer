@@ -16,7 +16,8 @@ interface Note {
   content: string
   timestamp?: number
   attachments?: Attachment[]
-  status: 'shared' | 'replied'
+  status: 'private' | 'shared' | 'replied'
+  isSharedWithInstructor: boolean
   instructorReply?: string
   instructorReplyLinks?: Attachment[]
   instructorRepliedAt?: Date
@@ -29,7 +30,7 @@ interface Note {
 export default function AdminNotesPage() {
   const [notes, setNotes] = useState<Note[]>([])
   const [loading, setLoading] = useState(true)
-  const [filter, setFilter] = useState<'all' | 'shared' | 'replied'>('all')
+  const [filter, setFilter] = useState<'all' | 'private' | 'shared' | 'replied'>('all')
   const [searchTerm, setSearchTerm] = useState('')
   const [replyingTo, setReplyingTo] = useState<string | null>(null)
   const [replyContent, setReplyContent] = useState('')
@@ -151,6 +152,7 @@ export default function AdminNotesPage() {
     )
   })
 
+  const privateCount = notes.filter(n => n.status === 'private').length
   const sharedCount = notes.filter(n => n.status === 'shared').length
   const repliedCount = notes.filter(n => n.status === 'replied').length
 
@@ -160,11 +162,11 @@ export default function AdminNotesPage() {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">ملاحظات الطلاب</h1>
-          <p className="text-gray-600">جميع الملاحظات التي شاركها الطلاب مع المدربين</p>
+          <p className="text-gray-600">جميع ملاحظات الطلاب في المنصة</p>
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
           <div className="bg-white rounded-xl p-4 shadow-sm border">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -172,7 +174,18 @@ export default function AdminNotesPage() {
               </div>
               <div>
                 <p className="text-2xl font-bold text-gray-900">{notes.length}</p>
-                <p className="text-sm text-gray-500">إجمالي الملاحظات</p>
+                <p className="text-sm text-gray-500">إجمالي</p>
+              </div>
+            </div>
+          </div>
+          <div className="bg-white rounded-xl p-4 shadow-sm border">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+                <StickyNote className="w-6 h-6 text-gray-600" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-gray-900">{privateCount}</p>
+                <p className="text-sm text-gray-500">خاصة</p>
               </div>
             </div>
           </div>
@@ -214,9 +227,10 @@ export default function AdminNotesPage() {
           </div>
           <div className="flex items-center gap-2">
             <Filter className="w-5 h-5 text-gray-500" />
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               {[
                 { value: 'all', label: 'الكل' },
+                { value: 'private', label: 'خاصة' },
                 { value: 'shared', label: 'بانتظار الرد' },
                 { value: 'replied', label: 'تم الرد' },
               ].map((f) => (
@@ -254,7 +268,7 @@ export default function AdminNotesPage() {
               <div
                 key={note._id}
                 className={`bg-white rounded-xl shadow-sm border overflow-hidden ${
-                  note.status === 'shared' ? 'border-yellow-300' : 'border-green-300'
+                  note.status === 'private' ? 'border-gray-300' : note.status === 'shared' ? 'border-yellow-300' : 'border-green-300'
                 }`}
               >
                 {/* Header */}
@@ -270,11 +284,13 @@ export default function AdminNotesPage() {
                   </div>
                   <div className="flex items-center gap-2">
                     <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                      note.status === 'shared' 
-                        ? 'bg-yellow-100 text-yellow-700' 
-                        : 'bg-green-100 text-green-700'
+                      note.status === 'private' 
+                        ? 'bg-gray-100 text-gray-700' 
+                        : note.status === 'shared' 
+                          ? 'bg-yellow-100 text-yellow-700' 
+                          : 'bg-green-100 text-green-700'
                     }`}>
-                      {note.status === 'shared' ? 'بانتظار الرد' : 'تم الرد'}
+                      {note.status === 'private' ? 'خاصة' : note.status === 'shared' ? 'بانتظار الرد' : 'تم الرد'}
                     </span>
                     <button
                       onClick={() => deleteNote(note._id)}

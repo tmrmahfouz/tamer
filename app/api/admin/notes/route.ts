@@ -21,16 +21,18 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url)
     const courseId = searchParams.get('courseId')
-    const status = searchParams.get('status') // shared, replied, all
+    const status = searchParams.get('status') // shared, replied, private, all
 
-    let query: any = { isSharedWithInstructor: true }
+    let query: any = {}
 
-    // للمدرب: فقط ملاحظات دوراته
+    // الأدمن يرى جميع الملاحظات، المدرب يرى فقط المشاركة من دوراته
     if (decoded.role === 'instructor') {
+      query.isSharedWithInstructor = true
       const instructorCourses = await Course.find({ instructor: decoded.userId }).select('_id')
       const courseIds = instructorCourses.map(c => c._id)
       query.course = { $in: courseIds }
     }
+    // الأدمن يرى كل الملاحظات بدون قيود
 
     if (courseId) {
       query.course = courseId
