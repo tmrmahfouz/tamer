@@ -52,7 +52,7 @@ export async function PUT(
     const decoded = jwt.verify(token, JWT_SECRET) as any
     const user = await User.findById(decoded.userId)
     
-    if (!user || user.role !== 'admin') {
+    if (!user || (user.role !== 'admin' && user.role !== 'instructor')) {
       return NextResponse.json({ success: false, error: 'غير مصرح' }, { status: 403 })
     }
     
@@ -109,7 +109,7 @@ export async function DELETE(
     const decoded = jwt.verify(token, JWT_SECRET) as any
     const user = await User.findById(decoded.userId)
     
-    if (!user || user.role !== 'admin') {
+    if (!user || (user.role !== 'admin' && user.role !== 'instructor')) {
       return NextResponse.json({ success: false, error: 'غير مصرح' }, { status: 403 })
     }
     

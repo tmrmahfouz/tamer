@@ -60,14 +60,18 @@ export async function PUT(
       )
     }
 
-    if (decoded.role !== 'admin' && decoded.role !== 'instructor') {
+    await connectDB()
+
+    // Get user from database to check role
+    const User = (await import('@/models/User')).default
+    const user = await User.findById(decoded.userId)
+    
+    if (!user || (user.role !== 'admin' && user.role !== 'instructor')) {
       return NextResponse.json(
         { success: false, message: 'غير مصرح' },
         { status: 403 }
       )
     }
-
-    await connectDB()
 
     const body = await req.json()
     const { name, nameEn, description, icon, color, order, published, subcategories, parentCategory } = body
@@ -135,14 +139,18 @@ export async function DELETE(
       )
     }
 
-    if (decoded.role !== 'admin') {
+    await connectDB()
+
+    // Get user from database to check role
+    const User = (await import('@/models/User')).default
+    const user = await User.findById(decoded.userId)
+    
+    if (!user || (user.role !== 'admin' && user.role !== 'instructor')) {
       return NextResponse.json(
-        { success: false, message: 'غير مصرح - مسموح للأدمن فقط' },
+        { success: false, message: 'غير مصرح' },
         { status: 403 }
       )
     }
-
-    await connectDB()
 
     // Check if category has subcategories
     const subcategoriesCount = await Category.countDocuments({ parentCategory: params.id })

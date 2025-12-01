@@ -20,7 +20,7 @@ export default function InstructorBundlesPage() {
   const loadData = async () => {
     try {
       const [bundlesRes, coursesRes] = await Promise.all([
-        fetch('/api/bundles'),
+        fetch('/api/admin/bundles'),
         fetch('/api/instructor/courses')
       ])
       const bundlesData = await bundlesRes.json()
@@ -37,12 +37,17 @@ export default function InstructorBundlesPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
-      const url = editingBundle ? `/api/bundles/${editingBundle._id}` : '/api/bundles'
+      const url = editingBundle ? `/api/admin/bundles/${editingBundle._id}` : '/api/admin/bundles'
       const method = editingBundle ? 'PUT' : 'POST'
       const res = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...formData, price: Number(formData.price), discount: Number(formData.discount) || 0 })
+        body: JSON.stringify({ 
+          name: formData.title,
+          description: formData.description,
+          courses: formData.courses,
+          discountPercentage: Number(formData.discount) || 0
+        })
       })
       const data = await res.json()
       if (data.success) {
@@ -59,7 +64,7 @@ export default function InstructorBundlesPage() {
   const deleteBundle = async (id: string) => {
     if (!confirm('هل أنت متأكد؟')) return
     try {
-      const res = await fetch(`/api/bundles/${id}`, { method: 'DELETE' })
+      const res = await fetch(`/api/admin/bundles/${id}`, { method: 'DELETE' })
       const data = await res.json()
       if (data.success) loadData()
     } catch (error) {

@@ -103,7 +103,11 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    if (decoded.role !== 'admin' && decoded.role !== 'instructor') {
+    // Get user from database to check role
+    const User = (await import('@/models/User')).default
+    const user = await User.findById(decoded.userId)
+    
+    if (!user || (user.role !== 'admin' && user.role !== 'instructor')) {
       return NextResponse.json(
         { success: false, message: 'غير مصرح لك بإنشاء اختبارات' },
         { status: 403 }
