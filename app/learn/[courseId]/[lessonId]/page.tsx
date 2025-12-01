@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { BookOpen, Clock, Lock, ArrowRight, ArrowLeft, CheckCircle, Circle, FileQuestion, Award, Menu, X, List } from 'lucide-react'
+import { BookOpen, Clock, Lock, ArrowRight, ArrowLeft, CheckCircle, Circle, FileQuestion, Award, X, List } from 'lucide-react'
 import UniversalVideoPlayer from '@/components/lesson-viewers/UniversalVideoPlayer'
 import PDFViewer from '@/components/lesson-viewers/PDFViewer'
 import PresentationViewer from '@/components/lesson-viewers/PresentationViewer'
