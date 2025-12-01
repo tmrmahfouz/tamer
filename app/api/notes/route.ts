@@ -2,111 +2,81 @@ import { NextRequest, NextResponse } from 'next/server'
 import { verifyToken } from '@/lib/jwt'
 import connectDB from '@/lib/mongodb'
 import Note from '@/models/Note'
-import jwt from 'jsonwebtoken'
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key'
-
-// GET notes
+// GET notes for a lesson
 export async function GET(request: NextRequest) {
   try {
     await connectDB()
 
     const token = request.cookies.get('token')?.value
     if (!token) {
-      return NextResponse.json(
-        { success: false, message: 'غير مصرح' },
-        { status: 401 }
-      )
+      return NextResponse.json({ success: false, message: 'غير مصرح' }, { status: 401 })
     }
 
     const decoded = verifyToken(token)
     if (!decoded) {
-      return NextResponse.json(
-        { success: false, message: 'غير مصرح' },
-        { status: 401 }
-      )
+      return NextResponse.json({ success: false, message: 'غير مصرح' }, { status: 401 })
     }
+
     const { searchParams } = new URL(request.url)
-    const courseId = searchParams.get('courseId')
     const lessonId = searchParams.get('lessonId')
+    const courseId = searchParams.get('courseId')
 
-    const query: any = { user: decoded.userId }
-    if (courseId) query.course = courseId
-    if (lessonId) query.lesson = lessonId
+    let query: any = { user: decoded.userId }
 
-    const notes = await Note.find(query)
-      .populate('lesson', 'title')
-      .sort({ createdAt: -1 })
+    if (lessonId) {
+      query.lesson = lessonId
+    }
 
-    return NextResponse.json(
-      {
-        success: true,
-        notes,
-      },
-      { status: 200 }
-    )
+    if (courseId) {
+      query.course = courseId
+    }
+
+    const notes = await Note.find(query).sort({ createdAt: -1 })
+
+    return NextResponse.json({ success: true, notes }, { status: 200 })
   } catch (error: any) {
     console.error('Get notes error:', error)
-    return NextResponse.json(
-      { success: false, message: 'حدث خطأ أثناء جلب الملاحظات' },
-      { status: 500 }
-    )
+    return NextResponse.json({ success: false, message: 'حدث خطأ' }, { status: 500 })
   }
 }
 
-// POST create note
+// POST create new note
 export async function POST(request: NextRequest) {
   try {
     await connectDB()
 
     const token = request.cookies.get('token')?.value
     if (!token) {
-      return NextResponse.json(
-        { success: false, message: 'غير مصرح' },
-        { status: 401 }
-      )
+      return NextResponse.json({ success: false, message: 'غير مصرح' }, { status: 401 })
     }
 
     const decoded = verifyToken(token)
     if (!decoded) {
-      return NextResponse.json(
-        { success: false, message: 'غير مصرح' },
-        { status: 401 }
-      )
+      return NextResponse.json({ success: false, message: 'غير مصرح' }, { status: 401 })
     }
-    const body = await request.json()
-    const { courseId, lessonId, content, timestamp } = body
 
-    if (!content || content.trim().length === 0) {
-      return NextResponse.json(
-        { success: false, message: 'المحتوى مطلوب' },
-        { status: 400 }
-      )
+    const body = await request.json()
+    const { courseId, lessonId, content, timestamp, attachments, isSharedWithInstructor, status } = body
+
+    if (!courseId || !lessonId || !content) {
+      return NextResponse.json({ success: false, message: 'البيانات غير مكتملة' }, { status: 400 })
     }
 
     const note = await Note.create({
       user: decoded.userId,
       course: courseId,
       lesson: lessonId,
-      content: content.trim(),
+      content,
       timestamp,
+      attachments: attachments || [],
+      isSharedWithInstructor: isSharedWithInstructor || false,
+      status: status || 'private',
     })
 
-    const populatedNote = await Note.findById(note._id).populate('lesson', 'title')
-
-    return NextResponse.json(
-      {
-        success: true,
-        message: 'تم إضافة الملاحظة',
-        note: populatedNote,
-      },
-      { status: 201 }
-    )
+    return NextResponse.json({ success: true, note }, { status: 201 })
   } catch (error: any) {
     console.error('Create note error:', error)
-    return NextResponse.json(
-      { success: false, message: 'حدث خطأ أثناء إضافة الملاحظة' },
-      { status: 500 }
-    )
+    return NextResponse.json({ success: false, message: 'حدث خطأ' }, { status: 500 })
   }
 }

@@ -18,7 +18,8 @@ import {
   Home,
   Package,
   Tag,
-  Award
+  Award,
+  StickyNote
 } from 'lucide-react'
 
 interface InstructorLayoutProps {
@@ -39,6 +40,7 @@ const menuItems = [
   { href: '/instructor/bundles', label: 'حزم الدورات', icon: Package },
   { href: '/instructor/coupons', label: 'الكوبونات', icon: Award },
   { divider: true, label: 'التواصل' },
+  { href: '/instructor/notes', label: 'ملاحظات الطلاب', icon: StickyNote },
   { href: '/instructor/community', label: 'المجتمع', icon: MessageCircle },
   { href: '/instructor/chat', label: 'الدردشة', icon: MessageCircle },
   { divider: true, label: 'الإعدادات' },

@@ -2,9 +2,45 @@ import { NextRequest, NextResponse } from 'next/server'
 import { verifyToken } from '@/lib/jwt'
 import connectDB from '@/lib/mongodb'
 import Note from '@/models/Note'
-import jwt from 'jsonwebtoken'
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key'
+// GET single note
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    await connectDB()
+
+    const token = request.cookies.get('token')?.value
+    if (!token) {
+      return NextResponse.json({ success: false, message: 'غير مصرح' }, { status: 401 })
+    }
+
+    const decoded = verifyToken(token)
+    if (!decoded) {
+      return NextResponse.json({ success: false, message: 'غير مصرح' }, { status: 401 })
+    }
+
+    const note = await Note.findById(params.id)
+      .populate('user', 'name email')
+      .populate('course', 'title')
+      .populate('lesson', 'title')
+
+    if (!note) {
+      return NextResponse.json({ success: false, message: 'الملاحظة غير موجودة' }, { status: 404 })
+    }
+
+    // التحقق من الصلاحية
+    if (note.user._id.toString() !== decoded.userId && decoded.role !== 'admin' && decoded.role !== 'instructor') {
+      return NextResponse.json({ success: false, message: 'غير مصرح' }, { status: 403 })
+    }
+
+    return NextResponse.json({ success: true, note }, { status: 200 })
+  } catch (error: any) {
+    console.error('Get note error:', error)
+    return NextResponse.json({ success: false, message: 'حدث خطأ' }, { status: 500 })
+  }
+}
 
 // PUT update note
 export async function PUT(
@@ -16,49 +52,53 @@ export async function PUT(
 
     const token = request.cookies.get('token')?.value
     if (!token) {
-      return NextResponse.json(
-        { success: false, message: 'غير مصرح' },
-        { status: 401 }
-      )
+      return NextResponse.json({ success: false, message: 'غير مصرح' }, { status: 401 })
     }
 
     const decoded = verifyToken(token)
     if (!decoded) {
-      return NextResponse.json(
-        { success: false, message: 'غير مصرح' },
-        { status: 401 }
-      )
+      return NextResponse.json({ success: false, message: 'غير مصرح' }, { status: 401 })
     }
-    const body = await request.json()
-    const { content } = body
 
-    const note = await Note.findOneAndUpdate(
-      { _id: params.id, user: decoded.userId },
-      { content: content.trim() },
-      { new: true }
-    ).populate('lesson', 'title')
+    const note = await Note.findById(params.id)
 
     if (!note) {
-      return NextResponse.json(
-        { success: false, message: 'الملاحظة غير موجودة' },
-        { status: 404 }
-      )
+      return NextResponse.json({ success: false, message: 'الملاحظة غير موجودة' }, { status: 404 })
     }
 
-    return NextResponse.json(
-      {
-        success: true,
-        message: 'تم تحديث الملاحظة',
-        note,
-      },
-      { status: 200 }
-    )
+    const body = await request.json()
+
+    // إذا كان المدرب أو الأدمن يرد على الملاحظة
+    if ((decoded.role === 'admin' || decoded.role === 'instructor') && body.instructorReply !== undefined) {
+      note.instructorReply = body.instructorReply
+      note.instructorRepliedAt = new Date()
+      note.status = 'replied'
+      await note.save()
+      return NextResponse.json({ success: true, note }, { status: 200 })
+    }
+
+    // التحقق من أن المستخدم هو صاحب الملاحظة
+    if (note.user.toString() !== decoded.userId) {
+      return NextResponse.json({ success: false, message: 'غير مصرح' }, { status: 403 })
+    }
+
+    // تحديث الملاحظة
+    if (body.content !== undefined) note.content = body.content
+    if (body.attachments !== undefined) note.attachments = body.attachments
+    if (body.isSharedWithInstructor !== undefined) {
+      note.isSharedWithInstructor = body.isSharedWithInstructor
+      if (body.isSharedWithInstructor && note.status === 'private') {
+        note.status = 'shared'
+      }
+    }
+    if (body.status !== undefined) note.status = body.status
+
+    await note.save()
+
+    return NextResponse.json({ success: true, note }, { status: 200 })
   } catch (error: any) {
     console.error('Update note error:', error)
-    return NextResponse.json(
-      { success: false, message: 'حدث خطأ' },
-      { status: 500 }
-    )
+    return NextResponse.json({ success: false, message: 'حدث خطأ' }, { status: 500 })
   }
 }
 
@@ -72,44 +112,30 @@ export async function DELETE(
 
     const token = request.cookies.get('token')?.value
     if (!token) {
-      return NextResponse.json(
-        { success: false, message: 'غير مصرح' },
-        { status: 401 }
-      )
+      return NextResponse.json({ success: false, message: 'غير مصرح' }, { status: 401 })
     }
 
     const decoded = verifyToken(token)
     if (!decoded) {
-      return NextResponse.json(
-        { success: false, message: 'غير مصرح' },
-        { status: 401 }
-      )
+      return NextResponse.json({ success: false, message: 'غير مصرح' }, { status: 401 })
     }
 
-    const note = await Note.findOneAndDelete({
-      _id: params.id,
-      user: decoded.userId,
-    })
+    const note = await Note.findById(params.id)
 
     if (!note) {
-      return NextResponse.json(
-        { success: false, message: 'الملاحظة غير موجودة' },
-        { status: 404 }
-      )
+      return NextResponse.json({ success: false, message: 'الملاحظة غير موجودة' }, { status: 404 })
     }
 
-    return NextResponse.json(
-      {
-        success: true,
-        message: 'تم حذف الملاحظة',
-      },
-      { status: 200 }
-    )
+    // التحقق من الصلاحية
+    if (note.user.toString() !== decoded.userId && decoded.role !== 'admin') {
+      return NextResponse.json({ success: false, message: 'غير مصرح' }, { status: 403 })
+    }
+
+    await Note.findByIdAndDelete(params.id)
+
+    return NextResponse.json({ success: true, message: 'تم حذف الملاحظة' }, { status: 200 })
   } catch (error: any) {
     console.error('Delete note error:', error)
-    return NextResponse.json(
-      { success: false, message: 'حدث خطأ' },
-      { status: 500 }
-    )
+    return NextResponse.json({ success: false, message: 'حدث خطأ' }, { status: 500 })
   }
 }
