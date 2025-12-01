@@ -36,7 +36,7 @@ export default function NotesPanel({ courseId, lessonId, currentTime }: NotesPan
 
   const loadNotes = async () => {
     try {
-      const response = await fetch(/api/notes?lessonId=+lessonId)
+      const response = await fetch(`/api/notes?lessonId=${lessonId}`)
       const data = await response.json()
       if (data.success) setNotes(data.notes)
     } catch (error) {
@@ -69,7 +69,7 @@ export default function NotesPanel({ courseId, lessonId, currentTime }: NotesPan
     setAttachments(prev => [...prev, {
       type: 'link',
       name: linkName.trim() || linkUrl,
-      url: linkUrl.startsWith('http') ? linkUrl : 'https://'+linkUrl
+      url: linkUrl.startsWith('http') ? linkUrl : `https://${linkUrl}`
     }])
     setLinkUrl('')
     setLinkName('')
@@ -114,7 +114,7 @@ export default function NotesPanel({ courseId, lessonId, currentTime }: NotesPan
   const updateNote = async (id: string) => {
     if (!editContent.trim()) return
     try {
-      const response = await fetch('/api/notes/'+id, {
+      const response = await fetch(`/api/notes/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ content: editContent }),
@@ -133,7 +133,7 @@ export default function NotesPanel({ courseId, lessonId, currentTime }: NotesPan
   const deleteNote = async (id: string) => {
     if (!confirm('Delete this note?')) return
     try {
-      const response = await fetch('/api/notes/'+id, { method: 'DELETE' })
+      const response = await fetch(`/api/notes/${id}`, { method: 'DELETE' })
       const data = await response.json()
       if (data.success) loadNotes()
     } catch (error) {
@@ -143,7 +143,7 @@ export default function NotesPanel({ courseId, lessonId, currentTime }: NotesPan
 
   const shareNote = async (id: string) => {
     try {
-      const response = await fetch('/api/notes/'+id, {
+      const response = await fetch(`/api/notes/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ isSharedWithInstructor: true, status: 'shared' }),
@@ -158,7 +158,7 @@ export default function NotesPanel({ courseId, lessonId, currentTime }: NotesPan
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60)
     const secs = seconds % 60
-    return mins+':'+(secs.toString().padStart(2, '0'))
+    return `${mins}:${secs.toString().padStart(2, '0')}`
   }
 
   const getFileIcon = (fileType?: string) => {
@@ -246,7 +246,7 @@ export default function NotesPanel({ courseId, lessonId, currentTime }: NotesPan
           </div>
         ) : (
           notes.map((note) => (
-            <div key={note._id} className={'p-4 rounded-lg border '+(note.status === 'replied' ? 'bg-green-50 dark:bg-green-900/20 border-green-200' : note.status === 'shared' ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200' : 'bg-gray-50 dark:bg-gray-700 border-gray-200')}>
+            <div key={note._id} className={`p-4 rounded-lg border ${note.status === 'replied' ? 'bg-green-50 dark:bg-green-900/20 border-green-200' : note.status === 'shared' ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200' : 'bg-gray-50 dark:bg-gray-700 border-gray-200'}`}>
               {editingId === note._id ? (
                 <div>
                   <textarea value={editContent} onChange={(e) => setEditContent(e.target.value)} rows={3} className="w-full px-3 py-2 border-2 border-primary-600 rounded-lg resize-none mb-2 dark:bg-gray-800 dark:text-white" />
