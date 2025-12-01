@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import AdminLayout from '@/components/AdminLayout'
-import { StickyNote, MessageCircle, Send, Clock, User, BookOpen, FileText, ExternalLink, Paperclip, Filter, CheckCircle, AlertCircle, Search, Download } from 'lucide-react'
+import { StickyNote, MessageCircle, Send, Clock, User, BookOpen, FileText, ExternalLink, Paperclip, Filter, CheckCircle, AlertCircle, Search, Download, X, Image } from 'lucide-react'
 
 interface Attachment {
   type: 'file' | 'link'
@@ -33,6 +33,7 @@ export default function AdminNotesPage() {
   const [replyingTo, setReplyingTo] = useState<string | null>(null)
   const [replyContent, setReplyContent] = useState('')
   const [sending, setSending] = useState(false)
+  const [previewImage, setPreviewImage] = useState<string | null>(null)
 
   useEffect(() => {
     loadNotes()
@@ -82,6 +83,11 @@ export default function AdminNotesPage() {
     const mins = Math.floor(seconds / 60)
     const secs = seconds % 60
     return `${mins}:${secs.toString().padStart(2, '0')}`
+  }
+
+  const isImageFile = (fileType?: string) => {
+    if (!fileType) return false
+    return ['png', 'jpg', 'jpeg', 'gif', 'webp'].includes(fileType.toLowerCase())
   }
 
   const filteredNotes = notes.filter(note => {
@@ -248,25 +254,41 @@ export default function AdminNotesPage() {
 
                   {/* Attachments */}
                   {note.attachments && note.attachments.length > 0 && (
-                    <div className="flex flex-wrap gap-2 mt-3">
+                    <div className="flex flex-wrap gap-3 mt-3">
                       {note.attachments.map((att, idx) => (
-                        <a
-                          key={idx}
-                          href={att.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 rounded-lg text-sm hover:bg-gray-200 transition-colors"
-                        >
-                          {att.type === 'link' ? (
-                            <ExternalLink className="w-4 h-4 text-blue-500" />
+                        <div key={idx}>
+                          {att.type === 'file' && isImageFile(att.fileType) ? (
+                            <div className="relative group cursor-pointer" onClick={() => setPreviewImage(att.url)}>
+                              <img 
+                                src={att.url} 
+                                alt={att.name} 
+                                className="w-24 h-24 object-cover rounded-lg border-2 border-gray-200 hover:border-primary-400 transition-colors"
+                              />
+                              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 rounded-lg transition-colors flex items-center justify-center">
+                                <Image className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                              </div>
+                              <span className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-xs p-1 truncate rounded-b-lg">{att.name}</span>
+                            </div>
                           ) : (
-                            <Paperclip className="w-4 h-4 text-gray-500" />
+                            <a
+                              href={att.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              download={att.type === 'file' ? att.name : undefined}
+                              className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 rounded-lg text-sm hover:bg-gray-200 transition-colors"
+                            >
+                              {att.type === 'link' ? (
+                                <ExternalLink className="w-4 h-4 text-blue-500" />
+                              ) : (
+                                <Paperclip className="w-4 h-4 text-gray-500" />
+                              )}
+                              <span>{att.name}</span>
+                              {att.type === 'file' && (
+                                <Download className="w-3 h-3 text-gray-400" />
+                              )}
+                            </a>
                           )}
-                          <span>{att.name}</span>
-                          {att.type === 'file' && (
-                            <Download className="w-3 h-3 text-gray-400" />
-                          )}
-                        </a>
+                        </div>
                       ))}
                     </div>
                   )}
@@ -343,6 +365,22 @@ export default function AdminNotesPage() {
           </div>
         )}
       </div>
+
+      {/* Image Preview Modal */}
+      {previewImage && (
+        <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4" onClick={() => setPreviewImage(null)}>
+          <div className="relative max-w-4xl max-h-[90vh]">
+            <img src={previewImage} alt="Preview" className="max-w-full max-h-[90vh] object-contain rounded-lg" />
+            <button onClick={() => setPreviewImage(null)} className="absolute top-2 right-2 p-2 bg-black/50 rounded-full text-white hover:bg-black/70">
+              <X className="w-6 h-6" />
+            </button>
+            <a href={previewImage} download className="absolute bottom-2 right-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 text-sm flex items-center gap-2">
+              <Download className="w-4 h-4" />
+              تحميل
+            </a>
+          </div>
+        </div>
+      )}
     </AdminLayout>
   )
 }
