@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import AdminLayout from '@/components/AdminLayout'
-import { StickyNote, MessageCircle, Send, Clock, User, BookOpen, FileText, ExternalLink, Paperclip, Filter, CheckCircle, AlertCircle, Search, Download, X, Image, Trash2 } from 'lucide-react'
+import { StickyNote, MessageCircle, Send, Clock, User, BookOpen, FileText, ExternalLink, Paperclip, Filter, CheckCircle, AlertCircle, Search, Download, X, Image, Trash2, Link2, Plus } from 'lucide-react'
 
 interface Attachment {
   type: 'file' | 'link'
@@ -18,6 +18,7 @@ interface Note {
   attachments?: Attachment[]
   status: 'shared' | 'replied'
   instructorReply?: string
+  instructorReplyLinks?: Attachment[]
   instructorRepliedAt?: Date
   createdAt: string
   user: { _id: string; name: string; email: string; avatar?: string }
@@ -32,6 +33,10 @@ export default function AdminNotesPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [replyingTo, setReplyingTo] = useState<string | null>(null)
   const [replyContent, setReplyContent] = useState('')
+  const [replyLinks, setReplyLinks] = useState<Attachment[]>([])
+  const [showLinkInput, setShowLinkInput] = useState(false)
+  const [linkUrl, setLinkUrl] = useState('')
+  const [linkName, setLinkName] = useState('')
   const [sending, setSending] = useState(false)
   const [previewImage, setPreviewImage] = useState<string | null>(null)
   const [deleting, setDeleting] = useState<string | null>(null)
@@ -64,13 +69,17 @@ export default function AdminNotesPage() {
       const response = await fetch(`/api/admin/notes/${noteId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ instructorReply: replyContent }),
+        body: JSON.stringify({ 
+          instructorReply: replyContent,
+          instructorReplyLinks: replyLinks 
+        }),
       })
 
       const data = await response.json()
       if (data.success) {
         setReplyingTo(null)
         setReplyContent('')
+        setReplyLinks([])
         loadNotes()
       }
     } catch (error) {
@@ -78,6 +87,22 @@ export default function AdminNotesPage() {
     } finally {
       setSending(false)
     }
+  }
+
+  const addReplyLink = () => {
+    if (!linkUrl.trim()) return
+    setReplyLinks(prev => [...prev, {
+      type: 'link',
+      name: linkName.trim() || linkUrl,
+      url: linkUrl.startsWith('http') ? linkUrl : `https://${linkUrl}`
+    }])
+    setLinkUrl('')
+    setLinkName('')
+    setShowLinkInput(false)
+  }
+
+  const removeReplyLink = (index: number) => {
+    setReplyLinks(prev => prev.filter((_, i) => i !== index))
   }
 
   const deleteNote = async (noteId: string) => {
@@ -347,7 +372,23 @@ export default function AdminNotesPage() {
                       <MessageCircle className="w-4 h-4 text-green-600" />
                       <span className="text-sm font-semibold text-green-700">الرد:</span>
                     </div>
-                    <p className="text-gray-800">{note.instructorReply}</p>
+                    <p className="text-gray-800 whitespace-pre-wrap">{note.instructorReply}</p>
+                    {note.instructorReplyLinks && note.instructorReplyLinks.length > 0 && (
+                      <div className="flex flex-wrap gap-2 mt-3">
+                        {note.instructorReplyLinks.map((link, idx) => (
+                          <a
+                            key={idx}
+                            href={link.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-green-300 rounded-lg text-sm hover:bg-green-100 transition-colors text-green-700"
+                          >
+                            <ExternalLink className="w-4 h-4" />
+                            <span>{link.name}</span>
+                          </a>
+                        ))}
+                      </div>
+                    )}
                     {note.instructorRepliedAt && (
                       <p className="text-xs text-gray-500 mt-2">
                         {new Date(note.instructorRepliedAt).toLocaleDateString('ar-EG')}
@@ -368,6 +409,56 @@ export default function AdminNotesPage() {
                           rows={3}
                           className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-primary-600 resize-none"
                         />
+                        
+                        {/* Reply Links */}
+                        {replyLinks.length > 0 && (
+                          <div className="flex flex-wrap gap-2">
+                            {replyLinks.map((link, idx) => (
+                              <div key={idx} className="flex items-center gap-2 px-3 py-1.5 bg-blue-50 border border-blue-200 rounded-lg text-sm">
+                                <Link2 className="w-4 h-4 text-blue-500" />
+                                <span className="max-w-[200px] truncate">{link.name}</span>
+                                <button onClick={() => removeReplyLink(idx)} className="text-red-500 hover:text-red-700">
+                                  <X className="w-4 h-4" />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* Add Link Input */}
+                        {showLinkInput ? (
+                          <div className="flex flex-wrap gap-2 p-3 bg-white border rounded-lg">
+                            <input
+                              type="text"
+                              value={linkUrl}
+                              onChange={(e) => setLinkUrl(e.target.value)}
+                              placeholder="رابط URL (فيديو، ملف، موقع...)"
+                              className="flex-1 min-w-[200px] px-3 py-2 border rounded-lg text-sm"
+                            />
+                            <input
+                              type="text"
+                              value={linkName}
+                              onChange={(e) => setLinkName(e.target.value)}
+                              placeholder="اسم الرابط (اختياري)"
+                              className="flex-1 min-w-[150px] px-3 py-2 border rounded-lg text-sm"
+                            />
+                            <button onClick={addReplyLink} className="px-3 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700">
+                              إضافة
+                            </button>
+                            <button onClick={() => setShowLinkInput(false)} className="px-3 py-2 bg-gray-200 rounded-lg text-sm">
+                              إلغاء
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            onClick={() => setShowLinkInput(true)}
+                            className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700"
+                          >
+                            <Plus className="w-4 h-4" />
+                            إضافة رابط (فيديو، ملف، موقع...)
+                          </button>
+                        )}
+
                         <div className="flex gap-2">
                           <button
                             onClick={() => sendReply(note._id)}
@@ -378,7 +469,7 @@ export default function AdminNotesPage() {
                             <span>{sending ? 'جاري الإرسال...' : 'إرسال الرد'}</span>
                           </button>
                           <button
-                            onClick={() => { setReplyingTo(null); setReplyContent('') }}
+                            onClick={() => { setReplyingTo(null); setReplyContent(''); setReplyLinks([]); setShowLinkInput(false) }}
                             className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
                           >
                             إلغاء

@@ -63,9 +63,12 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     }
 
     const body = await request.json()
-    const { instructorReply } = body
+    const { instructorReply, instructorReplyLinks } = body
 
     note.instructorReply = instructorReply
+    if (instructorReplyLinks && Array.isArray(instructorReplyLinks)) {
+      note.instructorReplyLinks = instructorReplyLinks
+    }
     note.instructorRepliedAt = new Date()
     note.status = 'replied'
     await note.save()

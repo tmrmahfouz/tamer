@@ -16,6 +16,7 @@ export interface INote extends Document {
   attachments?: INoteAttachment[] // الملفات والروابط المرفقة
   isSharedWithInstructor: boolean // مشاركة مع المدرب
   instructorReply?: string // رد المدرب
+  instructorReplyLinks?: INoteAttachment[] // روابط مرفقة بالرد
   instructorRepliedAt?: Date
   status: 'private' | 'shared' | 'replied' // حالة الملاحظة
   createdAt: Date
@@ -71,6 +72,7 @@ const NoteSchema = new Schema<INote>(
       default: false,
     },
     instructorReply: String,
+    instructorReplyLinks: [NoteAttachmentSchema],
     instructorRepliedAt: Date,
     status: {
       type: String,
