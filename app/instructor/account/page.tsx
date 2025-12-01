@@ -7,7 +7,7 @@ import { User, Lock, Save, Eye, EyeOff } from 'lucide-react'
 
 export default function InstructorAccountPage() {
   const router = useRouter()
-  const [user, setUser] = useState<any>(null)
+  const [, setUser] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [activeTab, setActiveTab] = useState<'profile' | 'password'>('profile')
