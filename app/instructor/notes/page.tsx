@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import InstructorLayout from '@/components/InstructorLayout'
-import { StickyNote, MessageCircle, Send, Clock, User, BookOpen, FileText, ExternalLink, Paperclip, Filter, CheckCircle, AlertCircle, X, Image, Download } from 'lucide-react'
+import { StickyNote, MessageCircle, Send, Clock, User, BookOpen, FileText, ExternalLink, Paperclip, Filter, CheckCircle, AlertCircle, X, Image, Download, Trash2 } from 'lucide-react'
 
 interface Attachment {
   type: 'file' | 'link'
@@ -33,6 +33,7 @@ export default function InstructorNotesPage() {
   const [replyContent, setReplyContent] = useState('')
   const [sending, setSending] = useState(false)
   const [previewImage, setPreviewImage] = useState<string | null>(null)
+  const [deleting, setDeleting] = useState<string | null>(null)
 
   const isImageFile = (fileType?: string) => {
     if (!fileType) return false
@@ -80,6 +81,29 @@ export default function InstructorNotesPage() {
       console.error('Error:', error)
     } finally {
       setSending(false)
+    }
+  }
+
+  const deleteNote = async (noteId: string) => {
+    if (!confirm('هل أنت متأكد من حذف هذه الملاحظة؟ سيتم حذف جميع المرفقات أيضاً.')) return
+
+    setDeleting(noteId)
+    try {
+      const response = await fetch(`/api/admin/notes/${noteId}`, {
+        method: 'DELETE',
+      })
+
+      const data = await response.json()
+      if (data.success) {
+        loadNotes()
+      } else {
+        alert(data.message || 'حدث خطأ أثناء الحذف')
+      }
+    } catch (error) {
+      console.error('Error:', error)
+      alert('حدث خطأ أثناء الحذف')
+    } finally {
+      setDeleting(null)
     }
   }
 
@@ -194,7 +218,7 @@ export default function InstructorNotesPage() {
                       <p className="text-sm text-gray-500">{note.user.email}</p>
                     </div>
                   </div>
-                  <div className="text-left">
+                  <div className="flex items-center gap-2">
                     <span className={`px-3 py-1 rounded-full text-xs font-medium ${
                       note.status === 'shared' 
                         ? 'bg-yellow-100 text-yellow-700' 
@@ -202,6 +226,18 @@ export default function InstructorNotesPage() {
                     }`}>
                       {note.status === 'shared' ? 'بانتظار الرد' : 'تم الرد'}
                     </span>
+                    <button
+                      onClick={() => deleteNote(note._id)}
+                      disabled={deleting === note._id}
+                      className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
+                      title="حذف الملاحظة"
+                    >
+                      {deleting === note._id ? (
+                        <div className="w-4 h-4 border-2 border-red-500 border-t-transparent rounded-full animate-spin" />
+                      ) : (
+                        <Trash2 className="w-4 h-4" />
+                      )}
+                    </button>
                   </div>
                 </div>
 

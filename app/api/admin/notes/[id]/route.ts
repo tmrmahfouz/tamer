@@ -81,3 +81,40 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     return NextResponse.json({ success: false, message: 'حدث خطأ' }, { status: 500 })
   }
 }
+
+// DELETE - Delete note (admin/instructor)
+export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+  try {
+    await connectDB()
+
+    const token = request.cookies.get('token')?.value
+    if (!token) {
+      return NextResponse.json({ success: false, message: 'غير مصرح' }, { status: 401 })
+    }
+
+    const decoded = verifyToken(token)
+    if (!decoded || (decoded.role !== 'admin' && decoded.role !== 'instructor')) {
+      return NextResponse.json({ success: false, message: 'غير مصرح' }, { status: 403 })
+    }
+
+    const note = await Note.findById(params.id).populate('course', 'instructor')
+    if (!note) {
+      return NextResponse.json({ success: false, message: 'الملاحظة غير موجودة' }, { status: 404 })
+    }
+
+    // التحقق من صلاحية المدرب - يمكنه حذف ملاحظات كورساته فقط
+    if (decoded.role === 'instructor') {
+      const courseInstructor = (note.course as any).instructor?.toString()
+      if (courseInstructor !== decoded.userId) {
+        return NextResponse.json({ success: false, message: 'غير مصرح' }, { status: 403 })
+      }
+    }
+
+    await Note.findByIdAndDelete(params.id)
+
+    return NextResponse.json({ success: true, message: 'تم حذف الملاحظة بنجاح' }, { status: 200 })
+  } catch (error: any) {
+    console.error('Delete note error:', error)
+    return NextResponse.json({ success: false, message: 'حدث خطأ' }, { status: 500 })
+  }
+}
