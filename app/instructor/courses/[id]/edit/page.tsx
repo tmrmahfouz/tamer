@@ -146,11 +146,14 @@ export default function EditCoursePage() {
       return
     }
 
+    // إذا تم اختيار فئة فرعية، استخدمها كفئة رئيسية للدورة
+    const courseCategory = formData.subcategory || formData.category
+
     try {
       const response = await fetch(`/api/courses/${params.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...formData, topics: filteredTopics }),
+        body: JSON.stringify({ ...formData, category: courseCategory, topics: filteredTopics }),
       })
       const data = await response.json()
       if (data.success) router.push('/instructor/courses')

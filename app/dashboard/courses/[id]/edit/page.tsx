@@ -284,6 +284,9 @@ export default function EditCoursePage() {
       return
     }
 
+    // إذا تم اختيار فئة فرعية، استخدمها كفئة رئيسية للدورة
+    const courseCategory = formData.subcategory || formData.category
+
     try {
       const response = await fetch(`/api/courses/${params.id}`, {
         method: 'PUT',
@@ -292,6 +295,7 @@ export default function EditCoursePage() {
         },
         body: JSON.stringify({
           ...formData,
+          category: courseCategory,
           topics: filteredTopics,
         }),
       })

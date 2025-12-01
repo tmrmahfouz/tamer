@@ -99,11 +99,14 @@ export default function NewCoursePage() {
       return
     }
 
+    // إذا تم اختيار فئة فرعية، استخدمها كفئة رئيسية للدورة
+    const courseCategory = formData.subcategory || formData.category
+
     try {
       const response = await fetch('/api/courses', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...formData, topics: filteredTopics, published }),
+        body: JSON.stringify({ ...formData, category: courseCategory, topics: filteredTopics, published }),
       })
       const data = await response.json()
       if (data.success) {
