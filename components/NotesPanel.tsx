@@ -56,7 +56,7 @@ export default function NotesPanel({ courseId, lessonId, currentTime }: NotesPan
     for (const file of Array.from(files)) {
       // Check file size (max 2MB for base64)
       if (file.size > 2 * 1024 * 1024) {
-        alert('File size must be less than 2MB')
+        alert('حجم الملف كبير جداً، يمكنك رفعه على Google Drive وإضافة الرابط في الملاحظة')
         continue
       }
       const reader = new FileReader()
