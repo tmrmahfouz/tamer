@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Smartphone, Trash2, Monitor, Tablet, Clock, MapPin, Loader2, AlertTriangle, Shield } from 'lucide-react'
+import { Smartphone, Monitor, Tablet, Clock, MapPin, Loader2, AlertTriangle, Shield, Phone } from 'lucide-react'
 
 interface Device {
   deviceId: string
@@ -17,7 +17,7 @@ export default function StudentDevicesPage() {
   const [devices, setDevices] = useState<Device[]>([])
   const [maxDevices, setMaxDevices] = useState<number | null>(null)
   const [loading, setLoading] = useState(true)
-  const [removing, setRemoving] = useState<string | null>(null)
+  
 
   useEffect(() => {
     loadDevices()
@@ -38,22 +38,7 @@ export default function StudentDevicesPage() {
     }
   }
 
-  const removeDevice = async (deviceId: string) => {
-    if (!confirm('هل أنت متأكد من إزالة هذا الجهاز؟ ستحتاج لتسجيل الدخول مرة أخرى من هذا الجهاز.')) return
 
-    setRemoving(deviceId)
-    try {
-      const res = await fetch(`/api/user/devices?deviceId=${deviceId}`, { method: 'DELETE' })
-      const data = await res.json()
-      if (data.success) {
-        setDevices(data.devices || [])
-      }
-    } catch (error) {
-      console.error('Error removing device:', error)
-    } finally {
-      setRemoving(null)
-    }
-  }
 
   const getDeviceIcon = (os: string) => {
     if (os.includes('Android') || os.includes('iOS')) return <Smartphone className="w-8 h-8" />
@@ -98,7 +83,7 @@ export default function StudentDevicesPage() {
               <p className="text-blue-900 font-medium">حماية حسابك</p>
               <p className="text-sm text-blue-700 mt-1">
                 لحماية محتوى الدورات، يُسمح لك باستخدام {maxDevices || 2} أجهزة كحد أقصى.
-                إذا احتجت لتسجيل الدخول من جهاز جديد، قم بإزالة أحد الأجهزة القديمة.
+                إذا احتجت لتغيير جهاز، تواصل مع الدعم الفني.
               </p>
             </div>
           </div>
@@ -154,18 +139,7 @@ export default function StudentDevicesPage() {
                       )}
                     </div>
                   </div>
-                  <button
-                    onClick={() => removeDevice(device.deviceId)}
-                    disabled={removing === device.deviceId}
-                    className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
-                    title="إزالة الجهاز"
-                  >
-                    {removing === device.deviceId ? (
-                      <Loader2 className="w-5 h-5 animate-spin" />
-                    ) : (
-                      <Trash2 className="w-5 h-5" />
-                    )}
-                  </button>
+
                 </div>
               </div>
             ))}
