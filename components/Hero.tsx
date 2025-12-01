@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import * as LucideIcons from 'lucide-react'
 import { Code2, Brain, Sparkles, ArrowLeft } from 'lucide-react'
@@ -18,6 +19,19 @@ interface HeroProps {
 
 export default function Hero({ title, subtitle, items }: HeroProps = {}) {
   const settings = useSettings()
+  const [realStats, setRealStats] = useState<{ students: number; courses: number } | null>(null)
+
+  useEffect(() => {
+    // Fetch real stats from database
+    fetch('/api/stats')
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          setRealStats(data.stats)
+        }
+      })
+      .catch(err => console.error('Error loading stats:', err))
+  }, [])
   
   // استخدام القيم المخصصة أو القيم الافتراضية
   const heroTitle = title || settings.homeHeroTitle
@@ -107,11 +121,15 @@ export default function Hero({ title, subtitle, items }: HeroProps = {}) {
           {/* Stats */}
           <div className="grid grid-cols-3 gap-8 mt-16 max-w-2xl mx-auto">
             <div className="text-center">
-              <div className="text-4xl font-bold text-gradient mb-2">{settings.statsStudents}</div>
+              <div className="text-4xl font-bold text-gradient mb-2">
+                +{realStats ? realStats.students : settings.statsStudents}
+              </div>
               <div className="text-gray-600 font-semibold">طالب</div>
             </div>
             <div className="text-center">
-              <div className="text-4xl font-bold text-gradient mb-2">{settings.statsCourses}</div>
+              <div className="text-4xl font-bold text-gradient mb-2">
+                +{realStats ? realStats.courses : settings.statsCourses}
+              </div>
               <div className="text-gray-600 font-semibold">دورة تدريبية</div>
             </div>
             <div className="text-center">
