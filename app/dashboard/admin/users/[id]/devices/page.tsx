@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useEffect, use } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect } from 'react'
+import { useRouter, useParams } from 'next/navigation'
 import AdminLayout from '@/components/AdminLayout'
 import { Smartphone, Trash2, Monitor, Tablet, Clock, MapPin, Loader2, ArrowRight, RefreshCw, Settings, User } from 'lucide-react'
 
@@ -21,8 +21,9 @@ interface UserInfo {
   maxDevices: number | null
 }
 
-export default function UserDevicesPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params)
+export default function UserDevicesPage() {
+  const params = useParams()
+  const id = params.id as string
   const router = useRouter()
   const [user, setUser] = useState<UserInfo | null>(null)
   const [devices, setDevices] = useState<Device[]>([])
