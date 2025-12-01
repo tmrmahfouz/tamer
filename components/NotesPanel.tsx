@@ -1,7 +1,7 @@
 ﻿'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { StickyNote, Plus, Edit2, Trash2, Clock, Save, X, Link2, FileUp, Share2, MessageCircle, ExternalLink, Paperclip, CheckCircle } from 'lucide-react'
+import { StickyNote, Plus, Edit2, Trash2, Clock, Save, X, Link2, FileUp, Share2, MessageCircle, ExternalLink, Paperclip, CheckCircle, RefreshCw, Image } from 'lucide-react'
 
 interface Attachment {
   type: 'file' | 'link'
@@ -28,10 +28,14 @@ export default function NotesPanel({ courseId, lessonId, currentTime }: NotesPan
   const [linkUrl, setLinkUrl] = useState('')
   const [linkName, setLinkName] = useState('')
   const [shareWithInstructor, setShareWithInstructor] = useState(false)
+  const [previewImage, setPreviewImage] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     loadNotes()
+    // Auto-refresh every 30 seconds to get instructor replies
+    const interval = setInterval(loadNotes, 30000)
+    return () => clearInterval(interval)
   }, [lessonId])
 
   const loadNotes = async () => {
@@ -50,6 +54,11 @@ export default function NotesPanel({ courseId, lessonId, currentTime }: NotesPan
     const files = e.target.files
     if (!files) return
     for (const file of Array.from(files)) {
+      // Check file size (max 2MB for base64)
+      if (file.size > 2 * 1024 * 1024) {
+        alert('File size must be less than 2MB')
+        continue
+      }
       const reader = new FileReader()
       reader.onload = () => {
         setAttachments(prev => [...prev, {
@@ -161,20 +170,29 @@ export default function NotesPanel({ courseId, lessonId, currentTime }: NotesPan
     return `${mins}:${secs.toString().padStart(2, '0')}`
   }
 
-  const getFileIcon = (fileType?: string) => {
-    if (!fileType) return 'file'
-    if (fileType.includes('pdf')) return 'pdf'
-    if (['png', 'jpg', 'jpeg', 'gif'].includes(fileType)) return 'image'
-    if (['doc', 'docx'].includes(fileType)) return 'doc'
-    return 'file'
+  const isImageFile = (fileType?: string) => {
+    if (!fileType) return false
+    return ['png', 'jpg', 'jpeg', 'gif', 'webp'].includes(fileType.toLowerCase())
   }
+
+  const repliedNotesCount = notes.filter(n => n.status === 'replied').length
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
-      <div className="flex items-center gap-2 mb-6">
-        <StickyNote className="w-6 h-6 text-primary-600" />
-        <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">My Notes</h3>
-        <span className="px-2 py-1 bg-primary-100 text-primary-700 rounded-full text-sm font-semibold">{notes.length}</span>
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-2">
+          <StickyNote className="w-6 h-6 text-primary-600" />
+          <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">My Notes</h3>
+          <span className="px-2 py-1 bg-primary-100 text-primary-700 rounded-full text-sm font-semibold">{notes.length}</span>
+          {repliedNotesCount > 0 && (
+            <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-sm font-semibold flex items-center gap-1">
+              <MessageCircle className="w-3 h-3" />{repliedNotesCount} replied
+            </span>
+          )}
+        </div>
+        <button onClick={loadNotes} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg" title="Refresh">
+          <RefreshCw className="w-4 h-4 text-gray-500" />
+        </button>
       </div>
 
       <div className="mb-6 space-y-3">
@@ -190,7 +208,8 @@ export default function NotesPanel({ courseId, lessonId, currentTime }: NotesPan
           <div className="flex flex-wrap gap-2">
             {attachments.map((att, index) => (
               <div key={index} className="flex items-center gap-2 px-3 py-1.5 bg-gray-100 dark:bg-gray-700 rounded-lg text-sm">
-                {att.type === 'link' ? <Link2 className="w-4 h-4 text-blue-500" /> : <Paperclip className="w-4 h-4" />}
+                {att.type === 'link' ? <Link2 className="w-4 h-4 text-blue-500" /> : 
+                  isImageFile(att.fileType) ? <Image className="w-4 h-4 text-green-500" /> : <Paperclip className="w-4 h-4" />}
                 <span className="max-w-[150px] truncate">{att.name}</span>
                 <button onClick={() => removeAttachment(index)} className="text-red-500 hover:text-red-700">
                   <X className="w-4 h-4" />
@@ -216,8 +235,8 @@ export default function NotesPanel({ courseId, lessonId, currentTime }: NotesPan
                 <Clock className="w-4 h-4" />{formatTime(Math.floor(currentTime))}
               </span>
             )}
-            <input type="file" ref={fileInputRef} onChange={handleFileUpload} multiple accept=".pdf,.doc,.docx,.png,.jpg,.jpeg,.gif" className="hidden" />
-            <button onClick={() => fileInputRef.current?.click()} className="flex items-center gap-1 px-3 py-2 text-gray-600 dark:text-gray-300 hover:text-primary-600 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg" title="Attach file">
+            <input type="file" ref={fileInputRef} onChange={handleFileUpload} multiple accept=".pdf,.doc,.docx,.png,.jpg,.jpeg,.gif,.webp" className="hidden" />
+            <button onClick={() => fileInputRef.current?.click()} className="flex items-center gap-1 px-3 py-2 text-gray-600 dark:text-gray-300 hover:text-primary-600 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg" title="Attach file (max 2MB)">
               <FileUp className="w-5 h-5" /><span className="text-sm hidden sm:inline">File</span>
             </button>
             <button onClick={() => setShowLinkInput(!showLinkInput)} className="flex items-center gap-1 px-3 py-2 text-gray-600 dark:text-gray-300 hover:text-primary-600 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg" title="Add link">
@@ -267,10 +286,24 @@ export default function NotesPanel({ courseId, lessonId, currentTime }: NotesPan
                   {note.attachments && note.attachments.length > 0 && (
                     <div className="flex flex-wrap gap-2 mb-3">
                       {note.attachments.map((att: Attachment, idx: number) => (
-                        <a key={idx} href={att.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 px-2 py-1 bg-white dark:bg-gray-600 border rounded text-sm hover:bg-gray-50">
-                          {att.type === 'link' ? <ExternalLink className="w-3.5 h-3.5 text-blue-500" /> : <Paperclip className="w-3.5 h-3.5 text-gray-500" />}
-                          <span className="max-w-[120px] truncate">{att.name}</span>
-                        </a>
+                        <div key={idx} className="relative">
+                          {att.type === 'file' && isImageFile(att.fileType) ? (
+                            <div className="group">
+                              <img 
+                                src={att.url} 
+                                alt={att.name} 
+                                className="w-20 h-20 object-cover rounded-lg border cursor-pointer hover:opacity-80"
+                                onClick={() => setPreviewImage(att.url)}
+                              />
+                              <span className="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-xs p-1 truncate rounded-b-lg">{att.name}</span>
+                            </div>
+                          ) : (
+                            <a href={att.url} target="_blank" rel="noopener noreferrer" download={att.type === 'file' ? att.name : undefined} className="flex items-center gap-1.5 px-2 py-1 bg-white dark:bg-gray-600 border rounded text-sm hover:bg-gray-50">
+                              {att.type === 'link' ? <ExternalLink className="w-3.5 h-3.5 text-blue-500" /> : <Paperclip className="w-3.5 h-3.5 text-gray-500" />}
+                              <span className="max-w-[120px] truncate">{att.name}</span>
+                            </a>
+                          )}
+                        </div>
                       ))}
                     </div>
                   )}
@@ -280,7 +313,10 @@ export default function NotesPanel({ courseId, lessonId, currentTime }: NotesPan
                         <MessageCircle className="w-4 h-4 text-green-600" />
                         <span className="text-sm font-semibold text-green-700">Instructor Reply:</span>
                       </div>
-                      <p className="text-gray-800 dark:text-gray-200 text-sm">{note.instructorReply}</p>
+                      <p className="text-gray-800 dark:text-gray-200 text-sm whitespace-pre-wrap">{note.instructorReply}</p>
+                      {note.instructorRepliedAt && (
+                        <p className="text-xs text-gray-500 mt-1">{new Date(note.instructorRepliedAt).toLocaleDateString()}</p>
+                      )}
                     </div>
                   )}
                   <div className="flex items-center justify-between mt-2">
@@ -308,6 +344,21 @@ export default function NotesPanel({ courseId, lessonId, currentTime }: NotesPan
           ))
         )}
       </div>
+
+      {/* Image Preview Modal */}
+      {previewImage && (
+        <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4" onClick={() => setPreviewImage(null)}>
+          <div className="relative max-w-4xl max-h-[90vh]">
+            <img src={previewImage} alt="Preview" className="max-w-full max-h-[90vh] object-contain rounded-lg" />
+            <button onClick={() => setPreviewImage(null)} className="absolute top-2 right-2 p-2 bg-black/50 rounded-full text-white hover:bg-black/70">
+              <X className="w-6 h-6" />
+            </button>
+            <a href={previewImage} download className="absolute bottom-2 right-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 text-sm">
+              Download
+            </a>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
