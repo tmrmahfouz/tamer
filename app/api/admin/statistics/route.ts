@@ -78,13 +78,13 @@ export async function GET(request: NextRequest) {
     const revenueGrowth = prevRevenue > 0 ? ((totalRevenue - prevRevenue) / prevRevenue * 100).toFixed(1) : 0
 
     // Students stats
-    const totalStudents = await User.countDocuments({ role: 'student' })
-    const newStudents = await User.countDocuments({ role: 'student', createdAt: { $gte: startDate } })
+    const allTimeStudents = await User.countDocuments({ role: 'student' })
+    const periodStudents = await User.countDocuments({ role: 'student', createdAt: { $gte: startDate } })
     const previousNewStudents = await User.countDocuments({ 
       role: 'student', 
       createdAt: { $gte: previousPeriodStart, $lt: startDate } 
     })
-    const studentsGrowth = previousNewStudents > 0 ? ((newStudents - previousNewStudents) / previousNewStudents * 100).toFixed(1) : 0
+    const studentsGrowth = previousNewStudents > 0 ? ((periodStudents - previousNewStudents) / previousNewStudents * 100).toFixed(1) : 0
 
     // Enrollments stats
     const totalEnrollments = await Enrollment.countDocuments({ createdAt: { $gte: startDate } })
@@ -215,9 +215,9 @@ export async function GET(request: NextRequest) {
       { $group: { _id: null, avg: { $avg: '$rating' } } }
     ]))[0]?.avg?.toFixed(1) || '0'
 
-    const allStudents = await User.countDocuments({ role: 'student' })
-    const conversionRate = allStudents > 0 
-      ? ((totalEnrollments / allStudents) * 100).toFixed(1)
+    const allTimeEnrollments = await Enrollment.countDocuments()
+    const conversionRate = allTimeStudents > 0 
+      ? ((allTimeEnrollments / allTimeStudents) * 100).toFixed(1)
       : '0'
 
     const activeUsers = await User.countDocuments({
@@ -233,7 +233,8 @@ export async function GET(request: NextRequest) {
             growth: parseFloat(revenueGrowth as string)
           },
           students: {
-            total: totalStudents,
+            total: periodStudents,
+            allTime: allTimeStudents,
             growth: parseFloat(studentsGrowth as string)
           },
           enrollments: {

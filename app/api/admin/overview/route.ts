@@ -40,47 +40,56 @@ export async function GET(request: NextRequest) {
     const now = new Date()
     const lastMonth = new Date()
     lastMonth.setMonth(now.getMonth() - 1)
-    
+    const previousMonth = new Date()
+    previousMonth.setMonth(now.getMonth() - 2)
+
     const todayStart = new Date()
     todayStart.setHours(0, 0, 0, 0)
 
-    // Revenue stats
-    const currentRevenue = await Payment.aggregate([
+    // Revenue stats — all-time total, monthly growth
+    const allTimeRevenue = await Payment.aggregate([
+      { $match: { status: 'completed' } },
+      { $group: { _id: null, total: { $sum: '$amount' } } }
+    ])
+    const totalRevenue = allTimeRevenue[0]?.total || 0
+
+    const currentMonthRevenue = await Payment.aggregate([
       { $match: { status: 'completed', createdAt: { $gte: lastMonth } } },
       { $group: { _id: null, total: { $sum: '$amount' } } }
     ])
-    const totalRevenue = currentRevenue[0]?.total || 0
+    const curRevenue = currentMonthRevenue[0]?.total || 0
 
-    const previousMonth = new Date()
-    previousMonth.setMonth(now.getMonth() - 2)
-    const previousRevenue = await Payment.aggregate([
+    const previousRevenueData = await Payment.aggregate([
       { $match: { status: 'completed', createdAt: { $gte: previousMonth, $lt: lastMonth } } },
       { $group: { _id: null, total: { $sum: '$amount' } } }
     ])
-    const prevRevenue = previousRevenue[0]?.total || 0
-    const revenueGrowth = prevRevenue > 0 ? ((totalRevenue - prevRevenue) / prevRevenue * 100).toFixed(1) : 0
+    const prevRevenue = previousRevenueData[0]?.total || 0
+    const revenueGrowth = prevRevenue > 0 ? ((curRevenue - prevRevenue) / prevRevenue * 100).toFixed(1) : 0
 
-    // Students stats
-    const totalStudents = await User.countDocuments({ role: 'student', createdAt: { $gte: lastMonth } })
-    const previousStudents = await User.countDocuments({ 
-      role: 'student', 
-      createdAt: { $gte: previousMonth, $lt: lastMonth } 
+    // Students stats — all-time total, monthly growth
+    const totalStudents = await User.countDocuments({ role: 'student' })
+    const currentMonthStudents = await User.countDocuments({ role: 'student', createdAt: { $gte: lastMonth } })
+    const previousStudents = await User.countDocuments({
+      role: 'student',
+      createdAt: { $gte: previousMonth, $lt: lastMonth }
     })
-    const studentsGrowth = previousStudents > 0 ? ((totalStudents - previousStudents) / previousStudents * 100).toFixed(1) : 0
+    const studentsGrowth = previousStudents > 0 ? ((currentMonthStudents - previousStudents) / previousStudents * 100).toFixed(1) : 0
 
-    // Courses stats
-    const totalCourses = await Course.countDocuments({ createdAt: { $gte: lastMonth } })
-    const previousCourses = await Course.countDocuments({ 
-      createdAt: { $gte: previousMonth, $lt: lastMonth } 
+    // Courses stats — all-time total, monthly growth
+    const totalCourses = await Course.countDocuments()
+    const currentMonthCourses = await Course.countDocuments({ createdAt: { $gte: lastMonth } })
+    const previousCourses = await Course.countDocuments({
+      createdAt: { $gte: previousMonth, $lt: lastMonth }
     })
-    const coursesGrowth = previousCourses > 0 ? ((totalCourses - previousCourses) / previousCourses * 100).toFixed(1) : 0
+    const coursesGrowth = previousCourses > 0 ? ((currentMonthCourses - previousCourses) / previousCourses * 100).toFixed(1) : 0
 
-    // Enrollments stats
-    const totalEnrollments = await Enrollment.countDocuments({ createdAt: { $gte: lastMonth } })
-    const previousEnrollments = await Enrollment.countDocuments({ 
-      createdAt: { $gte: previousMonth, $lt: lastMonth } 
+    // Enrollments stats — all-time total, monthly growth
+    const totalEnrollments = await Enrollment.countDocuments()
+    const currentMonthEnrollments = await Enrollment.countDocuments({ createdAt: { $gte: lastMonth } })
+    const previousEnrollments = await Enrollment.countDocuments({
+      createdAt: { $gte: previousMonth, $lt: lastMonth }
     })
-    const enrollmentsGrowth = previousEnrollments > 0 ? ((totalEnrollments - previousEnrollments) / previousEnrollments * 100).toFixed(1) : 0
+    const enrollmentsGrowth = previousEnrollments > 0 ? ((currentMonthEnrollments - previousEnrollments) / previousEnrollments * 100).toFixed(1) : 0
 
     // Today's stats
     const todayStats = {
@@ -97,21 +106,21 @@ export async function GET(request: NextRequest) {
     // Revenue chart (last 6 months)
     const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر']
     const revenueChart = []
-    
+
     for (let i = 5; i >= 0; i--) {
       const monthStart = new Date()
       monthStart.setMonth(now.getMonth() - i)
       monthStart.setDate(1)
       monthStart.setHours(0, 0, 0, 0)
-      
+
       const monthEnd = new Date(monthStart)
       monthEnd.setMonth(monthEnd.getMonth() + 1)
-      
+
       const monthRevenue = await Payment.aggregate([
         { $match: { status: 'completed', createdAt: { $gte: monthStart, $lt: monthEnd } } },
         { $group: { _id: null, total: { $sum: '$amount' } } }
       ])
-      
+
       revenueChart.push({
         month: monthNames[monthStart.getMonth()],
         value: monthRevenue[0]?.total || 0
