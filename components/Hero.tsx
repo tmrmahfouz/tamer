@@ -68,7 +68,7 @@ export default function Hero({ title, subtitle, imageUrl, items }: HeroProps = {
       <div className="container mx-auto relative z-10">
         <div className={imageUrl ? "grid lg:grid-cols-12 gap-12 items-center" : "max-w-4xl mx-auto"}>
           {/* Text Content */}
-          <div className={imageUrl ? "lg:col-span-7 text-right" : "text-center"}>
+          <div className="lg:col-span-7 text-center">
             {/* Badge */}
             <div className="inline-flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-lg mb-6">
               {BadgeIcon && <BadgeIcon className="w-5 h-5 text-yellow-500" />}
@@ -91,7 +91,7 @@ export default function Hero({ title, subtitle, imageUrl, items }: HeroProps = {
             </p>
 
             {/* Features Icons */}
-            <div className={`flex flex-wrap gap-6 mb-10 ${imageUrl ? 'justify-start' : 'justify-center'}`}>
+            <div className="flex flex-wrap gap-6 mb-10 justify-center">
               {feature1 && (
                 <div className="flex items-center gap-2 bg-white px-4 py-3 rounded-lg shadow-md">
                   {Feature1Icon && <Feature1Icon className="w-6 h-6 text-primary-600" />}
@@ -107,7 +107,7 @@ export default function Hero({ title, subtitle, imageUrl, items }: HeroProps = {
             </div>
 
             {/* CTA Buttons */}
-            <div className={`flex flex-col sm:flex-row gap-4 mb-10 ${imageUrl ? 'justify-start' : 'justify-center'} items-center`}>
+            <div className="flex flex-col sm:flex-row gap-4 mb-10 justify-center items-center">
               {primaryButton && (
                 <Link href={primaryButton.value || '/courses'} className="btn-primary flex items-center gap-2 text-lg">
                   <span>{primaryButton.title || 'استكشف الدورات'}</span>
@@ -122,7 +122,7 @@ export default function Hero({ title, subtitle, imageUrl, items }: HeroProps = {
             </div>
 
             {/* Stats */}
-            <div className={`grid grid-cols-3 gap-8 mt-16 max-w-2xl ${imageUrl ? '' : 'mx-auto'}`}>
+            <div className="grid grid-cols-3 gap-8 mt-16 max-w-2xl mx-auto">
               <div className="text-center">
                 <div className="text-4xl font-bold text-gradient mb-2">
                   +{realStats ? realStats.students : settings.statsStudents}
