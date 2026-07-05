@@ -68,7 +68,7 @@ export default function Hero({ title, subtitle, imageUrl, items }: HeroProps = {
       <div className="container mx-auto relative z-10">
         <div className={imageUrl ? "grid lg:grid-cols-12 gap-12 items-start" : "max-w-4xl mx-auto"}>
           {/* Text Content */}
-          <div className="lg:col-span-7 text-center">
+          <div className={imageUrl ? "lg:col-span-7 text-center" : "text-center"}>
             {/* Badge */}
             <div className="inline-flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-lg mb-6">
               {BadgeIcon && <BadgeIcon className="w-5 h-5 text-yellow-500" />}
@@ -120,26 +120,6 @@ export default function Hero({ title, subtitle, imageUrl, items }: HeroProps = {
                 </Link>
               )}
             </div>
-
-            {/* Stats */}
-            <div className="grid grid-cols-3 gap-8 mt-16 max-w-2xl mx-auto">
-              <div className="text-center">
-                <div className="text-4xl font-bold text-gradient mb-2">
-                  +{realStats ? realStats.students : settings.statsStudents}
-                </div>
-                <div className="text-gray-600 font-semibold">طالب</div>
-              </div>
-              <div className="text-center">
-                <div className="text-4xl font-bold text-gradient mb-2">
-                  +{realStats ? realStats.courses : settings.statsCourses}
-                </div>
-                <div className="text-gray-600 font-semibold">دورة تدريبية</div>
-              </div>
-              <div className="text-center">
-                <div className="text-4xl font-bold text-gradient mb-2">{settings.statsSatisfaction}</div>
-                <div className="text-gray-600 font-semibold">رضا الطلاب</div>
-              </div>
-            </div>
           </div>
 
           {/* Image Side */}
@@ -154,6 +134,26 @@ export default function Hero({ title, subtitle, imageUrl, items }: HeroProps = {
               </div>
             </div>
           )}
+        </div>
+
+        {/* Stats */}
+        <div className="grid grid-cols-3 gap-8 mt-16 max-w-2xl mx-auto border-t border-gray-100 pt-12">
+          <div className="text-center">
+            <div className="text-4xl font-bold text-gradient mb-2">
+              +{realStats ? realStats.students : settings.statsStudents}
+            </div>
+            <div className="text-gray-600 font-semibold">طالب</div>
+          </div>
+          <div className="text-center">
+            <div className="text-4xl font-bold text-gradient mb-2">
+              +{realStats ? realStats.courses : settings.statsCourses}
+            </div>
+            <div className="text-gray-600 font-semibold">دورة تدريبية</div>
+          </div>
+          <div className="text-center">
+            <div className="text-4xl font-bold text-gradient mb-2">{settings.statsSatisfaction}</div>
+            <div className="text-gray-600 font-semibold">رضا الطلاب</div>
+          </div>
         </div>
       </div>
     </section>
