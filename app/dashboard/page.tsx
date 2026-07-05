@@ -69,19 +69,15 @@ export default function DashboardPage() {
 
   const loadStats = async () => {
     try {
-      const response = await fetch('/api/courses')
+      const response = await fetch('/api/admin/overview')
       const data = await response.json()
 
       if (data.success) {
-        const totalStudents = data.courses.reduce((sum: number, course: any) => sum + course.students, 0)
-        const totalRevenue = data.courses.reduce((sum: number, course: any) => sum + (course.price * course.students), 0)
-        const avgRating = data.courses.reduce((sum: number, course: any) => sum + course.rating, 0) / data.courses.length || 0
-
         setStats({
-          totalCourses: data.courses.length,
-          totalStudents,
-          totalRevenue,
-          averageRating: avgRating,
+          totalCourses: data.stats.courses?.total || 0,
+          totalStudents: data.stats.students?.total || 0,
+          totalRevenue: data.stats.revenue?.total || 0,
+          averageRating: 0,
         })
       }
     } catch (error) {
