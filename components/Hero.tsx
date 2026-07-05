@@ -9,6 +9,7 @@ import { useSettings } from '@/contexts/SettingsContext'
 interface HeroProps {
   title?: string
   subtitle?: string
+  imageUrl?: string
   items?: Array<{
     title?: string
     description?: string
@@ -17,7 +18,7 @@ interface HeroProps {
   }>
 }
 
-export default function Hero({ title, subtitle, items }: HeroProps = {}) {
+export default function Hero({ title, subtitle, imageUrl, items }: HeroProps = {}) {
   const settings = useSettings()
   const [realStats, setRealStats] = useState<{ students: number; courses: number } | null>(null)
 
@@ -65,78 +66,94 @@ export default function Hero({ title, subtitle, items }: HeroProps = {}) {
       <div className="absolute bottom-20 left-1/2 w-72 h-72 bg-primary-300 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-float" style={{ animationDelay: '2s' }}></div>
 
       <div className="container mx-auto relative z-10">
-        <div className="max-w-4xl mx-auto text-center">
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-lg mb-6">
-            {BadgeIcon && <BadgeIcon className="w-5 h-5 text-yellow-500" />}
-            <span className="text-sm font-semibold text-gray-700">
-              {badge?.description || 'منصة تعليمية متخصصة'}
-            </span>
-          </div>
-
-          {/* Main Heading */}
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-8 leading-tight">
-            <span className="block text-gray-900 mb-3">تعلم</span>
-            <span className="block bg-gradient-to-r from-primary-600 via-secondary-600 to-primary-600 bg-clip-text text-transparent animate-gradient leading-relaxed pb-2">
-              البرمجة والذكاء الاصطناعي
-            </span>
-          </h1>
-
-          {/* Subtitle */}
-          <p className="text-xl md:text-2xl text-gray-600 mb-8 leading-relaxed">
-            {heroSubtitle}
-          </p>
-
-          {/* Features Icons */}
-          <div className="flex flex-wrap justify-center gap-6 mb-10">
-            {feature1 && (
-              <div className="flex items-center gap-2 bg-white px-4 py-3 rounded-lg shadow-md">
-                {Feature1Icon && <Feature1Icon className="w-6 h-6 text-primary-600" />}
-                <span className="font-semibold text-gray-700">{feature1.title}</span>
-              </div>
-            )}
-            {feature2 && (
-              <div className="flex items-center gap-2 bg-white px-4 py-3 rounded-lg shadow-md">
-                {Feature2Icon && <Feature2Icon className="w-6 h-6 text-secondary-600" />}
-                <span className="font-semibold text-gray-700">{feature2.title}</span>
-              </div>
-            )}
-          </div>
-
-          {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            {primaryButton && (
-              <Link href={primaryButton.value || '/courses'} className="btn-primary flex items-center gap-2 text-lg">
-                <span>{primaryButton.title || 'استكشف الدورات'}</span>
-                <ArrowLeft className="w-5 h-5" />
-              </Link>
-            )}
-            {secondaryButton && (
-              <Link href={secondaryButton.value || '/about'} className="btn-secondary text-lg">
-                {secondaryButton.title || 'تعرف على المدرس'}
-              </Link>
-            )}
-          </div>
-
-          {/* Stats */}
-          <div className="grid grid-cols-3 gap-8 mt-16 max-w-2xl mx-auto">
-            <div className="text-center">
-              <div className="text-4xl font-bold text-gradient mb-2">
-                +{realStats ? realStats.students : settings.statsStudents}
-              </div>
-              <div className="text-gray-600 font-semibold">طالب</div>
+        <div className={imageUrl ? "grid lg:grid-cols-12 gap-12 items-center" : "max-w-4xl mx-auto"}>
+          {/* Text Content */}
+          <div className={imageUrl ? "lg:col-span-7 text-right" : "text-center"}>
+            {/* Badge */}
+            <div className="inline-flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-lg mb-6">
+              {BadgeIcon && <BadgeIcon className="w-5 h-5 text-yellow-500" />}
+              <span className="text-sm font-semibold text-gray-700">
+                {badge?.description || 'منصة تعليمية متخصصة'}
+              </span>
             </div>
-            <div className="text-center">
-              <div className="text-4xl font-bold text-gradient mb-2">
-                +{realStats ? realStats.courses : settings.statsCourses}
-              </div>
-              <div className="text-gray-600 font-semibold">دورة تدريبية</div>
+
+            {/* Main Heading */}
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-8 leading-tight">
+              <span className="block text-gray-900 mb-3">تعلم</span>
+              <span className="block bg-gradient-to-r from-primary-600 via-secondary-600 to-primary-600 bg-clip-text text-transparent animate-gradient leading-relaxed pb-2">
+                البرمجة والذكاء الاصطناعي
+              </span>
+            </h1>
+
+            {/* Subtitle */}
+            <p className="text-xl md:text-2xl text-gray-600 mb-8 leading-relaxed">
+              {heroSubtitle}
+            </p>
+
+            {/* Features Icons */}
+            <div className={`flex flex-wrap gap-6 mb-10 ${imageUrl ? 'justify-start' : 'justify-center'}`}>
+              {feature1 && (
+                <div className="flex items-center gap-2 bg-white px-4 py-3 rounded-lg shadow-md">
+                  {Feature1Icon && <Feature1Icon className="w-6 h-6 text-primary-600" />}
+                  <span className="font-semibold text-gray-700">{feature1.title}</span>
+                </div>
+              )}
+              {feature2 && (
+                <div className="flex items-center gap-2 bg-white px-4 py-3 rounded-lg shadow-md">
+                  {Feature2Icon && <Feature2Icon className="w-6 h-6 text-secondary-600" />}
+                  <span className="font-semibold text-gray-700">{feature2.title}</span>
+                </div>
+              )}
             </div>
-            <div className="text-center">
-              <div className="text-4xl font-bold text-gradient mb-2">{settings.statsSatisfaction}</div>
-              <div className="text-gray-600 font-semibold">رضا الطلاب</div>
+
+            {/* CTA Buttons */}
+            <div className={`flex flex-col sm:flex-row gap-4 mb-10 ${imageUrl ? 'justify-start' : 'justify-center'} items-center`}>
+              {primaryButton && (
+                <Link href={primaryButton.value || '/courses'} className="btn-primary flex items-center gap-2 text-lg">
+                  <span>{primaryButton.title || 'استكشف الدورات'}</span>
+                  <ArrowLeft className="w-5 h-5" />
+                </Link>
+              )}
+              {secondaryButton && (
+                <Link href={secondaryButton.value || '/about'} className="btn-secondary text-lg">
+                  {secondaryButton.title || 'تعرف على المدرس'}
+                </Link>
+              )}
+            </div>
+
+            {/* Stats */}
+            <div className={`grid grid-cols-3 gap-8 mt-16 max-w-2xl ${imageUrl ? '' : 'mx-auto'}`}>
+              <div className="text-center">
+                <div className="text-4xl font-bold text-gradient mb-2">
+                  +{realStats ? realStats.students : settings.statsStudents}
+                </div>
+                <div className="text-gray-600 font-semibold">طالب</div>
+              </div>
+              <div className="text-center">
+                <div className="text-4xl font-bold text-gradient mb-2">
+                  +{realStats ? realStats.courses : settings.statsCourses}
+                </div>
+                <div className="text-gray-600 font-semibold">دورة تدريبية</div>
+              </div>
+              <div className="text-center">
+                <div className="text-4xl font-bold text-gradient mb-2">{settings.statsSatisfaction}</div>
+                <div className="text-gray-600 font-semibold">رضا الطلاب</div>
+              </div>
             </div>
           </div>
+
+          {/* Image Side */}
+          {imageUrl && (
+            <div className="lg:col-span-5 flex justify-center">
+              <div className="relative w-72 h-72 md:w-96 md:h-96 rounded-2xl overflow-hidden shadow-2xl border-4 border-white transform hover:scale-105 transition-transform duration-300">
+                <img
+                  src={imageUrl}
+                  alt={heroTitle || "Instructor"}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </section>

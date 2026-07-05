@@ -41,6 +41,7 @@ export default function DynamicSection({ type, title, subtitle, content, setting
       <HeroComponent 
         title={title}
         subtitle={subtitle}
+        imageUrl={settings.imageUrl}
         items={settings.items}
       />
     )

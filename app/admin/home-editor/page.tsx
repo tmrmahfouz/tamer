@@ -563,6 +563,74 @@ export default function HomeEditorPage() {
                     </div>
                   )}
 
+                  {/* Hero Image Settings */}
+                  {section.type === 'hero' && (
+                    <div className="p-4 bg-gray-50 rounded-lg space-y-4">
+                      <h4 className="font-semibold text-gray-900">إعدادات صورة البطل (Hero Image)</h4>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          صورة المعلم (رابط الصورة أو ارفع ملف)
+                        </label>
+                        <div className="flex gap-2 items-center">
+                          <input
+                            type="text"
+                            value={section.settings.imageUrl || ''}
+                            onChange={(e) =>
+                              updateSection(index, 'settings.imageUrl', e.target.value)
+                            }
+                            placeholder="https://example.com/image.png"
+                            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg"
+                          />
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={async (e) => {
+                              const file = e.target.files?.[0]
+                              if (!file) return
+                              
+                              const formData = new FormData()
+                              formData.append('file', file)
+                              
+                              try {
+                                const uploadRes = await fetch('/api/upload', {
+                                  method: 'POST',
+                                  body: formData,
+                                })
+                                const uploadData = await uploadRes.json()
+                                if (uploadData.success) {
+                                  updateSection(index, 'settings.imageUrl', uploadData.url)
+                                  alert('✅ تم رفع الصورة بنجاح!')
+                                } else {
+                                  alert('❌ ' + uploadData.message)
+                                }
+                              } catch (uploadErr) {
+                                console.error('Error uploading hero image:', uploadErr)
+                                alert('❌ حدث خطأ أثناء الرفع')
+                              }
+                            }}
+                            className="hidden"
+                            id={`hero-image-upload-${index}`}
+                          />
+                          <label
+                            htmlFor={`hero-image-upload-${index}`}
+                            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg cursor-pointer shrink-0 font-medium transition-colors"
+                          >
+                            رفع صورة
+                          </label>
+                        </div>
+                        {section.settings.imageUrl && (
+                          <div className="mt-2">
+                            <img
+                              src={section.settings.imageUrl}
+                              alt="Hero Preview"
+                              className="w-32 h-32 object-cover rounded-lg border shadow-sm"
+                            />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
                   {/* Items Editor */}
                   {section.settings.items && section.settings.items.length > 0 && (
                     <div className="mt-6">
