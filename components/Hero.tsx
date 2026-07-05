@@ -66,7 +66,7 @@ export default function Hero({ title, subtitle, imageUrl, items }: HeroProps = {
       <div className="absolute bottom-20 left-1/2 w-72 h-72 bg-primary-300 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-float" style={{ animationDelay: '2s' }}></div>
 
       <div className="container mx-auto relative z-10">
-        <div className={imageUrl ? "grid lg:grid-cols-12 gap-12 items-center" : "max-w-4xl mx-auto"}>
+        <div className={imageUrl ? "grid lg:grid-cols-12 gap-12 items-start" : "max-w-4xl mx-auto"}>
           {/* Text Content */}
           <div className="lg:col-span-7 text-center">
             {/* Badge */}
