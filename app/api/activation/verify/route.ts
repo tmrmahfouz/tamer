@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import crypto from 'crypto'
+import { kv } from '@vercel/kv'
 import validCodes from './codes.json'
 
 const PRIVATE_KEY_PEM = process.env.ACTIVATION_PRIVATE_KEY || `-----BEGIN PRIVATE KEY-----
@@ -8,10 +9,7 @@ uxA4sgagWegOMJi+9EpKi7YvKcChRANCAAQo11vRo4qIKR8hM9NhmWEyRbgSWs/C
 UG28gYCDIt+qdOg3c2amqpEwQ4YEKAMoLw36DUZMZdM1gw223oVv5jAb
 -----END PRIVATE KEY-----`
 
-// تحميل قائمة الأكواد الحقيقية
 const ALLOWED_CODES = new Set<string>(validCodes)
-// خريطة ربط الأجهزة بالسرية
-const BOUND_DEVICES = new Map<string, string>()
 
 export async function POST(req: NextRequest) {
   try {
@@ -23,20 +21,21 @@ export async function POST(req: NextRequest) {
     let ok = false
     let message = 'كود التفعيل غير صحيح أو غير متاح'
 
-    // 1. التحقق أولاً: هل الكود ضمن قائمة الأكواد الصادرة الحقيقية في codes.json؟
     if (ALLOWED_CODES.has(code)) {
-      const boundDeviceId = BOUND_DEVICES.get(code)
+      // قراءة الجهاز المربوط بالكود من قاعدة البيانات الدائمة (Vercel KV)
+      const boundDeviceId = await kv.get<string>(`bound:${code}`)
+
       if (!boundDeviceId) {
-        // تفعيل الكود لأول مرة وربطه بجهاز الطالب
-        BOUND_DEVICES.set(code, deviceId)
+        // حفظ هاتف الطالب الأول بشكل دائم في قاعدة البيانات
+        await kv.set(`bound:${code}`, deviceId)
         ok = true
         message = 'تم التفعيل بنجاح'
       } else if (boundDeviceId === deviceId) {
-        // نفس جهاز الطالب يعيد التفعيل
+        // نفس هاتف الطالب
         ok = true
         message = 'تم التفعيل بنجاح'
       } else {
-        // جهاز مختلف يرفض التفعيل
+        // هاتف آخر يرفض التفعيل فوراً
         ok = false
         message = 'هذا الكود مستخدم بالفعل على جهاز آخر'
       }
