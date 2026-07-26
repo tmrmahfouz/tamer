@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import crypto from 'crypto'
-import validCodes from './codes.json'
 
 const PRIVATE_KEY_PEM = process.env.ACTIVATION_PRIVATE_KEY || `-----BEGIN PRIVATE KEY-----
 MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgUUCTeYvPAPkFFU+r
@@ -8,21 +7,34 @@ uxA4sgagWegOMJi+9EpKi7YvKcChRANCAAQo11vRo4qIKR8hM9NhmWEyRbgSWs/C
 UG28gYCDIt+qdOg3c2amqpEwQ4YEKAMoLw36DUZMZdM1gw223oVv5jAb
 -----END PRIVATE KEY-----`
 
-// معالجة استخراج مصفوفة الأكواد بأمان بغض النظر عن طريقة تجميع Next.js للموديل
-function getNormalizedCodesSet(importedData: any): Set<string> {
-  const rawCodes = importedData
-  const codesArray: any[] = Array.isArray(rawCodes)
-    ? rawCodes
-    : Array.isArray(rawCodes?.default)
-      ? rawCodes.default
-      : Object.values(rawCodes || {})
+// قائمة الأكواد الـ 100 مدمجة مباشرة لمنع أي خطأ في التحميل من Vercel
+const RAW_CODES_LIST: string[] = [
+  "RZVM4GFR", "WCWHKBF5", "5D3Z57NH", "YUTJ3LB3", "WQJKGEFS",
+  "3JH7PWJ3", "XYAP8N75", "Y28K9YTM", "F6A27HX6", "A2TCBNCY",
+  "YJVVHHHV", "M42CCC4D", "7QP29LVW", "T3DN2C9H", "F7H6ZG9L",
+  "VZKW5GLD", "GG4T4JXR", "85PLM6CW", "EGMUKLFN", "C3ENRF8V",
+  "HCF2EAE8", "MWAVBTY9", "K3X73NM3", "23B8SVBA", "ERHLE56H",
+  "HC4XSR82", "N5LWJCAT", "64YKNF6K", "FQ9TWL59", "YJPV9GZT",
+  "DQZYCUBR", "BAHBFQZD", "32N9ZR9B", "8TJ37KZR", "DKR7C59R",
+  "9A2JXWRF", "JRCVKTWP", "PY7MU7WN", "UA3ZQZR8", "2ZMZMM4D",
+  "2PPX3NS5", "8KYSDJZ8", "CCE4W2NA", "V3TR6LA7", "JTH75HDR",
+  "K4FWX7KK", "U6XKTFU5", "K4HPQJ24", "2PYLDY6V", "X6A3XZFZ",
+  "37QD3325", "PQ7FRYXY", "3PADYBNT", "J2ZU6KUT", "YXWAAX4H",
+  "SFBH3YW2", "ZSWFXFMV", "MT54DY3P", "2AFJ93SS", "ACNFGEZS",
+  "PFUKSSAS", "G2LB2UEX", "9AW4L2GG", "VK5CQVCS", "8D2D9E9F",
+  "JCSRADJY", "DKPLSQ97", "VXETLLC5", "WJ9CUCCS", "TBPJL42Q",
+  "86FZ99XC", "6YG8444L", "N7UAEKUY", "DX4KNMY6", "SND3XZKN",
+  "YQKLNCNR", "RZXDA23X", "99LW5V4S", "4BQT4NMA", "ZJTVWXD6",
+  "TNEFWZ2Q", "YYBTBAJ5", "WSNW4XLR", "KHNNHC5W", "UKLF7LUP",
+  "5APRUBMH", "ZMXQNGKC", "E9FVTRBM", "Y7XZGU8X", "GH3GVZDP",
+  "B9F25RN3", "5YLJU4D7", "AFJAWXXP", "XJKSEWZX", "V49EACKF",
+  "KTNKJQ9Z", "DD77NLW4", "SZKDURMJ", "CUMQBQ3N", "YSAAQXT3"
+]
 
-  return new Set(
-    codesArray.map(c => String(c || '').replace(/[^A-Z0-9]/gi, '').toUpperCase())
-  )
-}
+const ALLOWED_CODES = new Set<string>(
+  RAW_CODES_LIST.map(c => c.trim().toUpperCase())
+)
 
-const ALLOWED_CODES = getNormalizedCodesSet(validCodes)
 const FALLBACK_MEMORY_MAP = new Map<string, string>()
 
 async function getBoundDeviceId(code: string): Promise<string | null> {
@@ -75,7 +87,6 @@ async function setBoundDeviceId(code: string, deviceId: string): Promise<boolean
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json().catch(() => ({}))
-    // تنظيف الكود المدخل وإزالة أية مسافات أو شرطات
     const code = String(body.code || '').replace(/[^A-Z0-9]/gi, '').toUpperCase()
     const nonce = String(body.nonce || '')
     const deviceId = String(body.deviceId || '')
