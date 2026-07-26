@@ -60,7 +60,7 @@ async function setBoundDeviceId(code: string, deviceId: string): Promise<boolean
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json()
+    const body = await req.json().catch(() => ({}))
     const code = String(body.code || '').trim().toUpperCase()
     const nonce = String(body.nonce || '')
     const deviceId = String(body.deviceId || '')
@@ -68,7 +68,7 @@ export async function POST(req: NextRequest) {
     let ok = false
     let message = 'كود التفعيل غير صحيح أو غير متاح'
 
-    if (ALLOWED_CODES.has(code)) {
+    if (code && ALLOWED_CODES.has(code)) {
       const boundDeviceId = await getBoundDeviceId(code)
 
       if (!boundDeviceId) {
@@ -87,26 +87,35 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    const canonicalPayload = JSON.stringify({
+    // بناء الكائن والتوقيع
+    const payloadObject = {
       ok: ok,
       expiresAt: 0,
       remainingUses: -1,
       nonce: nonce
-    })
+    }
+
+    const canonicalPayload = JSON.stringify(payloadObject)
 
     const signer = crypto.createSign('SHA256')
     signer.update(canonicalPayload, 'utf8')
     const signatureBase64 = signer.sign(PRIVATE_KEY_PEM, 'base64')
 
+    // إرجاع استجابة بـ Status 200 دائماً ليقرأ التطبيق نص الخطأ الصحيح
     return NextResponse.json({
       ok: ok,
       message: message,
-      expiresAt: null,
-      remainingUses: null,
+      expiresAt: 0,
+      remainingUses: -1,
       nonce: nonce,
       sig: signatureBase64
-    })
+    }, { status: 200 })
+
   } catch (error: any) {
-    return NextResponse.json({ ok: false, message: error.message }, { status: 400 })
+    // حتى عند حدوث استثناء مفاجئ، نرجع status 200 مع ok: false
+    return NextResponse.json({ 
+      ok: false, 
+      message: error?.message || 'حدث خطأ في خادم التفعيل' 
+    }, { status: 200 })
   }
 }
