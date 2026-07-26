@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import crypto from 'crypto'
-import validCodes from './codes.json' // استيراد مباشر من نفس المجلد
+import validCodes from './codes.json'
 
 const PRIVATE_KEY_PEM = process.env.ACTIVATION_PRIVATE_KEY || `-----BEGIN PRIVATE KEY-----
 MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgUUCTeYvPAPkFFU+r
@@ -8,7 +8,21 @@ uxA4sgagWegOMJi+9EpKi7YvKcChRANCAAQo11vRo4qIKR8hM9NhmWEyRbgSWs/C
 UG28gYCDIt+qdOg3c2amqpEwQ4YEKAMoLw36DUZMZdM1gw223oVv5jAb
 -----END PRIVATE KEY-----`
 
-const ALLOWED_CODES = new Set<string>(validCodes.map(c => String(c).trim().toUpperCase()))
+// معالجة استخراج مصفوفة الأكواد بأمان بغض النظر عن طريقة تجميع Next.js للموديل
+function getNormalizedCodesSet(importedData: any): Set<string> {
+  const rawCodes = importedData
+  const codesArray: any[] = Array.isArray(rawCodes)
+    ? rawCodes
+    : Array.isArray(rawCodes?.default)
+      ? rawCodes.default
+      : Object.values(rawCodes || {})
+
+  return new Set(
+    codesArray.map(c => String(c || '').replace(/[^A-Z0-9]/gi, '').toUpperCase())
+  )
+}
+
+const ALLOWED_CODES = getNormalizedCodesSet(validCodes)
 const FALLBACK_MEMORY_MAP = new Map<string, string>()
 
 async function getBoundDeviceId(code: string): Promise<string | null> {
@@ -61,7 +75,8 @@ async function setBoundDeviceId(code: string, deviceId: string): Promise<boolean
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json().catch(() => ({}))
-    const code = String(body.code || '').trim().toUpperCase()
+    // تنظيف الكود المدخل وإزالة أية مسافات أو شرطات
+    const code = String(body.code || '').replace(/[^A-Z0-9]/gi, '').toUpperCase()
     const nonce = String(body.nonce || '')
     const deviceId = String(body.deviceId || '')
 
@@ -72,13 +87,16 @@ export async function POST(req: NextRequest) {
       const boundDeviceId = await getBoundDeviceId(code)
 
       if (!boundDeviceId) {
+        // تفعيل الكود لأول مرة وربطه بجهاز الطالب
         await setBoundDeviceId(code, deviceId)
         ok = true
         message = 'تم التفعيل بنجاح'
       } else if (boundDeviceId === deviceId) {
+        // نفس جهاز الطالب يعيد التفعيل
         ok = true
         message = 'تم التفعيل بنجاح'
       } else {
+        // هاتف آخر يرفض التفعيل فوراً
         ok = false
         message = 'هذا الكود مستخدم بالفعل على جهاز آخر'
       }
