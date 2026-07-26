@@ -2,12 +2,11 @@ import { NextRequest, NextResponse } from 'next/server'
 import crypto from 'crypto'
 
 const PRIVATE_KEY_PEM = process.env.ACTIVATION_PRIVATE_KEY || `-----BEGIN PRIVATE KEY-----
-MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgUUCTeYvPAPkFFU+r
-uxA4sgagWegOMJi+9EpKi7YvKcChRANCAAQo11vRo4qIKR8hM9NhmWEyRbgSWs/C
-UG28gYCDIt+qdOg3c2amqpEwQ4YEKAMoLw36DUZMZdM1gw223oVv5jAb
+MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgLGgo2U1KOpdjrWH8
+LPxaeyr6+FIjlSlePvuNR+Dx3IWhRANCAARodShaj0pwORzzRnky4hoqCXBVcq1t
+zT2FPHjj4BFkmSIz8TLBDOzQyqCyRT5DgsxzSfx8Wfi/McnrOLTnyjee
 -----END PRIVATE KEY-----`
 
-// قائمة الأكواد الـ 100 مدمجة مباشرة لمنع أي خطأ في التحميل من Vercel
 const RAW_CODES_LIST: string[] = [
   "RZVM4GFR", "WCWHKBF5", "5D3Z57NH", "YUTJ3LB3", "WQJKGEFS",
   "3JH7PWJ3", "XYAP8N75", "Y28K9YTM", "F6A27HX6", "A2TCBNCY",
@@ -98,16 +97,13 @@ export async function POST(req: NextRequest) {
       const boundDeviceId = await getBoundDeviceId(code)
 
       if (!boundDeviceId) {
-        // تفعيل الكود لأول مرة وربطه بجهاز الطالب
         await setBoundDeviceId(code, deviceId)
         ok = true
         message = 'تم التفعيل بنجاح'
       } else if (boundDeviceId === deviceId) {
-        // نفس جهاز الطالب يعيد التفعيل
         ok = true
         message = 'تم التفعيل بنجاح'
       } else {
-        // هاتف آخر يرفض التفعيل فوراً
         ok = false
         message = 'هذا الكود مستخدم بالفعل على جهاز آخر'
       }
