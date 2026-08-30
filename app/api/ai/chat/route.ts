@@ -15,7 +15,7 @@ async function callGeminiAPI(prompt: string, context: LessonContext): Promise<st
   const apiKey = process.env.GEMINI_API_KEY
   
   if (!apiKey) {
-    console.log('No GEMINI_API_KEY found')
+    console.error('❌ No GEMINI_API_KEY found in environment')
     return generateFallbackResponse(prompt, context)
   }
 
@@ -30,12 +30,11 @@ ${context.lessonTitle ? `الدرس الحالي: ${context.lessonTitle}` : ''}
 - قدم أمثلة كود عند الحاجة مع شرح لكل جزء
 - شجع الطالب على التعلم والممارسة العملية
 - كن صبوراً وودياً في الإجابة
-- استخدم الرموز التعبيرية للتوضيح إن أمكن
+- استخدم الرموز التعبيرية للتوضيح
 - لا تعطِ الحل مباشرة للمسائل، بل وجّه الطالب نحو الحل`
 
   try {
-    // استخدم أحدث نموذج Gemini متاح
-    const model = 'gemini-2.0-flash'
+    const model = 'gemini-1.5-flash'
     
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
@@ -43,10 +42,13 @@ ${context.lessonTitle ? `الدرس الحالي: ${context.lessonTitle}` : ''}
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          system: {
-            instructions: systemPrompt
+          systemInstruction: {
+            parts: [{
+              text: systemPrompt
+            }]
           },
           contents: [{
+            role: 'user',
             parts: [{
               text: prompt
             }]
@@ -55,35 +57,30 @@ ${context.lessonTitle ? `الدرس الحالي: ${context.lessonTitle}` : ''}
             temperature: 0.7,
             topP: 0.95,
             topK: 40,
-            maxOutputTokens: 2048,
-            responseMimeType: 'text/plain'
-          },
-          safetySettings: [
-            {
-              category: 'HARM_CATEGORY_UNSPECIFIED',
-              threshold: 'BLOCK_NONE'
-            }
-          ]
+            maxOutputTokens: 2048
+          }
         })
       }
     )
 
-    if (response.ok) {
-      const data = await response.json()
-      const text = data.candidates?.[0]?.content?.parts?.[0]?.text
-      if (text) {
-        console.log('✅ Gemini API success')
-        return text
-      }
+    if (!response.ok) {
+      const errorText = await response.text()
+      console.error(`❌ Gemini API Error ${response.status}:`, errorText)
+      return generateFallbackResponse(prompt, context)
+    }
+
+    const data = await response.json()
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text
+    
+    if (text) {
+      console.log('✅ Gemini API success')
+      return text
     }
     
-    console.log(`⚠️ Gemini API returned status ${response.status}`)
-    const errorData = await response.json().catch(() => ({}))
-    console.error('Gemini error details:', errorData)
-    
+    console.warn('⚠️ No text in Gemini response')
     return generateFallbackResponse(prompt, context)
   } catch (error) {
-    console.error('Gemini API error:', error)
+    console.error('❌ Gemini API error:', error)
     return generateFallbackResponse(prompt, context)
   }
 }
