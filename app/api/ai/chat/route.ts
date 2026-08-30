@@ -3,6 +3,8 @@ import connectDB from '@/lib/mongodb'
 import Course from '@/models/Course'
 import Lesson from '@/models/Lesson'
 
+export const dynamic = 'force-dynamic'
+
 interface LessonContext {
   courseTitle?: string
   lessonTitle?: string
