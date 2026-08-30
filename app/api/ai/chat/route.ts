@@ -20,56 +20,67 @@ async function callGeminiAPI(prompt: string, context: LessonContext): Promise<st
   }
 
   const systemPrompt = `أنت مساعد تعليمي ذكي متخصص في البرمجة والتكنولوجيا باللغة العربية.
-${context.courseTitle ? `الدورة: ${context.courseTitle}` : ''}
-${context.lessonTitle ? `الدرس: ${context.lessonTitle}` : ''}
-أجب بالعربية بشكل واضح ومفصل مع أمثلة كود عند الحاجة.`
+مهمتك مساعدة الطالب على الفهم العميق والتعلم الفعال.
+${context.courseTitle ? `الدورة الحالية: ${context.courseTitle}` : ''}
+${context.lessonTitle ? `الدرس الحالي: ${context.lessonTitle}` : ''}
+
+أسلوب الإجابة:
+- اشرح بلغة عربية بسيطة وواضحة
+- استخدم أمثلة عملية وسهلة الفهم
+- قدم أمثلة كود عند الحاجة مع شرح لكل جزء
+- شجع الطالب على التعلم والممارسة العملية
+- كن صبوراً وودياً في الإجابة
+- استخدم الرموز التعبيرية للتوضيح إن أمكن
+- لا تعطِ الحل مباشرة للمسائل، بل وجّه الطالب نحو الحل`
 
   try {
-    // جرب النماذج المختلفة
-    const models = [
-      'gemini-2.0-flash',
-      'gemini-1.5-pro',
-      'gemini-1.5-flash-8b',
-      'text-bison-001'
-    ]
+    // استخدم أحدث نموذج Gemini متاح
+    const model = 'gemini-2.0-flash'
     
-    for (const model of models) {
-      try {
-        console.log(`Trying model: ${model}`)
-        const response = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              contents: [{
-                parts: [{
-                  text: `${systemPrompt}\n\nسؤال الطالب: ${prompt}`
-                }]
-              }],
-              generationConfig: {
-                temperature: 0.7,
-                maxOutputTokens: 2048,
-              }
-            })
-          }
-        )
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          system: {
+            instructions: systemPrompt
+          },
+          contents: [{
+            parts: [{
+              text: prompt
+            }]
+          }],
+          generationConfig: {
+            temperature: 0.7,
+            topP: 0.95,
+            topK: 40,
+            maxOutputTokens: 2048,
+            responseMimeType: 'text/plain'
+          },
+          safetySettings: [
+            {
+              category: 'HARM_CATEGORY_UNSPECIFIED',
+              threshold: 'BLOCK_NONE'
+            }
+          ]
+        })
+      }
+    )
 
-        if (response.ok) {
-          const data = await response.json()
-          const text = data.candidates?.[0]?.content?.parts?.[0]?.text
-          if (text) {
-            console.log(`✅ Gemini API success with model: ${model}`)
-            return text
-          }
-        } else {
-          console.log(`❌ Model ${model} failed: ${response.status}`)
-        }
-      } catch (modelError) {
-        console.log(`❌ Model ${model} error`)
+    if (response.ok) {
+      const data = await response.json()
+      const text = data.candidates?.[0]?.content?.parts?.[0]?.text
+      if (text) {
+        console.log('✅ Gemini API success')
+        return text
       }
     }
-
+    
+    console.log(`⚠️ Gemini API returned status ${response.status}`)
+    const errorData = await response.json().catch(() => ({}))
+    console.error('Gemini error details:', errorData)
+    
     return generateFallbackResponse(prompt, context)
   } catch (error) {
     console.error('Gemini API error:', error)
